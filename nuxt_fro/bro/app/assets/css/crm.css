@@ -1,0 +1,62 @@
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f4f9fd;
+}
+
+.sidebar {
+    width: 17%;
+    max-width: 250px;
+    min-width: 185px;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 16px;
+    overflow-y: auto;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.sidebar-content {
+    flex: 1;
+}
+.sidebar-link {
+    display: block;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #7d8592;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+.sidebar-link:hover {
+    background-color: #ebf3ff;
+}
+.sidebar-link-icon {
+    margin-right: 10px;
+}
+.logout {
+    margin-top: auto;
+}
+
+.main-area {
+    display: flex;
+    flex: 1;
+    height: 90vh;
+}
+
+.main-content {
+    padding: 20px;
+    width: 85%;
+}
+
+.account {
+    background-color: #fff;
+    padding: 0 12px 0 12px;
+    border-radius: 16px;
+    position: fixed;
+    right: 30px;
+    font-weight: bold;
+}

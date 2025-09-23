@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3372b5da-76df-44e8-863a-d696762e0dca" name="変更" comment="add: CRMの基盤作成" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="TypeScript File" />
+        <option value="CSS File" />
+        <option value="Vue Composition API Component" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <excluded-from-favorite>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$/nuxt_fro/bro" source="master" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </excluded-from-favorite>
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;massangoDa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/massangoDa/rokuga_samuneGen.git&quot;,
+    &quot;accountId&quot;: &quot;033b915c-61c6-401b-a46c-4b0b9bbaf274&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="30r4l2P1ebsWtRBlAEtjGrZyUda" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript デバッグ.localhost:3001.executor&quot;: &quot;Debug&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;20.13.1&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;20.13.0&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\masam\\WebstormProjects\\rokuga_samuneGen\\frontednd\\rokuga\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;vue.recent.templates&quot;: [
+      &quot;Vue Composition API Component&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\masam\WebstormProjects\rokuga_samuneGen\nuxt_fro\bro\app\pages\crm" />
+      <recent name="C:\Users\masam\WebstormProjects\rokuga_samuneGen\nuxt_fro\bro\app\pages" />
+      <recent name="C:\Users\masam\WebstormProjects\rokuga_samuneGen\nuxt_fro\bro" />
+      <recent name="C:\Users\masam\WebstormProjects\rokuga_samuneGen\nuxt_frontend\mosra" />
+      <recent name="C:\Users\masam\WebstormProjects\rokuga_samuneGen\nuxt_frontend\mosra\app" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="localhost:3001" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3001/">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript デバッグ.localhost:3001" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-WS-252.23892.411" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="デフォルトタスク">
+      <changelist id="3372b5da-76df-44e8-863a-d696762e0dca" name="変更" comment="" />
+      <created>1754372505039</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1754372505039</updated>
+      <workItem from="1754372506104" duration="390000" />
+      <workItem from="1754544937885" duration="1000" />
+      <workItem from="1754610951729" duration="11059000" />
+      <workItem from="1754782686363" duration="2000" />
+      <workItem from="1754784767403" duration="25780000" />
+      <workItem from="1754816508694" duration="28840000" />
+      <workItem from="1755050796383" duration="2479000" />
+      <workItem from="1755060650972" duration="21107000" />
+      <workItem from="1755150439423" duration="4246000" />
+      <workItem from="1755166652389" duration="11446000" />
+      <workItem from="1755220747860" duration="622000" />
+      <workItem from="1755255113237" duration="15187000" />
+      <workItem from="1755322151515" duration="21147000" />
+      <workItem from="1755385713286" duration="9479000" />
+      <workItem from="1755428417500" duration="2570000" />
+      <workItem from="1755587210853" duration="992000" />
+      <workItem from="1755602783307" duration="1302000" />
+      <workItem from="1756554639345" duration="4322000" />
+      <workItem from="1756592937322" duration="19300000" />
+      <workItem from="1757163640437" duration="2065000" />
+      <workItem from="1757205373864" duration="22439000" />
+      <workItem from="1757332087857" duration="3407000" />
+      <workItem from="1757500507688" duration="6959000" />
+      <workItem from="1757591003233" duration="2223000" />
+      <workItem from="1757667624055" duration="1803000" />
+      <workItem from="1757713469691" duration="5580000" />
+      <workItem from="1757758409356" duration="16546000" />
+      <workItem from="1758364331399" duration="1240000" />
+      <workItem from="1758457237394" duration="465000" />
+      <workItem from="1758599416156" duration="13760000" />
+      <workItem from="1758619717553" duration="26000" />
+      <workItem from="1758619755556" duration="33000" />
+      <workItem from="1758619809998" duration="16000" />
+      <workItem from="1758619834286" duration="55000" />
+    </task>
+    <task id="LOCAL-00001" summary="initial commit">
+      <option name="closed" value="true" />
+      <created>1754702711696</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1754702711696</updated>
+    </task>
+    <task id="LOCAL-00002" summary="不要なファイル削除">
+      <option name="closed" value="true" />
+      <created>1754798325419</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1754798325419</updated>
+    </task>
+    <task id="LOCAL-00003" summary="不要なファイル削除">
+      <option name="closed" value="true" />
+      <created>1754798339030</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1754798339030</updated>
+    </task>
+    <task id="LOCAL-00004" summary="API側整備">
+      <option name="closed" value="true" />
+      <created>1754798354615</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1754798354615</updated>
+    </task>
+    <task id="LOCAL-00005" summary="プロキシ設定">
+      <option name="closed" value="true" />
+      <created>1754798372759</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1754798372759</updated>
+    </task>
+    <task id="LOCAL-00006" summary="アニメタイトル一覧取得">
+      <option name="closed" value="true" />
+      <created>1754798388127</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1754798388127</updated>
+    </task>
+    <task id="LOCAL-00007" summary="TMDBの規約について">
+      <option name="closed" value="true" />
+      <created>1754815259788</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815259788</updated>
+    </task>
+    <task id="LOCAL-00008" summary="キャッシュ自動削除機能">
+      <option name="closed" value="true" />
+      <created>1754815286816</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815286816</updated>
+    </task>
+    <task id="LOCAL-00009" summary="css変更">
+      <option name="closed" value="true" />
+      <created>1754815293489</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815293489</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Aboutルートを削除">
+      <option name="closed" value="true" />
+      <created>1754815312959</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815312959</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Homeにダウンロード履歴を表示">
+      <option name="closed" value="true" />
+      <created>1754815326326</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815326326</updated>
+    </task>
+    <task id="LOCAL-00012" summary="ダウンロード履歴追加">
+      <option name="closed" value="true" />
+      <created>1754815336729</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815336729</updated>
+    </task>
+    <task id="LOCAL-00013" summary="規約を表示">
+      <option name="closed" value="true" />
+      <created>1754815344607</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815344607</updated>
+    </task>
+    <task id="LOCAL-00014" summary="サムネイルダウンロード部分">
+      <option name="closed" value="true" />
+      <created>1754815361025</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1754815361025</updated>
+    </task>
+    <task id="LOCAL-00015" summary="一旦">
+      <option name="closed" value="true" />
+      <created>1754962021255</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1754962021255</updated>
+    </task>
+    <task id="LOCAL-00016" summary="構造整理">
+      <option name="closed" value="true" />
+      <created>1754972749296</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1754972749296</updated>
+    </task>
+    <task id="LOCAL-00017" summary="一旦ね">
+      <option name="closed" value="true" />
+      <created>1755174324557</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1755174324557</updated>
+    </task>
+    <task id="LOCAL-00018" summary="一旦ねyeah">
+      <option name="closed" value="true" />
+      <created>1755312213089</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1755312213089</updated>
+    </task>
+    <task id="LOCAL-00019" summary="一旦ねyeah">
+      <option name="closed" value="true" />
+      <created>1755407576133</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1755407576133</updated>
+    </task>
+    <task id="LOCAL-00020" summary="一旦ねyeah">
+      <option name="closed" value="true" />
+      <created>1757675810727</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1757675810727</updated>
+    </task>
+    <task id="LOCAL-00021" summary="一旦ねyeah">
+      <option name="closed" value="true" />
+      <created>1758607129411</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1758607129411</updated>
+    </task>
+    <task id="LOCAL-00022" summary="add: アイコンの追加">
+      <option name="closed" value="true" />
+      <created>1758618375776</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1758618375776</updated>
+    </task>
+    <task id="LOCAL-00023" summary="add: login画面作成(ログイン機能なし)">
+      <option name="closed" value="true" />
+      <created>1758618402699</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1758618402699</updated>
+    </task>
+    <task id="LOCAL-00024" summary="add: CRMの基盤作成">
+      <option name="closed" value="true" />
+      <created>1758618437524</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1758618437524</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/nuxt_fro/bro" />
+    </ignored-roots>
+    <MESSAGE value="initial commit" />
+    <MESSAGE value="不要なファイル削除" />
+    <MESSAGE value="API側整備" />
+    <MESSAGE value="プロキシ設定" />
+    <MESSAGE value="アニメタイトル一覧取得" />
+    <MESSAGE value="TMDBの規約について" />
+    <MESSAGE value="キャッシュ自動削除機能" />
+    <MESSAGE value="css変更" />
+    <MESSAGE value="Aboutルートを削除" />
+    <MESSAGE value="Homeにダウンロード履歴を表示" />
+    <MESSAGE value="ダウンロード履歴追加" />
+    <MESSAGE value="規約を表示" />
+    <MESSAGE value="サムネイルダウンロード部分" />
+    <MESSAGE value="一旦" />
+    <MESSAGE value="構造整理" />
+    <MESSAGE value="一旦ね" />
+    <MESSAGE value="一旦ねyeah" />
+    <MESSAGE value="add: アイコンの追加" />
+    <MESSAGE value="add: login画面作成(ログイン機能なし)" />
+    <MESSAGE value="add: CRMの基盤作成" />
+    <option name="LAST_COMMIT_MESSAGE" value="add: CRMの基盤作成" />
+  </component>
+</project>
