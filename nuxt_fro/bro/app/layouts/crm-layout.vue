@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import '~/assets/css/crm.css'
+
+const { userInfo, loading, fetchUserInfo, authToken } = useAuth()
+
+// authTokenの変化を監視するしか俺には道はない
+watch(authToken, async (newToken) => {
+  if (newToken && !userInfo.value) {
+    await fetchUserInfo()
+  }
+}, {
+  immediate: true,
+})
 </script>
 
 <template>
@@ -20,7 +31,7 @@ import '~/assets/css/crm.css'
       <!--   メインコンテンツ　  -->
       <main class="main-content">
         <div class="account">
-          <p>massango</p>
+          <p>{{ userInfo?.name }}</p>
         </div>
         <slot />
       </main>
