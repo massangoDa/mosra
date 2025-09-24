@@ -1,7 +1,37 @@
 <script setup lang="ts">
+import {useAuth} from "~/composables/useAuth";
+
 definePageMeta({
   layout: 'login',
 })
+
+// データ
+const email = ref('')
+const password = ref('')
+const isLoading = ref(false)
+
+// フォーム送信処理
+const handleSubmit = async () => {
+  if (!email.value || !password.value) {
+    alert("メールアドレスとパスワードを入力してください")
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    // useAuthの読み込み
+    const { login } = useAuth()
+    await login(email.value, password.value)
+
+    await navigateTo('/crm/dashboard')
+  } catch (error) {
+    alert("ログインに失敗しました")
+  } finally {
+    isLoading.value = false
+  }
+}
+
 </script>
 
 <template>
@@ -11,16 +41,16 @@ definePageMeta({
     </div>
     <div class="inf-right">
       <h2>Sign In to MassCRM</h2>
-      <form action="/crm/dashboard">
+      <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" v-model="email" placeholder="youremail@gmail.com" />
+          <input type="email" id="email" v-model="email" placeholder="youremail@gmail.com" required :disabled="isLoading" />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" placeholder="••••••••" />
+          <input type="password" id="password" v-model="password" placeholder="••••••••" required :disabled="isLoading" />
         </div>
-        <button type="submit" class="sign-in-btn">Sign In</button>
+        <button type="submit" class="sign-in-btn" :disabled="isLoading">{{ isLoading ? "サインイン中..." : "Sign In" }}</button>
       </form>
     </div>
   </div>
