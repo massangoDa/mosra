@@ -4,7 +4,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   plugins: ['~/plugins/oh-vue-icons.js'],
   modules: [
-    '@nuxt/image',
+      '@nuxt/image',
+      '@nuxt/ui'
   ],
   css: [
       '~/assets/css/main.css',
