@@ -32,7 +32,7 @@ app.get("/", async (req, res) => {
     res.send("APIサーバーが起動しました！");
 });
 
-//login機能追加
+// login機能
 app.post("/api/login", async (req, res) => {
     try {
         // メールとパスワードをreq.bodyから
@@ -65,6 +65,11 @@ app.post("/api/login", async (req, res) => {
             error: error.message
         });
     }
+});
+
+// logout機能
+app.post("/api/logout", async (req, res) => {
+    res.json({ message: 'ログアウトしました(tokenあれば入れる)' });
 });
 
 // token認証

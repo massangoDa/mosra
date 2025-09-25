@@ -10,6 +10,7 @@ export const useAuth = () => {
         httpOnly: false,
         secure: false,
         sameSite: 'lax',
+        maxAge: 60 * 60 * 24,
     });
 
     // tokenの保存
@@ -40,6 +41,38 @@ export const useAuth = () => {
         }
     };
 
+    // ログアウト処理
+    const logout = async () => {
+        loading.value = true;
+        try {
+            if (authToken.value) {
+                try {
+                    await useFetch("http://localhost:5000/api/logout", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${authToken.value}`,
+                        }
+                    });
+                } catch (error) {
+                    console.warn("サーバー側ログアウトができなかった", error);
+                }
+            }
+
+            // クライアント側は情報を消す
+            setAuthToken(null);
+            userInfo.value = null;
+
+            await router.push("/crm/login");
+        } catch (error) {
+            console.error("ログアウトに失敗", error);
+            setAuthToken(null);
+            userInfo.value = null;
+            alert((error as any)?.data?.error || "ログアウトに失敗しました");
+        } finally {
+            loading.value = false;
+        }
+    }
+
     // ユーザー情報取得
     const fetchUserInfo = async () => {
         loading.value = true;
@@ -63,7 +96,7 @@ export const useAuth = () => {
             userInfo.value = null;
             if ((error as any)?.status === 401 || (error as any)?.status === 403) {
                 setAuthToken(null);
-                await router.push("/login");
+                await router.push("/crm/login");
             } else {
                 console.error("error", error)
             }
@@ -85,6 +118,7 @@ export const useAuth = () => {
         userInfo,
         loading,
         login,
+        logout,
         fetchUserInfo,
     };
 }

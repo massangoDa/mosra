@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import '~/assets/css/crm.css'
 
-const { userInfo, loading, fetchUserInfo, authToken } = useAuth()
+const { userInfo, loading, fetchUserInfo, authToken, logout } = useAuth()
+
+const handleLogout = async () => {
+  await logout()
+}
 
 // authTokenの変化を監視するしか俺には道はない
 watch(authToken, async (newToken) => {
@@ -24,8 +28,11 @@ watch(authToken, async (newToken) => {
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="bi-calendar-event" class="sidebar-link-icon"/>スケジュール</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-message" class="sidebar-link-icon"/>メッセージ</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-analytics" class="sidebar-link-icon"/>分析</NuxtLink>
-        <div class="logout">
-          <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-logout" class="sidebar-link-icon"/>Logout</NuxtLink>
+        <div class="logout" @click="handleLogout">
+          <div class="sidebar-link">
+            <v-icon name="md-logout" class="sidebar-link-icon"/>
+            {{ loading ? 'ログアウト中...' : 'Logout' }}
+          </div>
         </div>
       </nav>
       <!--   メインコンテンツ　  -->
@@ -45,5 +52,9 @@ watch(authToken, async (newToken) => {
   margin: 0;
   padding:  0;
   font-weight: normal;
+}
+
+.logout {
+  cursor: pointer;
 }
 </style>
