@@ -110,6 +110,37 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
     }
 })
 
+// 顧客情報追加機能
+app.post('/api/customer', authenticateToken, async (req, res) => {
+    try {
+        const { name, type, category, website, phone, description, address, } = req.body;
+        // ユーザーIDで紐づけ
+        const userId = req.user.id;
+
+        const customer = {
+            userId: userId,
+            CompanyName: name,
+            type: type,
+            category: category,
+            website: website,
+            phone: phone,
+            description: description,
+            address: {
+                postalCode: address.postalCode,
+                prefecture: address.prefecture,
+                detail: address.detail,
+            },
+            createdAt: new Date(),
+        };
+
+        const result = await db.collection("customers").insertOne(customer);
+        res.status(201).json({ success: true, customerId: result.insertedId });
+    } catch (error) {
+        console.log("エラーが発生:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
 
 // サーバー起動
 app.listen(PORT, () => {

@@ -3,11 +3,35 @@
 import Combobox from '~/components/Combobox.vue'
 
 const items = ['--なし--', 'Analyst', 'Competitor', 'Customer', 'Integrator', 'Investor', 'Partner', 'Press', 'Prospect', 'Reseller', 'Other']
-const selectedValue = ref('--なし--')
+
+// 送るデータ
+const form = reactive({
+  companyName: '',
+  type: '',
+  category: '--なし--',
+  website: '',
+  phone: '',
+  description: '',
+  address: {
+    postalCode: '',
+    prefecture: '',
+    detail: ''
+  }
+})
 
 defineEmits<{
   closeModal: []
 }>()
+
+async function onSubmit() {
+  const res = await $fetch('http://localhost:5000/api/customer', {
+    method: 'POST',
+    body: form,
+    headers: {
+      Authorization: `Bearer ${useAuth().authToken.value}`
+    }
+  })
+}
 </script>
 
 <template>
@@ -17,7 +41,7 @@ defineEmits<{
         <h2>顧客情報</h2>
       </div>
       <div class="modal-content">
-        <form action="#" class="customer-form">
+        <form @submit.prevent="onSubmit" class="customer-form">
           <!--    なまがわき    -->
           <section class="form-section">
             <h3 class="section-title">顧客情報を追加</h3>
@@ -29,6 +53,8 @@ defineEmits<{
                     type="text"
                     placeholder="取引先名を入力"
                     class="form-input"
+                    v-model="form.companyName"
+                    required
                 >
               </div>
 
@@ -38,6 +64,7 @@ defineEmits<{
                     id="type"
                     type="text"
                     placeholder="種別を入力"
+                    v-model="form.type"
                     class="form-input"
                 >
               </div>
@@ -46,7 +73,7 @@ defineEmits<{
                 <label for="category">カテゴリー</label>
                 <Combobox
                     id="category"
-                    v-model="selectedValue"
+                    v-model="form.category"
                     :items="items"
                 />
 
@@ -56,6 +83,7 @@ defineEmits<{
                       id="website"
                       type="url"
                       placeholder="https://massango.jp"
+                      v-model="form.website"
                       class="form-input"
                   />
                 </div>
@@ -66,6 +94,7 @@ defineEmits<{
                       id="phone"
                       type="tel"
                       placeholder="03-1234-5678"
+                      v-model="form.phone"
                       class="form-input"
                   >
                 </div>
@@ -76,6 +105,7 @@ defineEmits<{
                       id="description"
                       placeholder="会社の説明や備考を入力"
                       rows="3"
+                      v-model="form.description"
                       class="form-textarea"
                   ></textarea>
                 </div>
@@ -93,6 +123,7 @@ defineEmits<{
                     id="postal-code"
                     type="text"
                     placeholder="123-4567"
+                    v-model="form.address.postalCode"
                     class="form-input"
                     maxlength="8"
                 >
@@ -105,6 +136,7 @@ defineEmits<{
                     type="text"
                     placeholder="東京都"
                     class="form-input"
+                    v-model="form.address.prefecture"
                 >
               </div>
 
@@ -115,6 +147,7 @@ defineEmits<{
                     type="text"
                     placeholder="市区町村以降の住所を入力"
                     class="form-input"
+                    v-model="form.address.detail"
                 >
               </div>
             </div>
