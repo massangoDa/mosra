@@ -113,13 +113,13 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
 // 顧客情報追加機能
 app.post('/api/customer', authenticateToken, async (req, res) => {
     try {
-        const { name, type, category, website, phone, description, address, } = req.body;
+        const { companyName, type, category, website, phone, description, address, } = req.body;
         // ユーザーIDで紐づけ
         const userId = req.user.id;
 
         const customer = {
             userId: userId,
-            CompanyName: name,
+            CompanyName: companyName,
             type: type,
             category: category,
             website: website,
@@ -137,6 +137,20 @@ app.post('/api/customer', authenticateToken, async (req, res) => {
         res.status(201).json({ success: true, customerId: result.insertedId });
     } catch (error) {
         console.log("エラーが発生:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 顧客情報受け渡し機能
+app.get('/api/customers', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // ユーザーIDと紐づいているから
+        const customers = await db.collection("customers").find({ userId }).toArray();
+
+        res.json(customers);
+    } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 })

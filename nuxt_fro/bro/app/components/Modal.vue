@@ -1,6 +1,9 @@
 <script setup lang="ts">
 // Comboboxコンポーネントをインポート
-import Combobox from '~/components/Combobox.vue'
+import Toast from 'vue-toastification'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 const items = ['--なし--', 'Analyst', 'Competitor', 'Customer', 'Integrator', 'Investor', 'Partner', 'Press', 'Prospect', 'Reseller', 'Other']
 
@@ -19,18 +22,25 @@ const form = reactive({
   }
 })
 
-defineEmits<{
+const emit = defineEmits<{
   closeModal: []
 }>()
 
 async function onSubmit() {
-  const res = await $fetch('http://localhost:5000/api/customer', {
-    method: 'POST',
-    body: form,
-    headers: {
-      Authorization: `Bearer ${useAuth().authToken.value}`
-    }
-  })
+  try {
+    const res = await $fetch('http://localhost:5000/api/customer', {
+      method: 'POST',
+      body: form,
+      headers: {
+        Authorization: `Bearer ${useAuth().authToken.value}`
+      }
+    })
+
+    toast.success('顧客情報を追加しました！')
+    emit('closeModal')
+  } catch (error) {
+    toast.error('追加に失敗しました')
+  }
 }
 </script>
 
