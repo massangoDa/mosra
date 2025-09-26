@@ -2,10 +2,10 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  plugins: ['~/plugins/oh-vue-icons.js'],
+  plugins: ['~/plugins/oh-vue-icons.js', '~/plugins/toast.client.ts'],
   modules: [
       '@nuxt/image',
-      '@nuxt/ui'
+      '@nuxt/ui',
   ],
   css: [
       '~/assets/css/main.css',
