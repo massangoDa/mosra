@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 definePageMeta({
   layout: 'crm-layout',
 })
@@ -14,15 +13,16 @@ watch(authToken, async (newToken) => {
 }, {
   immediate: true,
 })
-
 </script>
 
 <template>
-<div>
-  <p>Welcome back, {{ userInfo?.name }}!</p>
-  <h1>Dashboard</h1>
+  <div>
+    <div class="container">
+      <p>Welcome back, {{ userInfo?.name }}!</p>
+      <h1>Dashboard</h1>
 
-</div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
