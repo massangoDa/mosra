@@ -10,7 +10,7 @@
     max-width: 250px;
     min-width: 185px;
     padding: 20px;
-    margin: 20px;
+    margin: 20px 0 20px 20px;
     border-radius: 16px;
     overflow-y: auto;
     background-color: #fff;
@@ -44,12 +44,16 @@
 .main-area {
     display: flex;
     flex: 1;
-    height: 90vh;
+    overflow: hidden;
 }
 
 .main-content {
+    width: 83%;
     padding: 20px;
-    width: 85%;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .account {
