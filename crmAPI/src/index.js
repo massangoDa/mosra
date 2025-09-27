@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import * as assert from "node:assert";
-import { MongoClient } from "mongodb";
+import {MongoClient, ObjectId} from "mongodb";
 import jwt from "jsonwebtoken";
 
 const url = "mongodb://162.43.33.158:27017/crm?directConnection=true&serverSelectionTimeoutMS=5000&appName=mongosh+2.3.0";
@@ -147,9 +147,135 @@ app.get('/api/customers', authenticateToken, async (req, res) => {
         const userId = req.user.id;
 
         // ユーザーIDと紐づいているから
-        const customers = await db.collection("customers").find({ userId }).toArray();
+        const customers = await db.collection("customers").find({ userId }).sort({ createdAt: -1 }).toArray();
 
         res.json(customers);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する情報提供機能
+app.get('/api/customer/:customerId', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+        const customer = await db.collection("customers").findOne({
+            userId: userId,
+            _id: new ObjectId(customerId)
+        });
+
+        res.json(customer);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する取引情報追加機能
+app.post('/api/customer/:customerId/transactions', authenticateToken, async (req, res) => {
+    try {
+        // ボディーから受け取るものは後で決める
+        const { product, amount, transactionStatus } = req.body;
+        // カスタマーIDで紐づけする
+        const customerId = req.params.customerId;
+        // ユーザーID紐づけをする
+        const userId = req.user.id;
+
+        const transaction = {
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            product: product,
+            amount: amount,
+            transactionStatus: transactionStatus,
+            createdAt: new Date(),
+        }
+
+        const result = await db.collection("transactions").insertOne(transaction);
+        res.status(201).json({ success: true, customerId: result.insertedId });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する取引情報提供機能
+app.get('/api/customer/:customerId/transactions', authenticateToken, async (req, res) => {
+    try {
+        // ユーザーIDとカスタマーIDで紐づいている。この二つが対応しなかったら絶対に渡さない
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        const transactions = await db.collection("transactions").find({
+            userId: userId,
+            customerId: new ObjectId(customerId)
+        }).sort({ createdAt: -1 }).toArray();
+
+        res.json(transactions);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する取引情報修正機能
+app.post('/api/customer/:customerId/transactions/edit/:transactionId', authenticateToken, async (req, res) => {
+    try {
+        const { product, amount, transactionStatus } = req.body;
+        const customerId = req.params.customerId;
+        const transactionId = req.params.transactionId;
+        const userId = req.user.id;
+
+        // まずはあるかの確認
+        // まず取引IDとユーザーIDと企業IDで検索
+        const existingTransaction = await db.collection("transactions").findOne({
+            _id: new ObjectId(transactionId),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+
+        if (!existingTransaction) {
+            return res.status(404).json({ success: false, error: "取引が見つかりません" });
+        }
+
+        // 更新する内容
+        const updateData = {
+            $set: {
+                product: product,
+                amount: amount,
+                transactionStatus: transactionStatus,
+                updatedAt: new Date(),
+            }
+        };
+
+        const result = await db.collection("transactions").updateOne({
+            _id: new ObjectId(transactionId),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            },
+            updateData
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
+        }
+
+        res.json({ success: true, message: "取引情報が更新されました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する一つの取引情報提供機能
+app.get('/api/customer/:customerId/transactions/:transactionId', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const transactionId = req.params.transactionId;
+        const userId = req.user.id;
+
+        const transaction = await db.collection("transactions").findOne({
+            _id: new ObjectId(transactionId),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+        res.json(transaction);
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
