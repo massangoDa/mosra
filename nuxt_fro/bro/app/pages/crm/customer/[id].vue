@@ -410,4 +410,23 @@ function closeEditModal() {
   cursor: pointer;
   user-select: none;
 }
+
+.edit-button {
+  background: #f7fafc;
+  border: 1px solid #dddddd;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #718096;
+}
+.edit-button:hover {
+  background: #2376cc;
+  border-color: #2376cc;
+  color: white;
+}
 </style>
