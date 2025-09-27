@@ -14,10 +14,11 @@ import {
     MdAnalytics,
     MdInfo,
     MdHandshake,
-    MdLogout
+    MdLogout,
+    LaEditSolid,
 } from 'oh-vue-icons/icons';
 
-addIcons(FaSpotify, FaGithub, FaPencilAlt, HiHome, HiPencilAlt, BiInfoCircle, BiSearch, BiCalendarEvent, BiPcDisplay, MdDashboard, MdMessage, MdAnalytics, MdInfo, MdHandshake, MdLogout);
+addIcons(FaSpotify, FaGithub, FaPencilAlt, HiHome, HiPencilAlt, BiInfoCircle, BiSearch, BiCalendarEvent, BiPcDisplay, MdDashboard, MdMessage, MdAnalytics, MdInfo, MdHandshake, MdLogout, LaEditSolid);
 
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.component('v-icon', OhVueIcon);
