@@ -6,7 +6,7 @@
   <slot />
 </template>
 
-<style scoped>
+<style>
 #__nuxt {
   max-width: 100%;
   margin: 0;
