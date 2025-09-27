@@ -16,12 +16,7 @@ definePageMeta({
 
 async function fetchCustomers() {
   try {
-    const res = await $fetch('http://localhost:5000/api/customers', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${useAuth().authToken.value}`,
-      }
-    });
+    const res = await fetchData().fetch('/api/customers')
 
     customers.value = res.map((customer: any) => ({
       CompanyName: customer.CompanyName,
@@ -71,8 +66,10 @@ const show = ref(false);
               :key="customer._id"
               class="customer-row"
             >
-              <td class="company-name">
-                {{ customer.CompanyName }}
+              <td class="company-name" >
+                <NuxtLink :to="`/crm/customer/${customer._id}`" class="link">
+                  {{ customer.CompanyName }}
+                </NuxtLink>
               </td>
               <td>
                 {{ customer.phone || '' }}
@@ -91,8 +88,6 @@ const show = ref(false);
   display: flex;
   flex-direction: column;
   height: calc(100vh - 120px);
-  background-color: #f8f9fa;
-  padding: 16px;
 }
 
 .header {
@@ -109,7 +104,6 @@ const show = ref(false);
   display: flex;
   gap: 8px;
 }
-
 
 .NewInfoButton {
   background-color: #007bff;
@@ -173,6 +167,15 @@ const show = ref(false);
 }
 .company-name:hover {
   text-decoration: underline;
+}
+
+.link {
+  text-decoration: none;
+  color: #4285f4;
+  transition: background-color 0.3s ease;
+}
+.link:hover {
+  background-color: transparent;
 }
 
 .sortable {
