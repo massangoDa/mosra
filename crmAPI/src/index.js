@@ -338,6 +338,69 @@ app.get('/api/customer/:customerId/invoices/:invoiceId', authenticateToken, asyn
     res.json(transactions);
 })
 
+// 一つの顧客に対する一つの請求書内の一つの取引情報修正機能
+app.post('/api/customer/:customerId/invoices/edit/:transactionId', authenticateToken, async (req, res) => {
+    try {
+        const { product, amount } = req.body;
+        const customerId = req.params.customerId;
+        const transactionId = req.params.transactionId;
+        const userId = req.user.id;
+
+        // まずはあるかの確認
+        // まず取引IDとユーザーIDと企業IDで検索
+        const existingTransaction = await db.collection("transactions").findOne({
+            _id: new ObjectId(transactionId),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+
+        if (!existingTransaction) {
+            return res.status(404).json({ success: false, error: "取引が見つかりません" });
+        }
+
+        // 更新する内容
+        const updateData = {
+            $set: {
+                product: product,
+                amount: amount,
+                updatedAt: new Date(),
+            }
+        };
+
+        const result = await db.collection("transactions").updateOne({
+                _id: new ObjectId(transactionId),
+                userId: userId,
+                customerId: new ObjectId(customerId),
+            },
+            updateData
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
+        }
+
+        res.json({ success: true, message: "取引情報が更新されました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する一つの請求書内の一つの取引情報提供機能
+app.get('/api/customer/:customerId/invoices/:invoiceId/:transactionId', authenticateToken, async (req, res) => {
+    const customerId = req.params.customerId;
+    const userId = req.user.id;
+    const invoiceId = req.params.invoiceId;
+    const _id = req.params.transactionId;
+
+    const transaction = await db.collection("transactions").findOne({
+        _id: new ObjectId(_id),
+        userId: userId,
+        customerId: new ObjectId(customerId),
+        invoiceId: new ObjectId(invoiceId),
+    });
+    res.json(transaction);
+})
+
 // サーバー起動
 app.listen(PORT, () => {
     console.log(`APIサーバーがhttp://localhost:${PORT}で起動しました`);
