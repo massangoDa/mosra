@@ -7,27 +7,23 @@ const toast = useToast()
 
 const items = ['完了', '取引中', '停滞中']
 
-const props = defineProps<{
-  invoiceId: string;
-}>();
-
 // 送るデータ
 const form = reactive({
-  product: '',
-  amount: '',
-  transactionStatus: '完了',
-  invoiceId: props.invoiceId,
+  invoiceNumber: '',
+  totalAmount: '',
+  invoiceRequest: '',
+  invoiceStatus: '完了',
 })
 
 const emit = defineEmits<{
   closeModal: []
 }>()
 
-const { customerId } = useRoute().params;
+const { id } = useRoute().params;
 
 async function onSubmit() {
   try {
-    const res = await $fetch(`http://localhost:5000/api/customer/${customerId}/transactions`, {
+    const res = await $fetch(`http://localhost:5000/api/customer/${id}/invoices`, {
       method: 'POST',
       body: form,
       headers: {
@@ -35,7 +31,7 @@ async function onSubmit() {
       }
     })
 
-    toast.success('取引を追加しました！')
+    toast.success('請求書を追加しました！')
     emit('closeModal')
   } catch (error) {
     toast.error('追加に失敗しました')
@@ -47,34 +43,45 @@ async function onSubmit() {
   <div class="modal">
     <div class="modal-wrap">
       <div class="modal-header">
-        <h2>取引情報</h2>
+        <h2>請求書追加</h2>
       </div>
       <div class="modal-content">
         <form @submit.prevent="onSubmit" class="customer-form">
           <!--    なまがわき    -->
           <section class="form-section">
-            <h3 class="section-title">取引情報を追加</h3>
+            <h3 class="section-title">請求情報を追加</h3>
             <div class="form-grid">
               <div class="form-field required">
-                <label for="product">製品名</label>
+                <label for="invoiceNumber">請求書番号</label>
                 <input
-                    id="product"
+                    id="invoiceNumber"
                     type="text"
-                    placeholder="製品名を入力"
+                    placeholder="INV-2025-001"
                     class="form-input"
-                    v-model="form.product"
+                    v-model="form.invoiceNumber"
                     required
                 >
               </div>
 
               <div class="form-field">
-                <label for="amount">金額</label>
+                <label for="totalAmount">合計請求金額</label>
                 <input
-                    id="type"
+                    id="totalAmount"
                     type="number"
                     placeholder="金額を入力(数字のみ)"
 
-                    v-model="form.amount"
+                    v-model="form.totalAmount"
+                    class="form-input"
+                >
+              </div>
+
+              <div class="form-field">
+                <label for="invoiceRequest">発行日</label>
+                <input
+                    id="invoiceRequest"
+                    type="text"
+                    placeholder="2025/09/20"
+                    v-model="form.invoiceRequest"
                     class="form-input"
                 >
               </div>

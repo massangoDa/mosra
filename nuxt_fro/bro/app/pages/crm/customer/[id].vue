@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import Modal2 from "~/components/Modal2.vue";
+import SeikyuuModal from "~/components/SeikyuuModal.vue";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -8,28 +9,24 @@ definePageMeta({
 
 interface Customer {
   _id: string,
-  CompanyName: string,
+  companyName: string,
   type?: string,
   category?: string,
   website?: string,
   phone?: string,
   description?: string,
-  address?: {
-    postalCode?: string,
-    prefecture?: string
-    detail?: string
-  }
 }
 
-interface Transaction {
-  product: string,
-  amount: number,
-  transactionStatus: string,
+interface Invoice {
+  invoiceNumber: string,
+  totalAmount: number,
+  invoiceRequest: string,
+  invoiceStatus: string,
   _id: string,
 }
 
 const customer = ref<Customer | null>(null)
-const transaction = ref<Transaction[]>([])
+const invoice = ref<Invoice[]>([])
 const activePage = ref<'page1' | 'page2' | 'page3'>('page1')
 
 const { id } = useRoute().params;
@@ -41,17 +38,12 @@ async function fetchCustomer() {
 
     customer.value = {
       _id: res._id,
-      CompanyName: res.CompanyName,
+      companyName: res.companyName,
       type: res.type,
       category: res.category,
       website: res.website,
       phone: res.phone,
       description: res.description,
-      address: {
-        postalCode: res.address.postalCode,
-        prefecture: res.address.prefecture,
-        detail: res.address.detail,
-      }
     }
   } catch (error) {
     console.log(error)
@@ -61,13 +53,14 @@ async function fetchCustomer() {
 // 顧客取引情報を取得
 async function fetchTransactions() {
   try {
-    const res = await fetchData().fetch(`/api/customer/${id}/transactions`);
+    const res = await fetchData().fetch(`/api/customer/${id}/invoices`);
 
-    transaction.value = res.map((transaction: any) => ({
-      product: transaction.product,
-      amount: transaction.amount,
-      transactionStatus: transaction.transactionStatus,
-      _id: transaction._id,
+    invoice.value = res.map((invoice: any) => ({
+      invoiceNumber: invoice.invoiceNumber,
+      totalAmount: invoice.totalAmount,
+      invoiceRequest: invoice.invoiceRequest,
+      invoiceStatus: invoice.invoiceStatus,
+      _id: invoice._id,
     }))
   } catch (error) {
     console.log(error)
@@ -97,6 +90,40 @@ function closeEditModal() {
   selectedTransactionId.value = null;
   fetchTransactions()
 }
+
+// テストで一旦
+const showInvoiceModal = ref(false);
+const submitUrl = computed(() =>
+    `/customer/${id}/invoices`
+)
+
+const invoiceFields = [
+  {
+    name: 'invoiceNumber',
+    label: '請求書番号',
+    type: 'text',
+    placeholder: 'INV-2025-001',
+    required: true,
+  },
+  {
+    name: 'totalAmount',
+    label: '合計請求金額',
+    type: 'number',
+    placeholder: '金額を入力',
+  },
+  {
+    name: 'invoiceRequest',
+    label: '発行日',
+    type: 'text',
+    placeholder: '2025/09/20',
+  },
+  {
+    name: 'invoiceStatus',
+    label: 'ステータス',
+    type: 'select',
+    options: ['完了', '取引中', '停滞中']
+  },
+]
 </script>
 
 <template>
@@ -104,10 +131,10 @@ function closeEditModal() {
     <div class="container">
       <div class="header">
         <div class="header-left">
-          <h1>{{ customer?.CompanyName || 'Loading...' }}</h1>
+          <h1>{{ customer?.companyName || 'Loading...' }}</h1>
         </div>
         <div class="header-right">
-          <button @click="show = true" class="NewInfoButton">+ 取引追加</button>
+          <button @click="showInvoiceModal = true" class="NewInfoButton">+ 請求書追加</button>
         </div>
       </div>
       <div class="detailContainer">
@@ -145,10 +172,13 @@ function closeEditModal() {
                     <thead>
                     <tr>
                       <th class="sortable">
-                        製品名
+                        請求書番号
                       </th>
                       <th class="sortable">
-                        金額
+                        合計金額
+                      </th>
+                      <th class="sortable">
+                        日付
                       </th>
                       <th class="sortable">
                         ステータス
@@ -160,22 +190,27 @@ function closeEditModal() {
                     </thead>
                     <tbody>
                       <tr
-                        v-for="transact in transaction"
-                        :key="transact._id"
+                        v-for="aInvoice in invoice"
+                        :key="aInvoice._id"
                         class="transaction-row"
                       >
                         <td class="product">
-                          {{ transact.product }}
+                          <NuxtLink :to="`/crm/customer/${id}/invoice/${aInvoice._id}`" class="invoiceLink">
+                            {{ aInvoice.invoiceNumber }}
+                          </NuxtLink>
                         </td>
                         <td class="amount">
-                          {{ useFormat().formatCurrency(transact.amount) }}
+                          {{ useFormat().formatCurrency(aInvoice.totalAmount) }}
                         </td>
                         <td>
-                          {{ transact.transactionStatus }}
+                          {{ aInvoice.invoiceRequest }}
+                        </td>
+                        <td>
+                          {{ aInvoice.invoiceStatus }}
                         </td>
                         <td>
                           <button
-                            @click="openEditModal(transact._id)"
+                            @click="openEditModal(aInvoice._id)"
                             class="edit-button"
                           >
                             <v-icon name="la-edit-solid" />
@@ -193,7 +228,7 @@ function closeEditModal() {
                 <div class="content">
                   <div class="field-row">
                     <p class="field-label">取引先名</p>
-                    <p class="field-value">{{ customer?.CompanyName }}</p>
+                    <p class="field-value">{{ customer?.companyName }}</p>
                   </div>
                   <div class="field-row">
                     <p class="field-label">種別</p>
@@ -218,18 +253,18 @@ function closeEditModal() {
                 </div>
                 <h3>住所情報</h3>
                 <div class="content">
-                  <div class="field-row">
-                    <p class="field-label">郵便番号</p>
-                    <p class="field-value">{{ customer?.address.postalCode }}</p>
-                  </div>
-                  <div class="field-row">
-                    <p class="field-label">都道府県</p>
-                    <p class="field-value">{{ customer?.address.prefecture }}</p>
-                  </div>
-                  <div class="field-row">
-                    <p class="field-label">住所</p>
-                    <p class="field-value">{{ customer?.address.detail }}</p>
-                  </div>
+<!--                  <div class="field-row">-->
+<!--                    <p class="field-label">郵便番号</p>-->
+<!--                    <p class="field-value">{{ customer?.address.postalCode }}</p>-->
+<!--                  </div>-->
+<!--                  <div class="field-row">-->
+<!--                    <p class="field-label">都道府県</p>-->
+<!--                    <p class="field-value">{{ customer?.address.prefecture }}</p>-->
+<!--                  </div>-->
+<!--                  <div class="field-row">-->
+<!--                    <p class="field-label">住所</p>-->
+<!--                    <p class="field-value">{{ customer?.address.detail }}</p>-->
+<!--                  </div>-->
                 </div>
               </div>
             </div>
@@ -244,7 +279,15 @@ function closeEditModal() {
           </div>
         </div>
       </div>
-      <Modal2 @closeModal="show = false" v-if="show" />
+      <TemplateModal
+        v-if="showInvoiceModal"
+        title="請求書追加"
+        section-title="請求情報を追加"
+        :submit-url="submitUrl"
+        :fields="invoiceFields"
+        success-message="請求書を保存しました"
+        @close-modal="showInvoiceModal = false"
+      />
       <editModal v-if="editModalShow" :transactionId="selectedTransactionId" @closeModal="closeEditModal" />
     </div>
   </div>
@@ -298,6 +341,11 @@ function closeEditModal() {
 }
 .link.active {
   border-bottom: 2px solid #2376cc;
+}
+
+.invoiceLink {
+  color: orange;
+  text-decoration: underline;
 }
 
 .detailContainer {
