@@ -113,23 +113,20 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
 // 顧客情報追加機能
 app.post('/api/customer', authenticateToken, async (req, res) => {
     try {
-        const { companyName, type, category, website, phone, description, address, } = req.body;
+        const { companyName, type, category, website, phone, description } = req.body;
         // ユーザーIDで紐づけ
         const userId = req.user.id;
 
+        console.log(res)
+
         const customer = {
             userId: userId,
-            CompanyName: companyName,
+            companyName: companyName,
             type: type,
             category: category,
             website: website,
             phone: phone,
             description: description,
-            address: {
-                postalCode: address.postalCode,
-                prefecture: address.prefecture,
-                detail: address.detail,
-            },
             createdAt: new Date(),
         };
 
@@ -175,7 +172,7 @@ app.get('/api/customer/:customerId', authenticateToken, async (req, res) => {
 app.post('/api/customer/:customerId/transactions', authenticateToken, async (req, res) => {
     try {
         // ボディーから受け取るものは後で決める
-        const { product, amount, transactionStatus } = req.body;
+        const { product, amount, transactionStatus, invoiceId } = req.body;
         // カスタマーIDで紐づけする
         const customerId = req.params.customerId;
         // ユーザーID紐づけをする
@@ -184,6 +181,7 @@ app.post('/api/customer/:customerId/transactions', authenticateToken, async (req
         const transaction = {
             userId: userId,
             customerId: new ObjectId(customerId),
+            invoiceId: new ObjectId(invoiceId),
             product: product,
             amount: amount,
             transactionStatus: transactionStatus,
@@ -281,6 +279,64 @@ app.get('/api/customer/:customerId/transactions/:transactionId', authenticateTok
     }
 })
 
+// 一つの顧客に対する請求書追加機能
+app.post('/api/customer/:customerId/invoices/', authenticateToken, async (req, res) => {
+    try {
+        const { invoiceNumber, totalAmount, invoiceRequest, invoiceStatus } = req.body;
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        const invoices = {
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            invoiceNumber: invoiceNumber,
+            totalAmount: totalAmount,
+            invoiceRequest: invoiceRequest,
+            invoiceStatus: invoiceStatus,
+            createdAt: new Date(),
+        }
+
+        const result = await db.collection("invoices").insertOne(invoices);
+        res.status(201).json({ success: true, result });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する請求書提供機能
+app.get('/api/customer/:customerId/invoices/', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        const invoices = await db.collection("invoices").find({
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        }).sort({ createdAt: -1 }).toArray();
+
+        res.json(invoices);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// 一つの顧客に対する一つの請求書内の取引情報提供機能
+app.get('/api/customer/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
+    const customerId = req.params.customerId;
+    const userId = req.user.id;
+    const invoiceId = req.params.invoiceId;
+
+    console.log(customerId, userId, invoiceId);
+
+    const transactions = await db.collection("transactions").find({
+        userId: userId,
+        customerId: new ObjectId(customerId),
+        invoiceId: new ObjectId(invoiceId),
+    }).sort({ createdAt: -1 }).toArray();
+
+    console.log("テスト:"+transactions);
+    res.json(transactions);
+})
 
 // サーバー起動
 app.listen(PORT, () => {
