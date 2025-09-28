@@ -3,7 +3,7 @@ import Modal from "~/components/Modal.vue";
 import {ref} from "vue";
 
 interface Customer {
-  CompanyName: string,
+  companyName: string,
   _id: string,
   phone?: string,
 }
@@ -19,7 +19,7 @@ async function fetchCustomers() {
     const res = await fetchData().fetch('/api/customers')
 
     customers.value = res.map((customer: any) => ({
-      CompanyName: customer.CompanyName,
+      companyName: customer.companyName,
       _id: customer._id,
       phone: customer.phone,
     }))
@@ -33,7 +33,63 @@ onMounted(() => {
   fetchCustomers();
 })
 
-const show = ref(false);
+const showCustomerInfoModal = ref(false);
+const submitUrl = computed(() =>
+    `/customer`
+)
+const customerInfoFields = [
+  {
+    name: 'companyName',
+    label: '取引先名',
+    type: 'text',
+    placeholder: '取引先名を入力',
+    required: true,
+  },
+  {
+    name: 'type',
+    label: '種別',
+    type: 'text',
+    placeholder: '種別を入力',
+  },
+  {
+    name: 'category',
+    label: 'カテゴリー',
+    type: 'select',
+    options: [
+      "指定なし",
+      "アナリスト",
+      "競合他社",
+      "顧客",
+      "システムインテグレーター",
+      "投資家",
+      "パートナー企業",
+      "報道関係者",
+      "見込み客",
+      "販売代理店",
+      "その他"
+    ]
+  },
+  {
+    name: 'website',
+    label: 'Webサイト',
+    type: 'text',
+    placeholder: 'https://massango.jp',
+  },
+  {
+    name: 'phone',
+    label: '電話番号',
+    type: 'phone',
+    placeholder: '03-1234-5678'
+  },
+  {
+    name: 'description',
+    label: '説明',
+    type: 'textarea',
+    placeholder: '会社の説明や備考を入力',
+    rows: '3',
+    fullWidth: true
+  },
+]
 </script>
 
 <template>
@@ -44,7 +100,7 @@ const show = ref(false);
           <h1>顧客情報</h1>
         </div>
         <div class="header-right">
-          <button @click="show = true" class="NewInfoButton">+ 顧客情報追加</button>
+          <button @click="showCustomerInfoModal = true" class="NewInfoButton">+ 顧客情報追加</button>
         </div>
       </div>
       <!--   tableスタイルで行こうぜ   -->
@@ -68,7 +124,7 @@ const show = ref(false);
             >
               <td class="company-name" >
                 <NuxtLink :to="`/crm/customer/${customer._id}`" class="link">
-                  {{ customer.CompanyName }}
+                  {{ customer.companyName }}
                 </NuxtLink>
               </td>
               <td>
@@ -78,7 +134,15 @@ const show = ref(false);
           </tbody>
         </table>
       </div>
-      <Modal @closeModal="show = false" v-if="show" />
+      <TemplateModal
+          v-if="showCustomerInfoModal"
+          title="顧客情報"
+          section-title="顧客情報を追加"
+          :submit-url="submitUrl"
+          :fields="customerInfoFields"
+          success-message="請求書を保存しました"
+          @close-modal="showCustomerInfoModal = false"
+      />
     </div>
   </div>
 </template>
