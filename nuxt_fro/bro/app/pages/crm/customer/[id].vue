@@ -76,25 +76,25 @@ onMounted(() => {
   fetchTransactions();
 })
 
-const show = ref(false);
-const editModalShow = ref(false);
-const selectedTransactionId = ref<string | null>(null);
-
-function openEditModal(transactionId: string) {
-  selectedTransactionId.value = transactionId;
-  editModalShow.value = true;
-}
-
-function closeEditModal() {
-  editModalShow.value = false;
-  selectedTransactionId.value = null;
-  fetchTransactions()
-}
-
 // テストで一旦
 const showInvoiceModal = ref(false);
+const showEditInvoiceModal = ref(false);
+
 const submitUrl = computed(() =>
     `/customer/${id}/invoices`
+)
+
+const selectedInvoiceId = ref<string | null>(null)
+
+function openEditModal(invoiceId: string) {
+  selectedInvoiceId.value = invoiceId;
+  showEditInvoiceModal.value = true;
+}
+
+const submitUrl2 = computed(() =>
+    selectedInvoiceId.value
+        ? `/customer/${id}/invoices/edit/${selectedInvoiceId.value}`
+        : ""
 )
 
 const invoiceFields = [
@@ -209,10 +209,7 @@ const invoiceFields = [
                           {{ aInvoice.invoiceStatus }}
                         </td>
                         <td>
-                          <button
-                            @click="openEditModal(aInvoice._id)"
-                            class="edit-button"
-                          >
+                          <button @click="openEditModal(aInvoice._id)" class="edit-button">
                             <v-icon name="la-edit-solid" />
                           </button>
                         </td>
@@ -288,7 +285,19 @@ const invoiceFields = [
         success-message="請求書を保存しました"
         @close-modal="showInvoiceModal = false"
       />
-      <editModal v-if="editModalShow" :transactionId="selectedTransactionId" @closeModal="closeEditModal" />
+
+      <TemplateModal
+          v-if="showEditInvoiceModal"
+          title="請求書修正"
+          section-title="請求書を修正"
+          :submit-url="submitUrl2"
+          :fields="invoiceFields"
+          success-message="請求書を保存しました"
+          @close-modal="showEditInvoiceModal = false"
+          :invoiceId="selectedInvoiceId"
+          :customerId="id"
+          :editInvoice="true"
+      />
     </div>
   </div>
 </template>
