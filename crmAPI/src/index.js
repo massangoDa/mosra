@@ -338,6 +338,70 @@ app.get('/api/customer/:customerId/invoices/:invoiceId', authenticateToken, asyn
     res.json(transactions);
 })
 
+// 一つの顧客に対する一つの請求書情報提供機能
+app.get('/api/customer/:customerId/invoices/:invoiceId/info', authenticateToken, async (req, res) => {
+    const customerId = req.params.customerId;
+    const userId = req.user.id;
+    const invoiceId = req.params.invoiceId;
+
+    const invoices = await db.collection("invoices").findOne({
+        userId: userId,
+        customerId: new ObjectId(customerId),
+        _id: new ObjectId(invoiceId),
+    });
+
+    res.json(invoices);
+})
+
+// 一つの顧客に対する請求書修正機能
+app.post('/api/customer/:customerId/invoices/edit/:invoiceId', authenticateToken, async (req, res) => {
+    try {
+        const { invoiceNumber, totalAmount, invoiceRequest, invoiceStatus } = req.body;
+        const customerId = req.params.customerId;
+        const invoiceId = req.params.invoiceId;
+        const userId = req.user.id;
+
+        // まずはあるかの確認
+        // まず請求書IDとユーザーIDと企業IDで検索
+        const existingTransaction = await db.collection("invoices").findOne({
+            _id: new ObjectId(invoiceId),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+
+        if (!existingTransaction) {
+            return res.status(404).json({ success: false, error: "取引が見つかりません" });
+        }
+
+        // 更新する内容
+        const updateData = {
+            $set: {
+                invoiceNumber: invoiceNumber,
+                totalAmount: totalAmount,
+                invoiceRequest: invoiceRequest,
+                invoiceStatus: invoiceStatus,
+                updatedAt: new Date(),
+            }
+        };
+
+        const result = await db.collection("invoices").updateOne({
+                _id: new ObjectId(invoiceId),
+                userId: userId,
+                customerId: new ObjectId(customerId),
+            },
+            updateData
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
+        }
+
+        res.json({ success: true, message: "取引情報が更新されました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
 // 一つの顧客に対する一つの請求書内の一つの取引情報修正機能
 app.post('/api/customer/:customerId/invoices/edit/:transactionId', authenticateToken, async (req, res) => {
     try {
