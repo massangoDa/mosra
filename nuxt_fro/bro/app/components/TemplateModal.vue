@@ -45,6 +45,9 @@ const props = defineProps({
     default: '保存に失敗しました'
   },
   // IDの受け渡し
+  customerId: {
+    type: String,
+  },
   invoiceId: {
     type: String,
   },
@@ -52,6 +55,9 @@ const props = defineProps({
     type: String,
   },
   editTransaction: {
+    type: Boolean,
+  },
+  editInvoice: {
     type: Boolean,
   }
 });
@@ -117,6 +123,22 @@ async function fetchBaseFormData() {
   }
 }
 
+// 請求書のフォーム初期値を設定
+async function fetchInvoiceBaseFormData() {
+  try {
+    const res = await fetchData().fetch(`/api/customer/${props.customerId}/invoices/${props.invoiceId}/info`)
+
+    // フォームの初期値として設定
+    form.invoiceNumber = res.invoiceNumber || ''
+    form.totalAmount = res.totalAmount || ''
+    form.invoiceRequest = res.invoiceRequest || ''
+    form.invoiceStatus = res.invoiceStatus || ''
+  } catch (error) {
+    toast.error('エラー');
+    console.error(error)
+  }
+}
+
 // 送信処理
 async function onSubmit() {
   console.log(form)
@@ -144,6 +166,9 @@ onMounted(() => {
   }
   if (props.editTransaction) {
     fetchBaseFormData()
+  }
+  if (props.editInvoice) {
+    fetchInvoiceBaseFormData()
   }
 })
 </script>
