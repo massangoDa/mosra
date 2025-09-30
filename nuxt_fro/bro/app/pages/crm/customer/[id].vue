@@ -2,49 +2,24 @@
 import {ref} from "vue";
 import Modal2 from "~/components/Modal2.vue";
 import SeikyuuModal from "~/components/SeikyuuModal.vue";
+import {useIdStore} from "~/store/idStore";
+import {type Customer, fetchCustomer} from "~/api/customer";
+import {fetchInvoices, type Invoice} from "~/api/invoices";
 
 definePageMeta({
   layout: 'crm-layout',
 })
 
-interface Customer {
-  _id: string,
-  companyName: string,
-  type?: string,
-  category?: string,
-  website?: string,
-  phone?: string,
-  description?: string,
-}
-
-interface Invoice {
-  invoiceNumber: string,
-  totalAmount: number,
-  invoiceRequest: string,
-  invoiceStatus: string,
-  _id: string,
-}
-
 const customer = ref<Customer | null>(null)
-const invoice = ref<Invoice[]>([])
+const invoices = ref<Invoice[]>([])
 const activePage = ref<'page1' | 'page2' | 'page3'>('page1')
 
-const { id } = useRoute().params;
+const { id: customerId } = useRoute().params;
 
 // 顧客の詳細を取得
-async function fetchCustomer() {
+async function loadCustomer() {
   try {
-    const res = await fetchData().fetch(`/api/customer/${id}`);
-
-    customer.value = {
-      _id: res._id,
-      companyName: res.companyName,
-      type: res.type,
-      category: res.category,
-      website: res.website,
-      phone: res.phone,
-      description: res.description,
-    }
+    customer.value = await fetchCustomer(customerId)
   } catch (error) {
     console.log(error)
   }
@@ -53,15 +28,7 @@ async function fetchCustomer() {
 // 顧客取引情報を取得
 async function fetchTransactions() {
   try {
-    const res = await fetchData().fetch(`/api/customer/${id}/invoices`);
-
-    invoice.value = res.map((invoice: any) => ({
-      invoiceNumber: invoice.invoiceNumber,
-      totalAmount: invoice.totalAmount,
-      invoiceRequest: invoice.invoiceRequest,
-      invoiceStatus: invoice.invoiceStatus,
-      _id: invoice._id,
-    }))
+    invoices.value = await fetchInvoices(customerId)
   } catch (error) {
     console.log(error)
   }
@@ -72,7 +39,7 @@ function switchPage(page: 'page1' | 'page2' | 'page3') {
 }
 
 onMounted(() => {
-  fetchCustomer();
+  loadCustomer();
   fetchTransactions();
 })
 
@@ -81,7 +48,7 @@ const showInvoiceModal = ref(false);
 const showEditInvoiceModal = ref(false);
 
 const submitUrl = computed(() =>
-    `/customer/${id}/invoices`
+    `/customer/${customerId}/invoices`
 )
 
 const selectedInvoiceId = ref<string | null>(null)
@@ -93,7 +60,7 @@ function openEditModal(invoiceId: string) {
 
 const submitUrl2 = computed(() =>
     selectedInvoiceId.value
-        ? `/customer/${id}/invoices/edit/${selectedInvoiceId.value}`
+        ? `/customer/${customerId}/invoices/edit/${selectedInvoiceId.value}`
         : ""
 )
 
@@ -190,26 +157,26 @@ const invoiceFields = [
                     </thead>
                     <tbody>
                       <tr
-                        v-for="aInvoice in invoice"
-                        :key="aInvoice._id"
+                        v-for="invoice in invoices"
+                        :key="invoice._id"
                         class="transaction-row"
                       >
                         <td class="product">
-                          <NuxtLink :to="`/crm/customer/${id}/invoice/${aInvoice._id}`" class="invoiceLink">
-                            {{ aInvoice.invoiceNumber }}
+                          <NuxtLink :to="`/crm/customer/${customerId}/invoice/${invoice._id}`" class="invoiceLink">
+                            {{ invoice.invoiceNumber }}
                           </NuxtLink>
                         </td>
                         <td class="amount">
-                          {{ useFormat().formatCurrency(aInvoice.totalAmount) }}
+                          {{ useFormat().formatCurrency(invoice.totalAmount) }}
                         </td>
                         <td>
-                          {{ aInvoice.invoiceRequest }}
+                          {{ invoice.invoiceRequest }}
                         </td>
                         <td>
-                          {{ aInvoice.invoiceStatus }}
+                          {{ invoice.invoiceStatus }}
                         </td>
                         <td>
-                          <button @click="openEditModal(aInvoice._id)" class="edit-button">
+                          <button @click="openEditModal(invoice._id)" class="edit-button">
                             <v-icon name="la-edit-solid" />
                           </button>
                         </td>

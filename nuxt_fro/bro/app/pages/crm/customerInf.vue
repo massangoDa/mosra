@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import Modal from "~/components/Modal.vue";
 import {ref} from "vue";
-
-interface Customer {
-  companyName: string,
-  _id: string,
-  phone?: string,
-}
+import {useIdStore} from "~/store/idStore";
+import {fetchCustomers} from "~/api/customers";
+import type {Customer} from "~/types/types";
 
 const customers = ref<Customer[]>([])
 
@@ -14,23 +11,17 @@ definePageMeta({
   layout: 'crm-layout',
 })
 
-async function fetchCustomers() {
+async function loadCustomers() {
   try {
-    const res = await fetchData().fetch('/api/customers')
-
-    customers.value = res.map((customer: any) => ({
-      companyName: customer.companyName,
-      _id: customer._id,
-      phone: customer.phone,
-    }))
-
+    // ココでのfetchCustomersは、api/customersの関数
+    customers.value = await fetchCustomers();
   } catch (error) {
     console.error('Error fetching customers:', error);
   }
 }
 
 onMounted(() => {
-  fetchCustomers();
+  loadCustomers();
 })
 
 const showCustomerInfoModal = ref(false);
@@ -140,7 +131,7 @@ const customerInfoFields = [
           section-title="顧客情報を追加"
           :submit-url="submitUrl"
           :fields="customerInfoFields"
-          success-message="請求書を保存しました"
+          success-message="顧客情報を保存しました"
           @close-modal="showCustomerInfoModal = false"
       />
     </div>
