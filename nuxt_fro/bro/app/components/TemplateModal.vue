@@ -23,7 +23,11 @@ const props = defineProps({
   },
   submitUrl: {
     type: String,
-    required: true
+    required: false
+  },
+  updateUrl: {
+    type: String,
+    required: false
   },
   // フォームフィールド設定
   fields: {
@@ -98,7 +102,7 @@ function initializeForm() {
 // データ取得
 async function fetchFormData() {
   try {
-    const res = await fetch(`http://localhost:5000/api${props.fetchUrl}`)
+    const res = await fetchData().fetch(`http://localhost:5000/api${props.fetchUrl}`)
     // フォームに値を設定
     props.fields.forEach(field => {
       form[field.name] = res[field.name] || ''
@@ -112,11 +116,12 @@ async function fetchFormData() {
 // 取引のフォーム初期値を設定する
 async function fetchBaseFormData() {
   try {
-    const res = await fetchData().fetch(`/api/customer/${customerId}/invoices/${invoiceId}/${props.transactionId}`)
+    const res = await fetchData().fetch(`/api/customers/${customerId}/invoices/${invoiceId}/transactions/${props.transactionId}`)
 
     // フォームの初期値として設定
     form.product = res.product || ''
     form.amount = res.amount || ''
+    form.cost = res.cost || ''
   } catch (error) {
     toast.error('エラー');
     console.error(error)
@@ -126,7 +131,7 @@ async function fetchBaseFormData() {
 // 請求書のフォーム初期値を設定
 async function fetchInvoiceBaseFormData() {
   try {
-    const res = await fetchData().fetch(`/api/customer/${props.customerId}/invoices/${props.invoiceId}/info`)
+    const res = await fetchData().fetch(`/api/customers/${props.customerId}/invoices/${props.invoiceId}`)
 
     // フォームの初期値として設定
     form.invoiceNumber = res.invoiceNumber || ''
@@ -141,17 +146,27 @@ async function fetchInvoiceBaseFormData() {
 
 // 送信処理
 async function onSubmit() {
-  console.log(form)
-  console.log(props.submitUrl)
+  console.log('Form data:', form)
   try {
-    const res = await $fetch(`http://localhost:5000/api${props.submitUrl}`, {
-      method: 'POST',
-      body: form,
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      },
-    })
-    toast.success(props.successMessage)
+    if (props.updateUrl != undefined) {
+      const res = await $fetch(`http://localhost:5000${props.updateUrl}`, {
+        method: 'PUT',
+        body: form,
+        headers: {
+          Authorization: `Bearer ${useAuth().authToken.value}`
+        },
+      })
+      toast.success(props.successMessage)
+    } else if (props.submitUrl != undefined) {
+      const res = await $fetch(`http://localhost:5000${props.submitUrl}`, {
+        method: 'POST',
+        body: form,
+        headers: {
+          Authorization: `Bearer ${useAuth().authToken.value}`
+        },
+      })
+      toast.success(props.successMessage)
+    }
     emit("closeModal")
   } catch (error) {
     console.error(error)
