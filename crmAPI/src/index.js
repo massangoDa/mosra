@@ -110,8 +110,11 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
     }
 })
 
+/*
+ 顧客関連
+———————————————*/
 // 顧客情報追加機能
-app.post('/api/customer', authenticateToken, async (req, res) => {
+app.post('/api/customers', authenticateToken, async (req, res) => {
     try {
         const { companyName, type, category, website, phone, description } = req.body;
         // ユーザーIDで紐づけ
@@ -137,7 +140,6 @@ app.post('/api/customer', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
-
 // 顧客情報受け渡し機能
 app.get('/api/customers', authenticateToken, async (req, res) => {
     try {
@@ -151,9 +153,8 @@ app.get('/api/customers', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
-
 // 一つの顧客に対する情報提供機能
-app.get('/api/customer/:customerId', authenticateToken, async (req, res) => {
+app.get('/api/customers/:customerId', authenticateToken, async (req, res) => {
     try {
         const customerId = req.params.customerId;
         const userId = req.user.id;
@@ -168,11 +169,14 @@ app.get('/api/customer/:customerId', authenticateToken, async (req, res) => {
     }
 })
 
+/*
+ 取引関連
+———————————————*/
 // 一つの顧客に対する取引情報追加機能
-app.post('/api/customer/:customerId/transactions', authenticateToken, async (req, res) => {
+app.post('/api/customers/:customerId/transactions', authenticateToken, async (req, res) => {
     try {
         // ボディーから受け取るものは後で決める
-        const { product, amount, transactionStatus, invoiceId } = req.body;
+        const { product, amount, transactionStatus, invoiceId, cost } = req.body;
         // カスタマーIDで紐づけする
         const customerId = req.params.customerId;
         // ユーザーID紐づけをする
@@ -184,7 +188,7 @@ app.post('/api/customer/:customerId/transactions', authenticateToken, async (req
             invoiceId: new ObjectId(invoiceId),
             product: product,
             amount: amount,
-            transactionStatus: transactionStatus,
+            cost: cost,
             createdAt: new Date(),
         }
 
@@ -194,9 +198,8 @@ app.post('/api/customer/:customerId/transactions', authenticateToken, async (req
         res.status(500).json({ success: false, error: error.message });
     }
 })
-
-// 一つの顧客に対する取引情報提供機能
-app.get('/api/customer/:customerId/transactions', authenticateToken, async (req, res) => {
+// 一つの顧客に対する取引情報提供機能(現在は不使用だが、一覧を表示するときに必要)
+app.get('/api/customers/:customerId/transactions', authenticateToken, async (req, res) => {
     try {
         // ユーザーIDとカスタマーIDで紐づいている。この二つが対応しなかったら絶対に渡さない
         const customerId = req.params.customerId;
@@ -213,74 +216,11 @@ app.get('/api/customer/:customerId/transactions', authenticateToken, async (req,
     }
 })
 
-// 一つの顧客に対する取引情報修正機能
-app.post('/api/customer/:customerId/transactions/edit/:transactionId', authenticateToken, async (req, res) => {
-    try {
-        const { product, amount, transactionStatus } = req.body;
-        const customerId = req.params.customerId;
-        const transactionId = req.params.transactionId;
-        const userId = req.user.id;
-
-        // まずはあるかの確認
-        // まず取引IDとユーザーIDと企業IDで検索
-        const existingTransaction = await db.collection("transactions").findOne({
-            _id: new ObjectId(transactionId),
-            userId: userId,
-            customerId: new ObjectId(customerId),
-        });
-
-        if (!existingTransaction) {
-            return res.status(404).json({ success: false, error: "取引が見つかりません" });
-        }
-
-        // 更新する内容
-        const updateData = {
-            $set: {
-                product: product,
-                amount: amount,
-                transactionStatus: transactionStatus,
-                updatedAt: new Date(),
-            }
-        };
-
-        const result = await db.collection("transactions").updateOne({
-            _id: new ObjectId(transactionId),
-            userId: userId,
-            customerId: new ObjectId(customerId),
-            },
-            updateData
-        );
-
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
-        }
-
-        res.json({ success: true, message: "取引情報が更新されました" });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-})
-
-// 一つの顧客に対する一つの取引情報提供機能
-app.get('/api/customer/:customerId/transactions/:transactionId', authenticateToken, async (req, res) => {
-    try {
-        const customerId = req.params.customerId;
-        const transactionId = req.params.transactionId;
-        const userId = req.user.id;
-
-        const transaction = await db.collection("transactions").findOne({
-            _id: new ObjectId(transactionId),
-            userId: userId,
-            customerId: new ObjectId(customerId),
-        });
-        res.json(transaction);
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-})
-
+/*
+ 請求書関連
+———————————————*/
 // 一つの顧客に対する請求書追加機能
-app.post('/api/customer/:customerId/invoices/', authenticateToken, async (req, res) => {
+app.post('/api/customers/:customerId/invoices', authenticateToken, async (req, res) => {
     try {
         const { invoiceNumber, totalAmount, invoiceRequest, invoiceStatus } = req.body;
         const customerId = req.params.customerId;
@@ -302,9 +242,8 @@ app.post('/api/customer/:customerId/invoices/', authenticateToken, async (req, r
         res.status(500).json({ success: false, error: error.message });
     }
 })
-
 // 一つの顧客に対する請求書提供機能
-app.get('/api/customer/:customerId/invoices/', authenticateToken, async (req, res) => {
+app.get('/api/customers/:customerId/invoices', authenticateToken, async (req, res) => {
     try {
         const customerId = req.params.customerId;
         const userId = req.user.id;
@@ -319,9 +258,22 @@ app.get('/api/customer/:customerId/invoices/', authenticateToken, async (req, re
         res.status(500).json({ success: false, error: error.message });
     }
 })
+// 一つの顧客に対する一つの請求書情報提供機能
+app.get('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
+    const customerId = req.params.customerId;
+    const userId = req.user.id;
+    const invoiceId = req.params.invoiceId;
 
+    const invoices = await db.collection("invoices").findOne({
+        userId: userId,
+        customerId: new ObjectId(customerId),
+        _id: new ObjectId(invoiceId),
+    });
+
+    res.json(invoices);
+})
 // 一つの顧客に対する一つの請求書内の取引情報提供機能
-app.get('/api/customer/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
+app.get('/api/customers/:customerId/invoices/:invoiceId/transactions', authenticateToken, async (req, res) => {
     const customerId = req.params.customerId;
     const userId = req.user.id;
     const invoiceId = req.params.invoiceId;
@@ -337,24 +289,8 @@ app.get('/api/customer/:customerId/invoices/:invoiceId', authenticateToken, asyn
     console.log("テスト:"+transactions);
     res.json(transactions);
 })
-
-// 一つの顧客に対する一つの請求書情報提供機能
-app.get('/api/customer/:customerId/invoices/:invoiceId/info', authenticateToken, async (req, res) => {
-    const customerId = req.params.customerId;
-    const userId = req.user.id;
-    const invoiceId = req.params.invoiceId;
-
-    const invoices = await db.collection("invoices").findOne({
-        userId: userId,
-        customerId: new ObjectId(customerId),
-        _id: new ObjectId(invoiceId),
-    });
-
-    res.json(invoices);
-})
-
-// 一つの顧客に対する請求書修正機能
-app.post('/api/customer/:customerId/invoices/edit/:invoiceId', authenticateToken, async (req, res) => {
+// 一つの顧客に対する請求書修正機能(コレ使われてないから、修正しないと)
+app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
     try {
         const { invoiceNumber, totalAmount, invoiceRequest, invoiceStatus } = req.body;
         const customerId = req.params.customerId;
@@ -402,20 +338,25 @@ app.post('/api/customer/:customerId/invoices/edit/:invoiceId', authenticateToken
     }
 })
 
+/*
+ 請求書内の取引関連
+———————————————*/
 // 一つの顧客に対する一つの請求書内の一つの取引情報修正機能
-app.post('/api/customer/:customerId/invoices/edit/:transactionId', authenticateToken, async (req, res) => {
+app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
     try {
-        const { product, amount } = req.body;
+        const { product, amount, cost } = req.body;
         const customerId = req.params.customerId;
         const transactionId = req.params.transactionId;
+        const invoiceId = req.params.invoiceId;
         const userId = req.user.id;
 
         // まずはあるかの確認
-        // まず取引IDとユーザーIDと企業IDで検索
+        // まず取引IDとユーザーIDと企業IDと請求書IDで検索
         const existingTransaction = await db.collection("transactions").findOne({
             _id: new ObjectId(transactionId),
             userId: userId,
             customerId: new ObjectId(customerId),
+            invoiceId: new ObjectId(invoiceId),
         });
 
         if (!existingTransaction) {
@@ -427,6 +368,7 @@ app.post('/api/customer/:customerId/invoices/edit/:transactionId', authenticateT
             $set: {
                 product: product,
                 amount: amount,
+                cost: cost,
                 updatedAt: new Date(),
             }
         };
@@ -435,6 +377,7 @@ app.post('/api/customer/:customerId/invoices/edit/:transactionId', authenticateT
                 _id: new ObjectId(transactionId),
                 userId: userId,
                 customerId: new ObjectId(customerId),
+                invoiceId: new ObjectId(invoiceId),
             },
             updateData
         );
@@ -448,9 +391,8 @@ app.post('/api/customer/:customerId/invoices/edit/:transactionId', authenticateT
         res.status(500).json({ success: false, error: error.message });
     }
 })
-
 // 一つの顧客に対する一つの請求書内の一つの取引情報提供機能
-app.get('/api/customer/:customerId/invoices/:invoiceId/:transactionId', authenticateToken, async (req, res) => {
+app.get('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
     const customerId = req.params.customerId;
     const userId = req.user.id;
     const invoiceId = req.params.invoiceId;
