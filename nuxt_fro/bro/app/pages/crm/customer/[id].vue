@@ -3,8 +3,10 @@ import {ref} from "vue";
 import Modal2 from "~/components/Modal2.vue";
 import SeikyuuModal from "~/components/SeikyuuModal.vue";
 import {useIdStore} from "~/store/idStore";
-import {type Customer, fetchCustomer} from "~/api/customer";
-import {fetchInvoices, type Invoice} from "~/api/invoices";
+import {fetchCustomer} from "~/api/customer";
+import {fetchInvoices} from "~/api/invoices";
+import type {Customer, Invoice} from "~/types/types";
+import {API_ENDPOINTS} from "~/api/endpoints";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -48,7 +50,7 @@ const showInvoiceModal = ref(false);
 const showEditInvoiceModal = ref(false);
 
 const submitUrl = computed(() =>
-    `/customer/${customerId}/invoices`
+    API_ENDPOINTS.customers.invoices.create(customerId)
 )
 
 const selectedInvoiceId = ref<string | null>(null)
@@ -60,7 +62,7 @@ function openEditModal(invoiceId: string) {
 
 const submitUrl2 = computed(() =>
     selectedInvoiceId.value
-        ? `/customer/${customerId}/invoices/edit/${selectedInvoiceId.value}`
+        ? API_ENDPOINTS.customers.invoices.update(customerId, selectedInvoiceId.value)
         : ""
 )
 
@@ -257,12 +259,12 @@ const invoiceFields = [
           v-if="showEditInvoiceModal"
           title="請求書修正"
           section-title="請求書を修正"
-          :submit-url="submitUrl2"
+          :update-url="submitUrl2"
           :fields="invoiceFields"
           success-message="請求書を保存しました"
           @close-modal="showEditInvoiceModal = false"
           :invoiceId="selectedInvoiceId"
-          :customerId="id"
+          :customerId="customerId"
           :editInvoice="true"
       />
     </div>

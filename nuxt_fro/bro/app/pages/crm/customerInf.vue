@@ -4,6 +4,7 @@ import {ref} from "vue";
 import {useIdStore} from "~/store/idStore";
 import {fetchCustomers} from "~/api/customers";
 import type {Customer} from "~/types/types";
+import {API_ENDPOINTS} from "~/api/endpoints";
 
 const customers = ref<Customer[]>([])
 
@@ -26,7 +27,7 @@ onMounted(() => {
 
 const showCustomerInfoModal = ref(false);
 const submitUrl = computed(() =>
-    `/customer`
+    API_ENDPOINTS.customers.create
 )
 const customerInfoFields = [
   {

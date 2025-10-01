@@ -8,3 +8,18 @@ export interface Customer {
     phone?: string;
     description?: string;
 }
+
+export interface Transaction {
+    _id: string;
+    product: string;
+    amount: number;
+    cost: number;
+}
+
+export interface Invoice {
+    invoiceNumber: string;
+    totalAmount: number;
+    invoiceRequest: string;
+    invoiceStatus: string;
+    _id: string;
+}
