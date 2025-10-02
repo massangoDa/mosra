@@ -168,6 +168,21 @@ app.get('/api/customers/:customerId', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+// 一つの顧客に対する削除機能
+app.delete('/api/customers/:customerId', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        const result = await db.collection("customers").deleteOne({
+            _id: new ObjectId(customerId),
+            userId: userId
+        })
+        res.json({ success: true, message: "顧客の削除に成功しました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
 
 /*
  取引関連
@@ -289,7 +304,7 @@ app.get('/api/customers/:customerId/invoices/:invoiceId/transactions', authentic
     console.log("テスト:"+transactions);
     res.json(transactions);
 })
-// 一つの顧客に対する請求書修正機能(コレ使われてないから、修正しないと)
+// 一つの顧客に対する請求書修正機能
 app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
     try {
         const { invoiceNumber, totalAmount, invoiceRequest, invoiceStatus } = req.body;
@@ -312,13 +327,15 @@ app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, asy
         // 更新する内容
         const updateData = {
             $set: {
-                invoiceNumber: invoiceNumber,
-                totalAmount: totalAmount,
-                invoiceRequest: invoiceRequest,
-                invoiceStatus: invoiceStatus,
                 updatedAt: new Date(),
             }
         };
+
+        // 各フィールドが存在する場合のみ追加するようにすれば、何度もfetch回数が減るはず
+        if (invoiceNumber !== undefined) updateData.$set.invoiceNumber = invoiceNumber;
+        if (totalAmount !== undefined) updateData.$set.totalAmount = totalAmount;
+        if (invoiceRequest !== undefined) updateData.$set.invoiceRequest = invoiceRequest;
+        if (invoiceStatus !== undefined) updateData.$set.invoiceStatus = invoiceStatus;
 
         const result = await db.collection("invoices").updateOne({
                 _id: new ObjectId(invoiceId),
@@ -333,6 +350,23 @@ app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, asy
         }
 
         res.json({ success: true, message: "取引情報が更新されました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+// 一つの顧客に対する請求書削除機能
+app.delete('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const invoiceId = req.params.invoiceId;
+        const userId = req.user.id;
+
+        const result = await db.collection("invoices").deleteOne({
+            _id: new ObjectId(invoiceId),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+        res.json({ success: true, message: "請求書が削除されました" });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -393,18 +427,41 @@ app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
 })
 // 一つの顧客に対する一つの請求書内の一つの取引情報提供機能
 app.get('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
-    const customerId = req.params.customerId;
-    const userId = req.user.id;
-    const invoiceId = req.params.invoiceId;
-    const _id = req.params.transactionId;
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+        const invoiceId = req.params.invoiceId;
+        const _id = req.params.transactionId;
 
-    const transaction = await db.collection("transactions").findOne({
-        _id: new ObjectId(_id),
-        userId: userId,
-        customerId: new ObjectId(customerId),
-        invoiceId: new ObjectId(invoiceId),
-    });
-    res.json(transaction);
+        const transaction = await db.collection("transactions").findOne({
+            _id: new ObjectId(_id),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            invoiceId: new ObjectId(invoiceId),
+        });
+        res.json(transaction);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+// 一つの顧客に対する一つの請求書内の一つの取引履歴削除機能
+app.delete('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+        const invoiceId = req.params.invoiceId;
+        const _id = req.params.transactionId;
+
+        const result = await db.collection("transactions").deleteOne({
+            _id: new ObjectId(_id),
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            invoiceId: new ObjectId(invoiceId),
+        });
+        res.json({ success: true, message: "取引情報が削除されました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 })
 
 // サーバー起動

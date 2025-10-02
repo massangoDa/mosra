@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Modal from "~/components/Modal.vue";
 import {ref} from "vue";
 import {useIdStore} from "~/store/idStore";
 import {fetchCustomers} from "~/api/customers";
@@ -26,9 +25,23 @@ onMounted(() => {
 })
 
 const showCustomerInfoModal = ref(false);
+const showDeleteInvoiceModal = ref(false);
+
+const selectedCustomerId = ref<string | null>(null)
+
+function openDeleteModal(customerId: string) {
+  selectedCustomerId.value = customerId
+  showDeleteInvoiceModal.value = true
+}
+
+
 const submitUrl = computed(() =>
     API_ENDPOINTS.customers.create
 )
+const submitUrl3 = computed(() =>
+    API_ENDPOINTS.customers.delete(selectedCustomerId.value)
+)
+
 const customerInfoFields = [
   {
     name: 'companyName',
@@ -106,6 +119,9 @@ const customerInfoFields = [
               <th class="sortable">
                 電話
               </th>
+              <th class="sortable">
+                削除
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -122,6 +138,11 @@ const customerInfoFields = [
               <td>
                 {{ customer.phone || '' }}
               </td>
+              <td>
+                <button @click="openDeleteModal(customer._id)" class="edit-button">
+                  <v-icon name="la-trash-solid" />
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -134,6 +155,17 @@ const customerInfoFields = [
           :fields="customerInfoFields"
           success-message="顧客情報を保存しました"
           @close-modal="showCustomerInfoModal = false"
+          @refresh="loadCustomers();"
+      />
+
+      <DeleteModal
+          v-if="showDeleteInvoiceModal"
+          title="顧客情報削除"
+          section-title="顧客情報を削除しようとしています"
+          :delete-url="submitUrl3"
+          success-message="顧客情報を削除しました"
+          @close-modal="showDeleteInvoiceModal = false"
+          @refresh="loadCustomers();"
       />
     </div>
   </div>

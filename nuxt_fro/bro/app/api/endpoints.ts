@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
         create: '/api/customers',
         list: '/api/customers',
         detail: (customerId: string) => `/api/customers/${customerId}`,
+        delete: (customerId: string) => `/api/customers/${customerId}`,
 
         // 取引関連
         transactions: {
@@ -19,9 +20,11 @@ export const API_ENDPOINTS = {
             list: (customerId: string) => `/api/customers/${customerId}/invoices`,
             detail: (customerId: string, invoiceId: string) => `/api/customers/${customerId}/invoices/${invoiceId}`,
             update: (customerId: string, invoiceId: string) => `/api/customers/${customerId}/invoices/${invoiceId}`,
+            delete: (customerId: string, invoiceId: string) => `/api/customers/${customerId}/invoices/${invoiceId}`,
             transactions: (customerId: string, invoiceId: string) => `/api/customers/${customerId}/invoices/${invoiceId}/transactions`,
             transactionDetail: (customerId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/invoices/${invoiceId}/transactions/${transactionId}`,
             transactionUpdate: (customerId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/invoices/${invoiceId}/transactions/${transactionId}`,
+            transactionDelete: (customerId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/invoices/${invoiceId}/transactions/${transactionId}`,
         }
     }
 }
