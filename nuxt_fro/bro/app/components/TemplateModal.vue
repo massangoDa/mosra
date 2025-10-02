@@ -168,6 +168,7 @@ async function onSubmit() {
       toast.success(props.successMessage)
     }
     emit("closeModal")
+    emit("refresh")
   } catch (error) {
     console.error(error)
     toast.error(props.errorMessage)
