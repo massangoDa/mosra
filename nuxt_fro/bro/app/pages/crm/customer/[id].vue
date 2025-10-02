@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import Modal2 from "~/components/Modal2.vue";
-import SeikyuuModal from "~/components/SeikyuuModal.vue";
 import {useIdStore} from "~/store/idStore";
 import {fetchCustomer} from "~/api/customer";
 import {fetchInvoices} from "~/api/invoices";
 import type {Customer, Invoice} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
+import {DoughnutChart} from "vue-chart-3";
+import {Chart, registerables} from "chart.js";
 
 definePageMeta({
   layout: 'crm-layout',
 })
+
+Chart.register(...registerables);
 
 const customer = ref<Customer | null>(null)
 const invoices = ref<Invoice[]>([])
@@ -28,7 +30,7 @@ async function loadCustomer() {
 }
 
 // 顧客取引情報を取得
-async function fetchTransactions() {
+async function loadTransaction() {
   try {
     invoices.value = await fetchInvoices(customerId)
   } catch (error) {
@@ -42,15 +44,24 @@ function switchPage(page: 'page1' | 'page2' | 'page3') {
 
 onMounted(() => {
   loadCustomer();
-  fetchTransactions();
+  loadTransaction();
 })
 
 // テストで一旦
 const showInvoiceModal = ref(false);
 const showEditInvoiceModal = ref(false);
+const showDeleteInvoiceModal = ref(false);
 
 const submitUrl = computed(() =>
     API_ENDPOINTS.customers.invoices.create(customerId)
+)
+const submitUrl2 = computed(() =>
+    selectedInvoiceId.value
+        ? API_ENDPOINTS.customers.invoices.update(customerId, selectedInvoiceId.value)
+        : ""
+)
+const submitUrl3 = computed(() =>
+    API_ENDPOINTS.customers.invoices.delete(customerId, selectedInvoiceId.value)
 )
 
 const selectedInvoiceId = ref<string | null>(null)
@@ -59,12 +70,10 @@ function openEditModal(invoiceId: string) {
   selectedInvoiceId.value = invoiceId;
   showEditInvoiceModal.value = true;
 }
-
-const submitUrl2 = computed(() =>
-    selectedInvoiceId.value
-        ? API_ENDPOINTS.customers.invoices.update(customerId, selectedInvoiceId.value)
-        : ""
-)
+function openDeleteModal(invoiceId: string) {
+  selectedInvoiceId.value = invoiceId
+  showDeleteInvoiceModal.value = true
+}
 
 const invoiceFields = [
   {
@@ -73,12 +82,6 @@ const invoiceFields = [
     type: 'text',
     placeholder: 'INV-2025-001',
     required: true,
-  },
-  {
-    name: 'totalAmount',
-    label: '合計請求金額',
-    type: 'number',
-    placeholder: '金額を入力',
   },
   {
     name: 'invoiceRequest',
@@ -93,6 +96,35 @@ const invoiceFields = [
     options: ['完了', '取引中', '停滞中']
   },
 ]
+
+// 売上計算
+const salesCalc = computed(() => {
+  return invoices.value.reduce((sum, invoice) => {
+    return sum + Number(invoice.totalAmount);
+  }, 0);
+});
+
+const chartData = computed(() => {
+  if (!invoices.value || invoices.value.length === 0) {
+    return null
+  }
+
+  return {
+    labels: invoices.value.map(invoice => invoice.invoiceNumber),
+    datasets: [{
+      label: '金額',
+      data: invoices.value.map(invoice => invoice.totalAmount),
+      backgroundColor: [
+        "#FF6384",
+        "#36A2EB",
+        "#FFCE56",
+        "#4BC0C0",
+        "#9966FF",
+        "#FF9F40"
+      ],
+    }]
+  }
+})
 </script>
 
 <template>
@@ -136,6 +168,10 @@ const invoiceFields = [
             <!-- テーブルと通常の入れ替わり式(アルバイトは時給980円～) -->
             <div class="page-content">
               <div v-if="activePage === 'page1'" class="page page1">
+                <div class="calcContainer">
+                  <span class="sales-label">総売上</span>
+                  <span class="sales-amount">{{ useFormat().formatCurrency(salesCalc) }}</span>
+                </div>
                 <div class="table-container">
                   <table class="history-table">
                     <thead>
@@ -154,6 +190,9 @@ const invoiceFields = [
                       </th>
                       <th class="sortable">
                         編集
+                      </th>
+                      <th class="sortable">
+                        削除
                       </th>
                     </tr>
                     </thead>
@@ -182,9 +221,23 @@ const invoiceFields = [
                             <v-icon name="la-edit-solid" />
                           </button>
                         </td>
+                        <td>
+                          <button @click="openDeleteModal(invoice._id)" class="edit-button">
+                            <v-icon name="la-trash-solid" />
+                          </button>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
+                </div>
+                <div class="analysisContainer">
+                  <span class="analysis-label">請求書分析</span>
+                  <DoughnutChart
+                      v-if="chartData"
+                      :chartData="chartData"
+                      :options="{ responsive: true, maintainAspectRatio: false }"
+                      class="analysis-chart"
+                  />
                 </div>
               </div>
               <div v-if="activePage === 'page2'" class="page page2">
@@ -253,6 +306,7 @@ const invoiceFields = [
         :fields="invoiceFields"
         success-message="請求書を保存しました"
         @close-modal="showInvoiceModal = false"
+        @refresh="loadTransaction(); loadCustomer();"
       />
 
       <TemplateModal
@@ -266,6 +320,18 @@ const invoiceFields = [
           :invoiceId="selectedInvoiceId"
           :customerId="customerId"
           :editInvoice="true"
+          @refresh="loadTransaction(); loadCustomer();"
+      />
+
+      <DeleteModal
+          v-if="showDeleteInvoiceModal"
+          title="請求書削除"
+          section-title="請求書を削除しようとしています"
+          :delete-url="submitUrl3"
+          success-message="請求書を削除しました"
+          @close-modal="showDeleteInvoiceModal = false"
+          :transactionId="selectedInvoiceId"
+          @refresh="loadTransaction(); loadCustomer();"
       />
     </div>
   </div>
@@ -454,5 +520,48 @@ const invoiceFields = [
   background: #2376cc;
   border-color: #2376cc;
   color: white;
+}
+
+.calcContainer {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 20px 0;
+  text-align: center;
+}
+.calcContainer .sales-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.calcContainer .sales-amount {
+  color: #111827;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.analysisContainer {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 20px 0;
+  text-align: center;
+}
+.analysisContainer .analysis-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.analysisContainer .analysis-chart {
+  width: 100%;
+  height: 200px;
 }
 </style>
