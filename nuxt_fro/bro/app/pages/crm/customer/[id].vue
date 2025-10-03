@@ -5,14 +5,10 @@ import {fetchCustomer} from "~/api/customer";
 import {fetchInvoices} from "~/api/invoices";
 import type {Customer, Invoice} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
-import {DoughnutChart} from "vue-chart-3";
-import {Chart, registerables} from "chart.js";
 
 definePageMeta({
   layout: 'crm-layout',
 })
-
-Chart.register(...registerables);
 
 const customer = ref<Customer | null>(null)
 const invoices = ref<Invoice[]>([])
@@ -104,26 +100,24 @@ const salesCalc = computed(() => {
   }, 0);
 });
 
-const chartData = computed(() => {
-  if (!invoices.value || invoices.value.length === 0) {
-    return null
+async function updateCustomer(newSalesCalc: number) {
+  try {
+    const res = await $fetch('http://localhost:5000' + API_ENDPOINTS.customers.update(customerId), {
+      method: 'PUT',
+      body: {
+        totalAmount: newSalesCalc,
+      },
+      headers: {
+        Authorization: `Bearer ${useAuth().authToken.value}`
+      },
+    })
+  } catch (error) {
+    console.log(error)
   }
+}
 
-  return {
-    labels: invoices.value.map(invoice => invoice.invoiceNumber),
-    datasets: [{
-      label: '金額',
-      data: invoices.value.map(invoice => invoice.totalAmount),
-      backgroundColor: [
-        "#FF6384",
-        "#36A2EB",
-        "#FFCE56",
-        "#4BC0C0",
-        "#9966FF",
-        "#FF9F40"
-      ],
-    }]
-  }
+watch(salesCalc, (newSalesCalc) => {
+  updateCustomer(newSalesCalc);
 })
 </script>
 
@@ -229,15 +223,6 @@ const chartData = computed(() => {
                       </tr>
                     </tbody>
                   </table>
-                </div>
-                <div class="analysisContainer">
-                  <span class="analysis-label">請求書分析</span>
-                  <DoughnutChart
-                      v-if="chartData"
-                      :chartData="chartData"
-                      :options="{ responsive: true, maintainAspectRatio: false }"
-                      class="analysis-chart"
-                  />
                 </div>
               </div>
               <div v-if="activePage === 'page2'" class="page page2">
