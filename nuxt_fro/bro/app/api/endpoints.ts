@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
         list: '/api/customers',
         detail: (customerId: string) => `/api/customers/${customerId}`,
         delete: (customerId: string) => `/api/customers/${customerId}`,
+        update: (customerId: string) => `/api/customers/${customerId}`,
 
         // 取引関連
         transactions: {
