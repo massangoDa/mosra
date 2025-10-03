@@ -116,7 +116,7 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
 // 顧客情報追加機能
 app.post('/api/customers', authenticateToken, async (req, res) => {
     try {
-        const { companyName, type, category, website, phone, description } = req.body;
+        const { companyName, type, category, website, phone, description, totalAmount } = req.body;
         // ユーザーIDで紐づけ
         const userId = req.user.id;
 
@@ -130,6 +130,7 @@ app.post('/api/customers', authenticateToken, async (req, res) => {
             website: website,
             phone: phone,
             description: description,
+            totalAmount: totalAmount,
             createdAt: new Date(),
         };
 
@@ -164,6 +165,55 @@ app.get('/api/customers/:customerId', authenticateToken, async (req, res) => {
         });
 
         res.json(customer);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+// 一つの顧客に対する更新機能
+app.put('/api/customers/:customerId', authenticateToken, async (req, res) => {
+    try {
+        const { companyName, type, category, website, phone, description, totalAmount } = req.body;
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        // あるかの確認
+        const existingCustomer = await db.collection("customers").findOne({
+            _id: new ObjectId(customerId),
+            userId: userId
+        });
+
+        if (!existingCustomer) {
+            return res.status(404).json({ success: false, error: "取引が見つかりません" });
+        }
+
+        // 更新する内容
+        const updateData = {
+            $set: {
+                updatedAt: new Date(),
+            }
+        };
+
+        // 各フィールドが存在する場合のみ追加するようにすれば、何度もfetch回数が減るはず
+        if (companyName !== undefined) updateData.$set.companyName = companyName;
+        if (type !== undefined) updateData.$set.type = type;
+        if (category !== undefined) updateData.$set.category = category;
+        if (website !== undefined) updateData.$set.website = website;
+        if (phone !== undefined) updateData.$set.phone = phone;
+        if (description !== undefined) updateData.$set.description = description;
+        if (totalAmount !== undefined) updateData.$set.totalAmount = totalAmount;
+
+        const result = await db.collection("customers").updateOne({
+                _id: new ObjectId(customerId),
+                userId: userId
+            },
+            updateData
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
+        }
+
+        res.json({ success: true, message: "取引情報が更新されました" });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

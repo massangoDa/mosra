@@ -7,6 +7,7 @@ export interface Customer {
     website?: string;
     phone?: string;
     description?: string;
+    totalAmount?: number;
 }
 
 export interface Transaction {
