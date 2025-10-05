@@ -1,5 +1,7 @@
 export const API_ENDPOINTS = {
     dashboard: '/api/dashboard',
+    allInvoices: () => `/api/invoices`,
+    calendarEvents: () => `/api/calendar-events`,
 
     // 顧客関連
     customers: {
