@@ -69,7 +69,7 @@ const props = defineProps({
 interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' ;
+  type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date ';
   placeholder?: string;
   required?: boolean;
   options?: string[];
@@ -85,6 +85,28 @@ const { customerId, invoiceId } = useRoute().params;
 
 const form = reactive<Record<string, any>>({})
 
+// 日付フォーマット変換関数
+function formatDateToYYYYMMDD(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+}
+
+// 日付文字列をHTML input[type="date"]形式に変換 (YYYY-MM-DD)
+function formatDateToInputValue(dateString: string): string {
+  if (!dateString) return '';
+  // YYYY/MM/DD形式をYYYY-MM-DD形式に変換
+  return dateString.replace(/\//g, '-');
+}
+
+// HTML input[type="date"]の値をYYYY/MM/DD形式に変換
+function formatInputValueToDate(inputValue: string): string {
+  if (!inputValue) return '';
+  // YYYY-MM-DD形式をYYYY/MM/DD形式に変換
+  return inputValue.replace(/-/g, '/');
+}
 // データ初期化
 function initializeForm() {
   props.fields.forEach(field => {
@@ -221,6 +243,17 @@ onMounted(() => {
                   class="form-input"
                   v-model="form[field.name]"
                   :required="field.required"
+                >
+
+                <!-- 日付入力欄 -->
+                <input
+                    v-else-if="field.type === 'date'"
+                    :id="field.name"
+                    type="date"
+                    class="form-input"
+                    :value="formatDateToInputValue(form[field.name])"
+                    @input="form[field.name] = formatInputValueToDate($event.target.value)"
+                    :required="field.required"
                 >
 
                 <textarea

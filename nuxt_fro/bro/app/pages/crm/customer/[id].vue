@@ -82,8 +82,9 @@ const invoiceFields = [
   {
     name: 'invoiceRequest',
     label: '発行日',
-    type: 'text',
-    placeholder: '2025/09/20',
+    type: 'date',
+    placeholder: 'YYYY/MM/DD',
+    format: 'YYYY/MM/DD',
   },
   {
     name: 'invoiceStatus',
@@ -93,32 +94,10 @@ const invoiceFields = [
   },
 ]
 
-// 売上計算
-const salesCalc = computed(() => {
-  return invoices.value.reduce((sum, invoice) => {
-    return sum + Number(invoice.totalAmount);
-  }, 0);
-});
-
-async function updateCustomer(newSalesCalc: number) {
-  try {
-    const res = await $fetch('http://localhost:5000' + API_ENDPOINTS.customers.update(customerId), {
-      method: 'PUT',
-      body: {
-        totalAmount: newSalesCalc,
-      },
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      },
-    })
-  } catch (error) {
-    console.log(error)
-  }
+async function handleTransactionSaved() {
+  await loadCustomer();
+  await loadTransaction();
 }
-
-watch(salesCalc, (newSalesCalc) => {
-  updateCustomer(newSalesCalc);
-})
 </script>
 
 <template>
@@ -164,7 +143,7 @@ watch(salesCalc, (newSalesCalc) => {
               <div v-if="activePage === 'page1'" class="page page1">
                 <div class="calcContainer">
                   <span class="sales-label">総売上</span>
-                  <span class="sales-amount">{{ useFormat().formatCurrency(salesCalc) }}</span>
+                  <span class="sales-amount">{{ useFormat().formatCurrency(customer?.totalAmount || 0) }}</span>
                 </div>
                 <div class="table-container">
                   <table class="history-table">
@@ -305,7 +284,7 @@ watch(salesCalc, (newSalesCalc) => {
           :invoiceId="selectedInvoiceId"
           :customerId="customerId"
           :editInvoice="true"
-          @refresh="loadTransaction(); loadCustomer();"
+          @refresh="handleTransactionSaved"
       />
 
       <DeleteModal
@@ -316,7 +295,7 @@ watch(salesCalc, (newSalesCalc) => {
           success-message="請求書を削除しました"
           @close-modal="showDeleteInvoiceModal = false"
           :transactionId="selectedInvoiceId"
-          @refresh="loadTransaction(); loadCustomer();"
+          @refresh="handleTransactionSaved"
       />
     </div>
   </div>
