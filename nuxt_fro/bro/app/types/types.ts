@@ -18,9 +18,21 @@ export interface Transaction {
 }
 
 export interface Invoice {
+    _id: string;
+    customerId: string;
     invoiceNumber: string;
     totalAmount: number;
     invoiceRequest: string;
     invoiceStatus: string;
+}
+
+export interface Calendar {
     _id: string;
+    title: string;
+    startTime: string;
+    endTime: string;
+    allDay: boolean;
+    color: string;
+    relatedInvoice: string;
+    relatedCustomer: string;
 }

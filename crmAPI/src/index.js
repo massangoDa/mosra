@@ -72,6 +72,133 @@ app.post("/api/logout", async (req, res) => {
     res.json({ message: 'ログアウトしました(tokenあれば入れる)' });
 });
 
+// カレンダーイベント操作(追加・更新対応)
+const manageCalendarEvent = async (eventData, eventId = null) => {
+    try {
+        // 更新の場合
+        if (eventId) {
+            const updateFields = {};
+
+            // 渡されたフィールドだけを更新対象に追加
+            if (eventData.userId !== undefined) updateFields.userId = eventData.userId;
+            if (eventData.title !== undefined) updateFields.title = eventData.title;
+            if (eventData.description !== undefined) updateFields.description = eventData.description;
+            if (eventData.startTime !== undefined) updateFields.startTime = new Date(eventData.startTime);
+            if (eventData.endTime !== undefined) updateFields.endTime = new Date(eventData.endTime);
+            if (eventData.allDay !== undefined) updateFields.allDay = eventData.allDay;
+            if (eventData.category !== undefined) updateFields.category = eventData.category;
+            if (eventData.color !== undefined) updateFields.color = eventData.color;
+            if (eventData.relatedInvoice !== undefined) updateFields.relatedInvoice = eventData.relatedInvoice;
+            if (eventData.relatedCustomer !== undefined) updateFields.relatedCustomer = eventData.relatedCustomer;
+            if (eventData.status !== undefined) updateFields.status = eventData.status;
+            if (eventData.location !== undefined) updateFields.location = eventData.location;
+
+            updateFields.updatedAt = new Date();
+
+            const result = await db.collection("calendar-events").updateOne(
+                { _id: new ObjectId(eventId) },
+                { $set: updateFields }
+            );
+            return { success: true, updated: true, modifiedCount: result.modifiedCount };
+        }
+
+        // 新規追加の場合(デフォルト値を設定)
+        const calendarEvent = {
+            userId: eventData.userId,
+            title: eventData.title,
+            description: eventData.description || '',
+            startTime: new Date(eventData.startTime),
+            endTime: eventData.endTime ? new Date(eventData.endTime) : new Date(eventData.startTime),
+            allDay: eventData.allDay !== undefined ? eventData.allDay : false,
+            category: eventData.category || 'other',
+            color: eventData.color || '#3b82f6',
+            relatedInvoice: eventData.relatedInvoice || null,
+            relatedCustomer: eventData.relatedCustomer || null,
+            status: eventData.status || 'pending',
+            location: eventData.location || '',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        const result = await db.collection("calendar-events").insertOne(calendarEvent);
+        return { success: true, updated: false, eventId: result.insertedId };
+    } catch (error) {
+        console.log("カレンダーイベントの操作エラー", error);
+        throw error;
+    }
+}
+
+// 請求書の金額を計算
+const recalculateInvoiceTotal = async (invoiceId) => {
+    try {
+        const result = await db.collection("transactions").aggregate([
+            {
+                $match: { invoiceId: new ObjectId(invoiceId) }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$amount" }
+                }
+            }
+        ]).toArray();
+
+        const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
+
+        // 請求書を更新
+        await db.collection("invoices").updateOne(
+            { _id: new ObjectId(invoiceId) },
+            {
+                $set: {
+                    totalAmount: totalAmount,
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        return totalAmount;
+    } catch (error) {
+        console.error("合計金額再計算エラー:", error);
+    }
+}
+
+// 総売上の計算
+const recalculateInvoicesTotal = async (customerId) => {
+    try {
+        const result = await db.collection("invoices").aggregate([
+            {
+                $match: {
+                    customerId: new ObjectId(customerId),
+                    invoiceStatus: "完了"
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$totalAmount" }
+                }
+            }
+        ]).toArray();
+
+        const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
+
+        // 請求書を更新
+        await db.collection("customers").updateOne(
+            { _id: new ObjectId(customerId) },
+            {
+                $set: {
+                    totalAmount: totalAmount,
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        return totalAmount;
+    } catch (error) {
+        console.error("合計金額再計算エラー:", error);
+    }
+}
+
 // token認証
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
@@ -94,7 +221,10 @@ const authenticateToken = (req, res, next) => {
     })
 }
 
-// dashboard
+/*
+ ダッシュボード関連
+———————————————*/
+// ダッシュボードアクセスした
 app.get("/api/dashboard", authenticateToken, (req, res) => {
     try {
         res.json({
@@ -107,6 +237,134 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
             message: "サーバーエラー",
             error: err.message
         });
+    }
+})
+// 今月の売上を取得(先月も計算するが、これは前月比の話をするため)
+app.get("/api/dashboard/monthly-sales", authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const now = new Date();
+
+        // 今月の開始日と終了日
+        const startOfMonth = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/01`;
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const endOfMonth = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(lastDay).padStart(2, '0')}`;
+
+        // 先月の開始日と終了日
+        const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const startOfLastMonth = `${lastMonthDate.getFullYear()}/${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}/01`;
+        const lastDayOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        const endOfLastMonth = `${lastMonthDate.getFullYear()}/${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}/${String(lastDayOfLastMonth).padStart(2, '0')}`;
+
+        // 今月の売上のみを集計
+        const currentMonthResult = await db.collection("invoices").aggregate([
+            {
+                $match: {
+                    userId: userId,
+                    invoiceRequest: {
+                        $regex: /^\d{4}\/\d{2}\/\d{2}$/,
+                        $gte: startOfMonth,
+                        $lte: endOfMonth
+                    },
+                    invoiceStatus: "完了"
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$totalAmount" },
+                    count: { $sum: 1 }
+                }
+            }
+        ]).toArray();
+
+        // 先月の売上を集計
+        const lastMonthResult = await db.collection("invoices").aggregate([
+            {
+                $match: {
+                    userId: userId,
+                    invoiceRequest: {
+                        $regex: /^\d{4}\/\d{2}\/\d{2}$/,
+                        $gte: startOfLastMonth,
+                        $lte: endOfLastMonth
+                    },
+                    invoiceStatus: "完了"
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$totalAmount" }
+                }
+            }
+        ]).toArray();
+
+        // 定義
+        const currentTotal = currentMonthResult.length > 0 ? currentMonthResult[0].totalAmount : 0;
+        const currentCount = currentMonthResult.length > 0 ? currentMonthResult[0].count : 0;
+        const lastTotal = lastMonthResult.length > 0 ? lastMonthResult[0].totalAmount : 0;
+
+        // 前月比を計算
+        let percentageChange = 0;
+        if (lastTotal > 0) {
+            percentageChange = ((currentTotal - lastTotal) / lastTotal) * 100;
+        }
+
+        res.json({
+            currentMonth: {
+                totalAmount: currentTotal,
+                count: currentCount
+            },
+            lastMonth: {
+                totalAmount: lastTotal
+            },
+            comparison: {
+                percentageChange: percentageChange.toFixed(1),
+                isPositive: percentageChange >= 0
+            }
+        })
+    } catch (error) {
+        console.log("売上取得エラー", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+// 全体の未収金請求書を取得
+app.get("/api/dashboard/unpaid-invoices", authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const now = new Date();
+        const today = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+
+        const result = await db.collection("invoices").aggregate([
+            {
+                $match: {
+                    userId: userId,
+                    invoiceRequest: {
+                        $regex: /^\d{4}\/\d{2}\/\d{2}$/,
+                        $lt: today
+                    },
+                    invoiceStatus: { $in: ["取引中", "停滞中"] }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$totalAmount" },
+                    count: { $sum: 1 }
+                }
+            }
+        ]).toArray();
+
+        const unpaidTotal = result.length > 0 ? result[0].totalAmount : 0;
+        const unpaidCount = result.length > 0 ? result[0].count : 0;
+
+        res.json({
+            totalAmount: unpaidTotal,
+            count: unpaidCount
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, error: error.message });
     }
 })
 
@@ -228,6 +486,9 @@ app.delete('/api/customers/:customerId', authenticateToken, async (req, res) => 
             _id: new ObjectId(customerId),
             userId: userId
         })
+
+        await recalculateInvoicesTotal(customerId);
+
         res.json({ success: true, message: "顧客の削除に成功しました" });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -258,6 +519,11 @@ app.post('/api/customers/:customerId/transactions', authenticateToken, async (re
         }
 
         const result = await db.collection("transactions").insertOne(transaction);
+
+        // 請求書のtotalAmount計算
+        await recalculateInvoiceTotal(invoiceId);
+        await recalculateInvoicesTotal(customerId);
+
         res.status(201).json({ success: true, customerId: result.insertedId });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -301,8 +567,22 @@ app.post('/api/customers/:customerId/invoices', authenticateToken, async (req, r
             createdAt: new Date(),
         }
 
-        const result = await db.collection("invoices").insertOne(invoices);
-        res.status(201).json({ success: true, result });
+        const invoiceResult = await db.collection("invoices").insertOne(invoices);
+
+        await manageCalendarEvent({
+            userId: userId,
+            title: `請求書: ${invoiceNumber}`,
+            startTime: invoiceRequest.replace(/\//g, '-'),
+            endTime: invoiceRequest.replace(/\//g, '-'),
+            allDay: true,
+            category: 'invoice',
+            color: '#fbbf24',
+            relatedInvoice: invoiceResult.insertedId,
+            relatedCustomer: new ObjectId(customerId),
+            status: invoiceStatus,
+        });
+
+        res.status(201).json({ success: true, invoiceResult });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -399,6 +679,23 @@ app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, asy
             return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
         }
 
+        // 売上を計算しなおす
+        await recalculateInvoiceTotal(invoiceId);
+        await recalculateInvoicesTotal(customerId);
+
+        // 既存カレンダーイベントを検索
+        const existingEvent = await db.collection("calendar-events").findOne({
+            relatedInvoice: new ObjectId(invoiceId),
+        });
+
+        // カレンダーイベントを更新
+        await manageCalendarEvent({
+            title: `請求書: ${invoiceNumber}`,
+            startTime: invoiceRequest.replace(/\//g, '-'),
+            endTime: invoiceRequest.replace(/\//g, '-'),
+            status: invoiceStatus,
+        }, existingEvent?._id);
+
         res.json({ success: true, message: "取引情報が更新されました" });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -416,6 +713,11 @@ app.delete('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, 
             userId: userId,
             customerId: new ObjectId(customerId),
         });
+
+        // 金額の再計算
+        await recalculateInvoiceTotal(invoiceId);
+        await recalculateInvoicesTotal(customerId);
+
         res.json({ success: true, message: "請求書が削除されました" });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -425,6 +727,20 @@ app.delete('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, 
 /*
  請求書内の取引関連
 ———————————————*/
+// 全ての請求書情報提供機能
+app.get('/api/invoices', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const invoices = await db.collection("invoices").find({
+            userId: userId,
+        }).sort({ createdAt: -1 }).toArray();
+
+        res.json(invoices);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
 // 一つの顧客に対する一つの請求書内の一つの取引情報修正機能
 app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
     try {
@@ -470,6 +786,12 @@ app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
             return res.status(404).json({ success: false, error: "更新対象が見つかりませんでした" });
         }
 
+
+
+        // 金額の再計算
+        await recalculateInvoiceTotal(invoiceId);
+        await recalculateInvoicesTotal(customerId);
+
         res.json({ success: true, message: "取引情報が更新されました" });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -508,7 +830,28 @@ app.delete('/api/customers/:customerId/invoices/:invoiceId/transactions/:transac
             customerId: new ObjectId(customerId),
             invoiceId: new ObjectId(invoiceId),
         });
+
+        // 金額の再計算
+        await recalculateInvoiceTotal(invoiceId);
+        await recalculateInvoicesTotal(customerId);
+
         res.json({ success: true, message: "取引情報が削除されました" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+/*
+ カレンダー関連
+———————————————*/
+app.get('/api/calendar-events', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const events = await db.collection("calendar-events").find({
+            userId: userId,
+        }).sort({ createdAt: -1 }).toArray();
+        res.json(events);
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
