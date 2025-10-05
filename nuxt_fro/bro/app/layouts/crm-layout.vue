@@ -25,7 +25,7 @@ watch(authToken, async (newToken) => {
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-dashboard" class="sidebar-link-icon"/>Dashboard</NuxtLink>
         <NuxtLink to="/crm/customerInf" class="sidebar-link"><v-icon name="md-info" class="sidebar-link-icon"/>顧客情報</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-handshake" class="sidebar-link-icon"/>商談・案件</NuxtLink>
-        <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="bi-calendar-event" class="sidebar-link-icon"/>スケジュール</NuxtLink>
+        <NuxtLink to="/crm/calendar" class="sidebar-link"><v-icon name="bi-calendar-event" class="sidebar-link-icon"/>カレンダー</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-message" class="sidebar-link-icon"/>メッセージ</NuxtLink>
         <NuxtLink to="/crm/analysis" class="sidebar-link"><v-icon name="md-analytics" class="sidebar-link-icon"/>分析</NuxtLink>
         <div class="logout" @click="handleLogout">
