@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {fetchAllInvoices} from "~/api/allInvoices";
 import { useToast } from 'vue-toastification'
-import type {Invoice} from "~/types/types";
+import type {Calendar, Invoice} from "~/types/types";
+import {ref} from "vue";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -64,10 +65,27 @@ async function loadUnpaidInvoices() {
   }
 }
 
+// 今日の予定を表示
+const events = ref<Calendar[]>([])
+
+async function loadSchedule() {
+  try {
+    const res = await $fetch('http://localhost:5000/api/today-calendar-events', {
+      headers: {
+        Authorization: `Bearer ${useAuth().authToken.value}`
+      }
+    });
+    events.value = res;
+  } catch (error) {
+    console.error('Error fetching schedule:', error);
+  }
+}
+
 onMounted(() => {
   loadInvoices();
   loadMonthlySales();
   loadUnpaidInvoices();
+  loadSchedule();
 })
 </script>
 
@@ -172,11 +190,13 @@ onMounted(() => {
             <h3 class="card-title">今日の予定</h3>
           </div>
           <div class="schedule-list">
-            <div class="schedule-item">
-              <div class="schedule-time">10:00</div>
+            <div
+                v-for="event in events"
+                class="schedule-item"
+            >
+              <div class="schedule-time">{{ event.startTime.split('T')[1].substring(0,5) }}</div>
               <div class="schedule-content">
-                <p class="schedule-title">定例ミーティング</p>
-                <p class="schedule-subtitle">営業チーム</p>
+                <p class="schedule-title">{{ event.title }}</p>
               </div>
             </div>
             <div class="empty-state-schedule">
