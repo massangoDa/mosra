@@ -83,6 +83,7 @@ const manageCalendarEvent = async (eventData, eventId = null) => {
             if (eventData.userId !== undefined) updateFields.userId = eventData.userId;
             if (eventData.title !== undefined) updateFields.title = eventData.title;
             if (eventData.description !== undefined) updateFields.description = eventData.description;
+            if (eventData.date !== undefined) updateFields.date = new Date(eventData.date);
             if (eventData.startTime !== undefined) updateFields.startTime = new Date(eventData.startTime);
             if (eventData.endTime !== undefined) updateFields.endTime = new Date(eventData.endTime);
             if (eventData.allDay !== undefined) updateFields.allDay = eventData.allDay;
@@ -107,6 +108,7 @@ const manageCalendarEvent = async (eventData, eventId = null) => {
             userId: eventData.userId,
             title: eventData.title,
             description: eventData.description || '',
+            date: new Date(eventData.date),
             startTime: new Date(eventData.startTime),
             endTime: eventData.endTime ? new Date(eventData.endTime) : new Date(eventData.startTime),
             allDay: eventData.allDay !== undefined ? eventData.allDay : false,
@@ -844,6 +846,7 @@ app.delete('/api/customers/:customerId/invoices/:invoiceId/transactions/:transac
 /*
  カレンダー関連
 ———————————————*/
+// 全てのイベントを提供
 app.get('/api/calendar-events', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -856,6 +859,64 @@ app.get('/api/calendar-events', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+// 今日のイベントを提供
+app.get('/api/today-calendar-events', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const now = new Date();
+        const todayStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}`;
+
+        const events = await db.collection("calendar-events").aggregate([
+            {
+                $match: {
+                    userId: userId
+                }
+            },
+            {
+                $addFields: {
+                    startDateStr: { $substr: ["$startTime", 0, 10] }
+                }
+            },
+            {
+                $match: {
+                    startDateStr: todayStr
+                }
+            },
+            {
+                $sort: { createdAt: -1 }
+            }
+        ]).toArray();
+
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+// 予定を追加
+app.post('/api/calendar-events', authenticateToken, async (req, res) => {
+    try {
+        const { title, description, date, startTime, endTime, category, color } = req.body;
+        const userId = req.user.id;
+
+        await manageCalendarEvent({
+            userId: userId,
+            title: `予定: ${title}`,
+            description: description,
+            date: date,
+            startTime: startTime,
+            endTime: endTime,
+            allDay: false,
+            category: category,
+            color: color,
+        });
+
+        res.status(201).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
 
 // サーバー起動
 app.listen(PORT, () => {

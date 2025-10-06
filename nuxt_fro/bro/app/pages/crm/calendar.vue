@@ -41,7 +41,10 @@ onMounted(async() => {
           end: event.endTime,
           allDay: event.allDay,
           backgroundColor: event.color,
-          url: `/crm/customer/${event.relatedCustomer}/invoice/${event.relatedInvoice}`,
+          borderColor: event.color,
+          url: event.relatedInvoice
+              ? `/crm/customer/${event.relatedCustomer}/invoice/${event.relatedInvoice}`
+              : '',
         })))
     ],
     headerToolbar: {
@@ -53,6 +56,56 @@ onMounted(async() => {
   });
   calendarInstance.render();
 })
+
+// カレンダー予定追加機能
+const showCalendarAddModal = ref(false);
+
+const submitUrl = computed(() =>
+  API_ENDPOINTS.createCalendarEvent()
+)
+
+const calendarFields = [
+  {
+    name: 'title',
+    label: 'タイトル',
+    type: 'text',
+    required: true
+  },
+  {
+    name: 'description',
+    label: '説明',
+    type: 'textarea'
+  },
+  {
+    name: 'date',
+    label: '日付',
+    type: 'date',
+    required: true
+  },
+  {
+    name: 'startTime',
+    label: '開始時間',
+    type: 'datetime',
+    required: true
+  },
+  {
+    name: 'endTime',
+    label: '終了時間',
+    type: 'datetime',
+    required: true
+  },
+  {
+    name: 'category',
+    label: 'カテゴリー',
+    type: 'text',
+  },
+  {
+    name: 'color',
+    label: '色分け',
+    type: 'color',
+    required: true
+  }
+]
 </script>
 
 <template>
@@ -62,6 +115,9 @@ onMounted(async() => {
       <div class="header-left">
         <h1 class="page-title">カレンダー</h1>
       </div>
+      <div class="header-right">
+        <button @click="showCalendarAddModal = true" class="NewInfoButton">+ 予定を追加</button>
+      </div>
     </div>
     <div class="calendar-container">
       <div class="calendar">
@@ -69,6 +125,16 @@ onMounted(async() => {
       </div>
     </div>
   </div>
+  <TemplateModal
+      v-if="showCalendarAddModal"
+      title="予定"
+      section-title="予定を追加"
+      :submit-url="submitUrl"
+      :fields="calendarFields"
+      success-message="予定を保存しました"
+      @close-modal="showCalendarAddModal = false"
+      @refresh=""
+  />
 </div>
 </template>
 
@@ -80,11 +146,31 @@ onMounted(async() => {
 }
 
 .header {
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
-.page-title {
-  font-weight: 700;
-  margin: 0 0 4px 0;
+.header-left {
+  display: flex;
+  align-items: center;
+}
+.header-right {
+  display: flex;
+  gap: 8px;
+}
+.NewInfoButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+.NewInfoButton:hover {
+  background-color: #0056b3;
 }
 
 .calendar-container {
