@@ -29,10 +29,14 @@ export interface Invoice {
 export interface Calendar {
     _id: string;
     title: string;
+    description: string;
+    date: string;
     startTime: string;
     endTime: string;
     allDay: boolean;
+    category: string;
     color: string;
     relatedInvoice: string;
     relatedCustomer: string;
+    status: string;
 }

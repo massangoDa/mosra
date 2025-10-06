@@ -69,7 +69,7 @@ const props = defineProps({
 interface FormField {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date ';
+  type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date' | 'datetime'| 'color';
   placeholder?: string;
   required?: boolean;
   options?: string[];
@@ -107,6 +107,52 @@ function formatInputValueToDate(inputValue: string): string {
   // YYYY-MM-DD形式をYYYY/MM/DD形式に変換
   return inputValue.replace(/-/g, '/');
 }
+///
+///
+///
+/// ココは危険です
+///
+///
+// ISO文字列から時間部分だけを取得 (HH:mm)
+function formatDateTimeToInputValue(isoString: string): string {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+// HTML input[type="time"]の値(HH:mm)と日付フィールドの値を組み合わせてISO文字列に変換
+function formatInputValueToDateTime(timeValue: string, fieldName: string): string {
+  if (!timeValue) return '';
+
+  // form.dateの値を取得（YYYY/MM/DD形式）
+  const dateStr = form.date;
+  if (!dateStr) {
+    console.warn(`date field is empty when setting ${fieldName}`);
+    return timeValue; // 日付がない場合は時間だけ返す
+  }
+
+  // YYYY/MM/DDをYYYY-MM-DDに変換
+  const datePart = dateStr.replace(/\//g, '-');
+
+  // 日付と時間を結合してDateオブジェクトを作成
+  const dateTime = new Date(`${datePart}T${timeValue}:00`);
+
+  // 無効な日付チェック
+  if (isNaN(dateTime.getTime())) {
+    console.error(`Invalid datetime for ${fieldName}: ${datePart}T${timeValue}:00`);
+    return timeValue;
+  }
+
+  return dateTime.toISOString();
+}
+
+const colorPalette = [
+  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
+  '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
+  '#F8B500', '#52D726', '#FF1493', '#808080',
+];
 // データ初期化
 function initializeForm() {
   props.fields.forEach(field => {
@@ -255,6 +301,30 @@ onMounted(() => {
                     @input="form[field.name] = formatInputValueToDate($event.target.value)"
                     :required="field.required"
                 >
+
+                <input
+                    v-else-if="field.type === 'datetime'"
+                    :id="field.name"
+                    type="time"
+                    class="form-input"
+                    :value="formatDateTimeToInputValue(form[field.name])"
+                    @input="form[field.name] = formatInputValueToDateTime($event.target.value, field.name)"
+                    :required="field.required"
+                >
+
+                <!-- カラーパレット(AIに頼んだ) -->
+                <div v-else-if="field.type === 'color'" class="color-palette">
+                  <button
+                      v-for="color in colorPalette"
+                      :key="color"
+                      type="button"
+                      class="palette-color"
+                      :class="{ selected: form[field.name] === color }"
+                      :style="{ backgroundColor: color }"
+                      @click="form[field.name] = color"
+                      :title="color"
+                  ></button>
+                </div>
 
                 <textarea
                   v-else-if="field.type === 'textarea'"
@@ -453,4 +523,42 @@ onMounted(() => {
   background-color: #2563eb;
 }
 
+.color-palette {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.palette-color {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.palette-color:hover {
+  transform: scale(1.1);
+  border-color: #666;
+}
+
+.palette-color.selected {
+  border-color: #000;
+  border-width: 4px;
+  transform: scale(1.05);
+}
+
+.palette-color.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
 </style>
