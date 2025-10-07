@@ -23,8 +23,6 @@ const handleSubmit = async () => {
     // useAuthの読み込み
     const { login } = useAuth()
     await login(email.value, password.value)
-
-    await navigateTo('/crm/dashboard')
   } catch (error) {
     alert("ログインに失敗しました")
   } finally {
@@ -64,7 +62,7 @@ const handleSubmit = async () => {
 }
 
 .inf-left {
-  flex: 1;
+  flex: 1.2;
   background-color: #3f8cff;
   color: white;
   padding: 40px;
@@ -90,7 +88,7 @@ const handleSubmit = async () => {
 }
 
 .inf-right {
-  flex: 1;
+  flex: 0.8;
   padding: 40px;
   display: flex;
   flex-direction: column;
