@@ -41,6 +41,25 @@ export const useAuth = () => {
         }
     };
 
+    // アカウント作成処理
+    const register = async (email: string, password: string, name: string) => {
+        loading.value = true;
+        try {
+            const response = await useFetch("http://localhost:5000/api/register", {
+                method: "POST",
+                body: { email, password, name },
+            });
+
+            await login(email, password);
+
+        } catch (error) {
+            console.error("Login error:", error);
+            alert((error as any)?.data?.error || "ログインに失敗しました");
+        } finally {
+            loading.value = false;
+        }
+    };
+
     // ログアウト処理
     const logout = async () => {
         loading.value = true;
@@ -118,6 +137,7 @@ export const useAuth = () => {
         userInfo,
         loading,
         login,
+        register,
         logout,
         fetchUserInfo,
     };

@@ -67,6 +67,30 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
+// アカウント作成機能
+app.post("/api/register", async (req, res) => {
+    try {
+        const {email, password, name} = req.body;
+
+        const user = {
+            email: email,
+            password: password,
+            name: name,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        }
+
+        const result = await db.collection("users").insertOne(user);
+        res.status(201).json({ success: true });
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).json({
+            message: "Server Error",
+            error: error.message
+        });
+    }
+})
+
 // logout機能
 app.post("/api/logout", async (req, res) => {
     res.json({ message: 'ログアウトしました(tokenあれば入れる)' });
