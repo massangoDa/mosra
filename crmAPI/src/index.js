@@ -3,6 +3,7 @@ import cors from "cors";
 import * as assert from "node:assert";
 import {MongoClient, ObjectId} from "mongodb";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const url = "mongodb://162.43.33.158:27017/crm?directConnection=true&serverSelectionTimeoutMS=5000&appName=mongosh+2.3.0";
 const SECRET_KEY = "MOSSANGOOES";
@@ -37,20 +38,31 @@ app.post("/api/login", async (req, res) => {
     try {
         // メールとパスワードをreq.bodyから
         const {email, password} = req.body;
-        // emailだけでUsersの中身から検索
-        const user = await db.collection("users").findOne({email});
+
+        // 検索
+        const user = await db.collection("users").findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({ message: "メールアドレスまたはパスワードが間違っています" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "メールアドレスまたはパスワードが間違っています" });
+        }
 
         const payload = {
             id: user._id,
             name: user.name,
             email: user.email
         };
+
         const token = jwt.sign(payload, SECRET_KEY, {
             expiresIn: "1h"
         });
 
         res.json({
-            message: "ユーザーが見つかった",
+            message: "ログイン成功",
             user: {
                 id: user._id,
                 email: user.email,
@@ -72,9 +84,11 @@ app.post("/api/register", async (req, res) => {
     try {
         const {email, password, name} = req.body;
 
+        const hashPassword = await bcrypt.hash(password, 10);
+
         const user = {
             email: email,
-            password: password,
+            password: hashPassword,
             name: name,
             createdAt: new Date(),
             updatedAt: new Date()
