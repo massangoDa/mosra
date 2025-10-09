@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import * as assert from "node:assert";
 import {MongoClient, ObjectId} from "mongodb";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -26,7 +25,7 @@ async function connectToMongo() {
         process.exit(1);
     }
 }
-connectToMongo();
+await connectToMongo();
 
 // ルート設定
 app.get("/", async (req, res) => {
@@ -109,6 +108,28 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/logout", async (req, res) => {
     res.json({ message: 'ログアウトしました(tokenあれば入れる)' });
 });
+
+// Verify
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({
+            message: "認証が必要"
+        });
+    }
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) {
+            return res.status(403).json({
+                message: "トークンが無効"
+            });
+        }
+        req.user = user;
+        next();
+    });
+};
 
 // カレンダーイベント操作(追加・更新対応)
 const manageCalendarEvent = async (eventData, eventId = null) => {
@@ -237,28 +258,6 @@ const recalculateInvoicesTotal = async (customerId) => {
     } catch (error) {
         console.error("合計金額再計算エラー:", error);
     }
-}
-
-// token認証
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-
-    if (!token) {
-        return res.status(401).json({
-            message: "認証が必要"
-        });
-    }
-
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) {
-            return res.status(403).json({
-                message: "トークンが無効"
-            });
-        }
-        req.user = user;
-        next();
-    })
 }
 
 /*
@@ -417,8 +416,6 @@ app.post('/api/customers', authenticateToken, async (req, res) => {
         const { companyName, type, category, website, phone, description, totalAmount } = req.body;
         // ユーザーIDで紐づけ
         const userId = req.user.id;
-
-        console.log(res)
 
         const customer = {
             userId: userId,
