@@ -28,6 +28,7 @@
     "marked": "^16.1.2",
     "marked-highlight": "^2.2.2",
     "nuxt": "^4.0.3",
+    "nuxt-security": "^2.4.0",
     "nuxt-simple-sitemap": "^4.4.1",
     "oh-vue-icons": "^1.0.0-rc3",
     "pagepiling.js": "^1.5.6",
