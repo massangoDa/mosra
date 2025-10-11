@@ -68,3 +68,9 @@
 .container {
     margin-top: 80px;
 }
+
+@media (hover: hover) {
+    a:hover {
+        background-color: transparent;
+    }
+}
