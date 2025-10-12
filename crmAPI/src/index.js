@@ -14,7 +14,6 @@ app.use(express.json());
 
 //MongoDB接続
 let db;
-
 async function connectToMongo() {
     try {
         const client = await MongoClient.connect(url);
@@ -199,7 +198,7 @@ const recalculateInvoiceTotal = async (invoiceId) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$amount" }
+                    totalAmount: { $sum: "$totalAmount" }
                 }
             }
         ]).toArray();
@@ -260,6 +259,11 @@ const recalculateInvoicesTotal = async (customerId) => {
     }
 }
 
+// 税計算
+const taxCalculation = (amount, tax_rate) => {
+    return Math.round(amount * (tax_rate / 100));
+}
+
 /*
  ダッシュボード関連
 ———————————————*/
@@ -278,6 +282,7 @@ app.get("/api/dashboard", authenticateToken, (req, res) => {
         });
     }
 })
+
 // 今月の売上を取得(先月も計算するが、これは前月比の話をするため)
 app.get("/api/dashboard/monthly-sales", authenticateToken, async (req, res) => {
     try {
@@ -367,6 +372,7 @@ app.get("/api/dashboard/monthly-sales", authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 全体の未収金請求書を取得
 app.get("/api/dashboard/unpaid-invoices", authenticateToken, async (req, res) => {
     try {
@@ -436,6 +442,7 @@ app.post('/api/customers', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 顧客情報受け渡し機能
 app.get('/api/customers', authenticateToken, async (req, res) => {
     try {
@@ -449,6 +456,7 @@ app.get('/api/customers', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する情報提供機能
 app.get('/api/customers/:customerId', authenticateToken, async (req, res) => {
     try {
@@ -464,6 +472,7 @@ app.get('/api/customers/:customerId', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する更新機能
 app.put('/api/customers/:customerId', authenticateToken, async (req, res) => {
     try {
@@ -513,6 +522,7 @@ app.put('/api/customers/:customerId', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する削除機能
 app.delete('/api/customers/:customerId', authenticateToken, async (req, res) => {
     try {
@@ -523,6 +533,23 @@ app.delete('/api/customers/:customerId', authenticateToken, async (req, res) => 
             _id: new ObjectId(customerId),
             userId: userId
         })
+
+        const invoicesResult = await db.collection("invoices").deleteMany({
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+
+        // 請求書の取引履歴も削除する
+        const transactionResult = await db.collection("transactions").deleteMany({
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        });
+
+        // カレンダーも削除する
+        const eventResult = await db.collection("calendar-events").deleteMany({
+            userId: userId,
+            relatedCustomer: new ObjectId(customerId),
+        });
 
         await recalculateInvoicesTotal(customerId);
 
@@ -539,11 +566,14 @@ app.delete('/api/customers/:customerId', authenticateToken, async (req, res) => 
 app.post('/api/customers/:customerId/transactions', authenticateToken, async (req, res) => {
     try {
         // ボディーから受け取るものは後で決める
-        const { product, amount, transactionStatus, invoiceId, cost } = req.body;
+        const { product, amount, transactionStatus, invoiceId, cost, tax_rate } = req.body;
         // カスタマーIDで紐づけする
         const customerId = req.params.customerId;
         // ユーザーID紐づけをする
         const userId = req.user.id;
+
+        // 税の計算
+        const taxInAmount = taxCalculation(amount, tax_rate);
 
         const transaction = {
             userId: userId,
@@ -551,7 +581,10 @@ app.post('/api/customers/:customerId/transactions', authenticateToken, async (re
             invoiceId: new ObjectId(invoiceId),
             product: product,
             amount: amount,
+            taxInAmount: taxInAmount,
+            totalAmount: amount + taxInAmount,
             cost: cost,
+            tax_rate: tax_rate,
             createdAt: new Date(),
         }
 
@@ -566,6 +599,7 @@ app.post('/api/customers/:customerId/transactions', authenticateToken, async (re
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する取引情報提供機能(現在は不使用だが、一覧を表示するときに必要)
 app.get('/api/customers/:customerId/transactions', authenticateToken, async (req, res) => {
     try {
@@ -624,6 +658,7 @@ app.post('/api/customers/:customerId/invoices', authenticateToken, async (req, r
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する請求書提供機能
 app.get('/api/customers/:customerId/invoices', authenticateToken, async (req, res) => {
     try {
@@ -640,6 +675,7 @@ app.get('/api/customers/:customerId/invoices', authenticateToken, async (req, re
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する一つの請求書情報提供機能
 app.get('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
     const customerId = req.params.customerId;
@@ -654,6 +690,7 @@ app.get('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, asy
 
     res.json(invoices);
 })
+
 // 一つの顧客に対する一つの請求書内の取引情報提供機能
 app.get('/api/customers/:customerId/invoices/:invoiceId/transactions', authenticateToken, async (req, res) => {
     const customerId = req.params.customerId;
@@ -671,6 +708,7 @@ app.get('/api/customers/:customerId/invoices/:invoiceId/transactions', authentic
     console.log("テスト:"+transactions);
     res.json(transactions);
 })
+
 // 一つの顧客に対する請求書修正機能
 app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
     try {
@@ -738,6 +776,7 @@ app.put('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, asy
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する請求書削除機能
 app.delete('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, async (req, res) => {
     try {
@@ -749,6 +788,20 @@ app.delete('/api/customers/:customerId/invoices/:invoiceId', authenticateToken, 
             _id: new ObjectId(invoiceId),
             userId: userId,
             customerId: new ObjectId(customerId),
+        });
+
+        // 請求書の取引履歴も削除する
+        const transactionResult = await db.collection("transactions").deleteMany({
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            invoiceId: new ObjectId(invoiceId),
+        });
+
+        // カレンダーも削除する
+        const eventResult = await db.collection("calendar-events").deleteMany({
+            userId: userId,
+            relatedInvoice: new ObjectId(invoiceId),
+            relatedCustomer: new ObjectId(customerId),
         });
 
         // 金額の再計算
@@ -781,7 +834,7 @@ app.get('/api/invoices', authenticateToken, async (req, res) => {
 // 一つの顧客に対する一つの請求書内の一つの取引情報修正機能
 app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
     try {
-        const { product, amount, cost } = req.body;
+        const { product, amount, cost, tax_rate } = req.body;
         const customerId = req.params.customerId;
         const transactionId = req.params.transactionId;
         const invoiceId = req.params.invoiceId;
@@ -800,12 +853,18 @@ app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
             return res.status(404).json({ success: false, error: "取引が見つかりません" });
         }
 
+        // 税計算
+        const taxInAmount = taxCalculation(amount, tax_rate);
+
         // 更新する内容
         const updateData = {
             $set: {
                 product: product,
                 amount: amount,
+                taxInAmount: taxInAmount,
+                totalAmount: amount + taxInAmount,
                 cost: cost,
+                tax_rate: tax_rate,
                 updatedAt: new Date(),
             }
         };
@@ -834,6 +893,7 @@ app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する一つの請求書内の一つの取引情報提供機能
 app.get('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
     try {
@@ -853,6 +913,7 @@ app.get('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 一つの顧客に対する一つの請求書内の一つの取引履歴削除機能
 app.delete('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactionId', authenticateToken, async (req, res) => {
     try {
@@ -894,6 +955,7 @@ app.get('/api/calendar-events', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 今日のイベントを提供
 app.get('/api/today-calendar-events', authenticateToken, async (req, res) => {
     try {
@@ -928,6 +990,7 @@ app.get('/api/today-calendar-events', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 })
+
 // 予定を追加
 app.post('/api/calendar-events', authenticateToken, async (req, res) => {
     try {

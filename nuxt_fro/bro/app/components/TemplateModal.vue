@@ -75,6 +75,7 @@ interface FormField {
   options?: string[];
   rows?: number;
   fullWidth?: boolean;
+  templateButton?: string[];
 }
 
 const emit = defineEmits<{
@@ -190,6 +191,7 @@ async function fetchBaseFormData() {
     form.product = res.product || ''
     form.amount = res.amount || ''
     form.cost = res.cost || ''
+    form.tax_rate = res.tax_rate || ''
   } catch (error) {
     toast.error('エラー');
     console.error(error)
@@ -243,6 +245,15 @@ async function onSubmit() {
   }
 }
 
+const applyTemplate = (fieldName: string, templateValue: string) => {
+  const numericValue = templateValue.replace(/[^\d.]/g, '')
+  form[fieldName] = numericValue
+
+  nextTick(() => {
+    console.log('Form after update:', form[fieldName])
+  })
+}
+
 onMounted(() => {
   initializeForm()
   if (props.fetchUrl) {
@@ -281,15 +292,28 @@ onMounted(() => {
                 <label :for="field.name">{{ field.label }}</label>
 
                 <!-- テキスト/数字入力欄 -->
-                <input
-                  v-if="field.type === 'text' || field.type === 'number' || field.type === 'phone' || field.type === 'website' "
-                  :id="field.name"
-                  :type="field.type"
-                  :placeholder="field.placeholder"
-                  class="form-input"
-                  v-model="form[field.name]"
-                  :required="field.required"
+                <div
+                    v-if="field.type === 'text' || field.type === 'number' || field.type === 'phone' || field.type === 'website'"
+                    class="input-with-button"
                 >
+                  <input
+                      :id="field.name"
+                      :type="field.type"
+                      :placeholder="field.placeholder"
+                      class="form-input"
+                      v-model="form[field.name]"
+                      :required="field.required"
+                  >
+                  <button
+                      v-for="template in field.templateButton"
+                      :key="template"
+                      type="button"
+                      class="template-button"
+                      @click="applyTemplate(field.name, template)"
+                  >
+                    {{ template }}
+                  </button>
+                </div>
 
                 <!-- 日付入力欄 -->
                 <input
@@ -560,5 +584,32 @@ onMounted(() => {
   font-size: 20px;
   font-weight: bold;
   text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+.input-with-button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.form-input {
+  flex: 1;
+}
+
+.template-button {
+  padding: 6px 12px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.template-button:hover {
+  background-color: #2563eb;
 }
 </style>
