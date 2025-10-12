@@ -40,6 +40,7 @@
     "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
-    "@types/fullpage.js": "^2.9.6"
+    "@types/fullpage.js": "^2.9.6",
+    "@vitejs/plugin-basic-ssl": "^2.1.0"
   }
 }
