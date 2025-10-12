@@ -90,7 +90,7 @@ const invoiceFields = [
     name: 'invoiceStatus',
     label: 'ステータス',
     type: 'select',
-    options: ['完了', '取引中', '停滞中']
+    options: ['完了', '取引中', '未払い']
   },
 ]
 

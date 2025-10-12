@@ -55,12 +55,13 @@ onMounted(() => {
               v-for="invoice in invoices"
               :class="{
                 'transaction-row': true,
-                'success': invoice.invoiceStatus == '完了'
+                'success': invoice.invoiceStatus == '完了',
+                'progress': invoice.invoiceStatus == '取引中'
               }"
           >
             <td class="product">
               <NuxtLink :to="`/crm/customer/${invoice.customerId}/invoice/${invoice._id}`" class="invoiceLink">
-                {{ invoice.invoiceNumber }}
+                <strong>{{ invoice.invoiceNumber }}</strong>
               </NuxtLink>
             </td>
             <td>
@@ -70,7 +71,9 @@ onMounted(() => {
               {{ invoice.invoiceRequest }}
             </td>
             <td>
-              {{ invoice.invoiceStatus }}
+              <span :class="['status-badge', `status-${invoice.invoiceStatus}`]">
+                {{ invoice.invoiceStatus }}
+              </span>
             </td>
           </tr>
           </tbody>
@@ -162,15 +165,28 @@ onMounted(() => {
   text-decoration: underline;
 }
 
-.transaction-row.success {
-  background-color: #e8f5e9;
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.transaction-row.success:hover {
-  background-color: #c8e6c9;
+.status-完了 {
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
-.success {
-  background-color: #bcedc2;
+.status-取引中 {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-未払い {
+  background-color: #f8d7da;
+  color: #842029;
 }
 </style>
