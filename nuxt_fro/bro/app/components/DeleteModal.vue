@@ -50,7 +50,7 @@ const { customerId, invoiceId } = useRoute().params;
 // 削除処理
 async function onSubmit() {
   try {
-    const res = await $fetch(`http://localhost:5000${props.deleteUrl}`, {
+    const res = await $fetch(`${props.deleteUrl}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${useAuth().authToken.value}`

@@ -39,7 +39,7 @@ const monthlySales = ref({
 
 async function loadMonthlySales() {
   try {
-    const res = await $fetch('http://localhost:5000/api/dashboard/monthly-sales', {
+    const res = await $fetch('/api/dashboard/monthly-sales', {
       headers: {
         Authorization: `Bearer ${useAuth().authToken.value}`
       }
@@ -54,7 +54,7 @@ const unpaidInvoices = ref({ totalAmount: 0, count: 0 });
 
 async function loadUnpaidInvoices() {
   try {
-    const res = await $fetch('http://localhost:5000/api/dashboard/unpaid-invoices', {
+    const res = await $fetch('/api/dashboard/unpaid-invoices', {
       headers: {
         Authorization: `Bearer ${useAuth().authToken.value}`
       }
@@ -70,7 +70,7 @@ const events = ref<Calendar[]>([])
 
 async function loadSchedule() {
   try {
-    const res = await $fetch('http://localhost:5000/api/today-calendar-events', {
+    const res = await $fetch('/api/today-calendar-events', {
       headers: {
         Authorization: `Bearer ${useAuth().authToken.value}`
       }

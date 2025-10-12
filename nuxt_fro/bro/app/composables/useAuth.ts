@@ -22,7 +22,7 @@ export const useAuth = () => {
     const login = async (email: string, password: string) => {
         loading.value = true;
         try {
-            const response = await useFetch("http://localhost:5000/api/login", {
+            const response = await useFetch("/api/login", {
                 method: "POST",
                 body: { email, password },
             });
@@ -45,7 +45,7 @@ export const useAuth = () => {
     const register = async (email: string, password: string, name: string) => {
         loading.value = true;
         try {
-            const response = await useFetch("http://localhost:5000/api/register", {
+            const response = await useFetch("/api/register", {
                 method: "POST",
                 body: { email, password, name },
             });

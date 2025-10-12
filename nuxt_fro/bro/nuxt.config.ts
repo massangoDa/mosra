@@ -39,5 +39,20 @@ export default defineNuxtConfig({
                 name: 'csrf_token'
             }
         }
-    }
+    },
+    devServer: {
+        https: true,
+        host: '0.0.0.0'
+    },
+    vite: {
+        server: {
+            https: true,
+            proxy: {
+                "/api/": {
+                    target: 'http://192.168.0.23:5000',
+                    secure: false
+                }
+            },
+        }
+    },
 })

@@ -170,7 +170,7 @@ function initializeForm() {
 // データ取得
 async function fetchFormData() {
   try {
-    const res = await fetchData().fetch(`http://localhost:5000/api${props.fetchUrl}`)
+    const res = await fetchData().fetch(`/api${props.fetchUrl}`)
     // フォームに値を設定
     props.fields.forEach(field => {
       form[field.name] = res[field.name] || ''
@@ -217,7 +217,7 @@ async function onSubmit() {
   console.log('Form data:', form)
   try {
     if (props.updateUrl != undefined) {
-      const res = await $fetch(`http://localhost:5000${props.updateUrl}`, {
+      const res = await $fetch(`${props.updateUrl}`, {
         method: 'PUT',
         body: form,
         headers: {
@@ -226,7 +226,7 @@ async function onSubmit() {
       })
       toast.success(props.successMessage)
     } else if (props.submitUrl != undefined) {
-      const res = await $fetch(`http://localhost:5000${props.submitUrl}`, {
+      const res = await $fetch(`${props.submitUrl}`, {
         method: 'POST',
         body: form,
         headers: {
