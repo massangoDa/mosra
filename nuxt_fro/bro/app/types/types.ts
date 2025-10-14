@@ -43,3 +43,11 @@ export interface Calendar {
     relatedCustomer: string;
     status: string;
 }
+
+export interface Comment {
+    _id: string;
+    customerId: string;
+    comment: string;
+    name: string;
+    createdAt: string;
+}

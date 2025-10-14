@@ -30,5 +30,16 @@ export const API_ENDPOINTS = {
             transactionUpdate: (customerId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/invoices/${invoiceId}/transactions/${transactionId}`,
             transactionDelete: (customerId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/invoices/${invoiceId}/transactions/${transactionId}`,
         }
+    },
+
+    // 検索関連
+    search: {
+        companyName: (customerId: string) => `/api/search/customer/${customerId}/companyName`,
+    },
+
+    // コメント機能関連
+    comments: {
+        create: (customerId: string) => `/api/customers/${customerId}/comments`,
+        list: (customerId: string) => `/api/customers/${customerId}/comments`,
     }
 }
