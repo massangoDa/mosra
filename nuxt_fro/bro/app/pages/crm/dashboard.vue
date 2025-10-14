@@ -3,6 +3,7 @@ import {fetchAllInvoices} from "~/api/allInvoices";
 import { useToast } from 'vue-toastification'
 import type {Calendar, Invoice} from "~/types/types";
 import {ref} from "vue";
+import {API_ENDPOINTS} from "~/api/endpoints";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -81,8 +82,33 @@ async function loadSchedule() {
   }
 }
 
-onMounted(() => {
-  loadInvoices();
+// 顧客の名前を取得
+const companyNames = ref<Record<string, string>>({});
+
+async function loadInvoiceCompanyNames() {
+  try {
+    for (const invoice of invoices.value.slice(0, 5)) {
+      if (invoice.customerId && !companyNames.value[invoice.customerId]) {
+        await loadCompanyName(invoice.customerId);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching company name:', error);
+  }
+}
+
+async function loadCompanyName(customerId: string) {
+  try {
+    const res = await fetchData().fetch(API_ENDPOINTS.search.companyName(customerId))
+    companyNames.value[customerId] = res?.companyName || '';
+  } catch (error) {
+    console.error('Error fetching company name:', error);
+  }
+}
+
+onMounted(async () => {
+  await loadInvoices();
+  await loadInvoiceCompanyNames();
   loadMonthlySales();
   loadUnpaidInvoices();
   loadSchedule();
@@ -171,6 +197,7 @@ onMounted(() => {
                   class="invoice-link"
               >
                 <div class="invoice-main">
+                  <span class="company-name">{{ companyNames[invoice.customerId] || '読み込み中' }}</span>
                   <span class="invoice-number">{{ invoice.invoiceNumber }}</span>
                   <span class="invoice-date">{{ invoice.invoiceRequest }}</span>
                 </div>
@@ -211,24 +238,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 120px);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-}
-
 .dashboard-container {
   display: flex;
   flex-direction: column;
@@ -512,12 +521,6 @@ onMounted(() => {
   margin: 0 0 4px 0;
 }
 
-.schedule-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-}
-
 .empty-state,
 .empty-state-schedule {
   text-align: center;
@@ -562,6 +565,94 @@ onMounted(() => {
 
   .alert-value {
     font-size: 32px;
+  }
+}
+
+:root.dark {
+  .header {
+    background: #1a202c;
+  }
+  .page-title {
+    color: #e2e8f0;
+  }
+  .card {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+  .alert-card {
+    background: linear-gradient(135deg, #742a2a 0%, #9b2c2c 100%);
+    border-color: #fc8181;
+  }
+  .alert-label {
+    color: #feb2b2;
+  }
+  .alert-value {
+    color: #fc8181;
+  }
+  .alert-description {
+    color: #fca5a5;
+  }
+  .kpi-card.unpaid {
+    background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+    border-color: #fbbf24;
+  }
+  .kpi-label {
+    color: #a0aec0;
+  }
+  .kpi-value {
+    color: #e2e8f0;
+  }
+  .unit {
+    color: #a0aec0;
+  }
+  .trend-text {
+    color: #a0aec0;
+  }
+  .kpi-period,
+  .kpi-count {
+    color: #a0aec0;
+  }
+  .card-title {
+    color: #e2e8f0;
+  }
+  .card-header {
+    border-bottom: 2px solid #4a5568;
+  }
+  .view-all-link {
+    color: #60a5fa;
+  }
+  .view-all-link:hover {
+    color: #3b82f6;
+  }
+  .invoice-item:hover {
+    background-color: #4a5568;
+  }
+  .invoice-number {
+    color: #e2e8f0;
+  }
+  .invoice-date {
+    color: #a0aec0;
+  }
+  .invoice-amount {
+    color: #e2e8f0;
+  }
+  .schedule-card {
+    background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
+    border-color: #7dd3fc;
+  }
+  .schedule-item {
+    background: #1e3a5f;
+    border: 1px solid #0369a1;
+  }
+  .schedule-time {
+    color: #7dd3fc;
+  }
+  .schedule-title {
+    color: #e2e8f0;
+  }
+  .empty-state,
+  .empty-state-schedule {
+    color: #a0aec0;
   }
 }
 </style>
