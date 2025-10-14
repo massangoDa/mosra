@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {useIdStore} from "~/store/idStore";
+import { useToast } from 'vue-toastification'
 import {fetchCustomer} from "~/api/customer";
-import {fetchInvoices} from "~/api/invoices";
-import type {Comment, Customer, Invoice} from "~/types/types";
+import {fetchTransactions} from "~/api/transactions";
+import type {Customer, Invoice, Transaction, Comment} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
-import {useToast} from "vue-toastification";
+import {fetchInvoice} from "~/api/invoice";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -14,28 +14,39 @@ definePageMeta({
 const toast = useToast()
 
 const customer = ref<Customer | null>(null)
-const invoices = ref<Invoice[]>([])
+const transaction = ref<Transaction[]>([])
+const invoice = ref<Invoice | null>(null)
 const comments = ref<Comment[]>([])
 const activePage = ref<'page1' | 'page2' | 'page3'>('page1')
 
 // チャット欄の話
 const message = ref('')
 
-const { id: customerId } = useRoute().params;
+const { customerId, invoiceId } = useRoute().params;
 
 // 顧客の詳細を取得
 async function loadCustomer() {
   try {
-    customer.value = await fetchCustomer(customerId)
+    customer.value = await fetchCustomer(customerId);
   } catch (error) {
     console.log(error)
   }
 }
 
 // 顧客取引情報を取得
-async function loadTransaction() {
+async function loadTransactions() {
   try {
-    invoices.value = await fetchInvoices(customerId)
+    transaction.value = await fetchTransactions(customerId, invoiceId);
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+// 請求書情報を取得
+async function loadInvoice() {
+  try {
+    invoice.value = await fetchInvoice(customerId, invoiceId);
+    console.log(invoice.value)
   } catch (error) {
     console.log(error)
   }
@@ -45,10 +56,13 @@ function switchPage(page: 'page1' | 'page2' | 'page3') {
   activePage.value = page
 }
 
-onMounted(() => {
-  loadCustomer();
-  loadTransaction();
-  loadComments()
+onMounted(async () => {
+  await Promise.all([
+    loadCustomer(),
+    loadTransactions(),
+    loadInvoice(),
+    loadComments()
+  ]);
 })
 
 // コメントを送信
@@ -88,60 +102,72 @@ async function loadComments() {
   }
 }
 
-// テストで一旦
-const showInvoiceModal = ref(false);
+// Modal呼び出し
+const showInvoiceAddModal = ref(false);
 const showEditInvoiceModal = ref(false);
 const showDeleteInvoiceModal = ref(false);
 
-const submitUrl = computed(() =>
-    API_ENDPOINTS.customers.invoices.create(customerId)
-)
-const submitUrl2 = computed(() =>
-    selectedInvoiceId.value
-        ? API_ENDPOINTS.customers.invoices.update(customerId, selectedInvoiceId.value)
-        : ""
-)
-const submitUrl3 = computed(() =>
-    API_ENDPOINTS.customers.invoices.delete(customerId, selectedInvoiceId.value)
-)
+const selectedTransactionId = ref<string | null>(null)
 
-const selectedInvoiceId = ref<string | null>(null)
-
-function openEditModal(invoiceId: string) {
-  selectedInvoiceId.value = invoiceId;
-  showEditInvoiceModal.value = true;
+function openEditModal(transactionId: string) {
+  selectedTransactionId.value = transactionId
+  showEditInvoiceModal.value = true
 }
-function openDeleteModal(invoiceId: string) {
-  selectedInvoiceId.value = invoiceId
+
+function openDeleteModal(transactionId: string) {
+  selectedTransactionId.value = transactionId
   showDeleteInvoiceModal.value = true
 }
 
-const invoiceFields = [
+const submitUrl = computed(() =>
+    API_ENDPOINTS.customers.transactions.create(customerId)
+)
+const submitUrl2 = computed(() =>
+    selectedTransactionId.value
+        ? API_ENDPOINTS.customers.invoices.transactionUpdate(customerId, invoiceId, selectedTransactionId.value)
+        : ""
+)
+const submitUrl3 = computed(() =>
+  API_ENDPOINTS.customers.invoices.transactionDelete(customerId, invoiceId, selectedTransactionId.value)
+)
+
+const invoiceAddFields = [
   {
-    name: 'invoiceNumber',
-    label: '請求書番号',
+    name: 'product',
+    label: '製品名',
     type: 'text',
-    placeholder: 'INV-2025-001',
+    placeholder: '製品名を追加',
     required: true,
   },
   {
-    name: 'invoiceRequest',
-    label: '発行日',
-    type: 'date',
-    placeholder: 'YYYY/MM/DD',
-    format: 'YYYY/MM/DD',
+    name: 'amount',
+    label: '金額',
+    type: 'number',
+    placeholder: '金額を入力',
   },
   {
-    name: 'invoiceStatus',
-    label: 'ステータス',
-    type: 'select',
-    options: ['完了', '取引中', '未払い']
+    name: 'cost',
+    label: '原価',
+    type: 'number',
+    placeholder: '製品の原価',
   },
+  {
+    name: 'tax_rate',
+    label: '税率',
+    type: 'select',
+    options: [
+        "10",
+        "8",
+        "5",
+        "0",
+    ]
+  }
 ]
 
 async function handleTransactionSaved() {
+  await loadTransactions();
   await loadCustomer();
-  await loadTransaction();
+  await loadInvoice();
 }
 </script>
 
@@ -153,7 +179,7 @@ async function handleTransactionSaved() {
           <h1>{{ customer?.companyName || 'Loading...' }}</h1>
         </div>
         <div class="header-right">
-          <button @click="showInvoiceModal = true" class="NewInfoButton">+ 請求書追加</button>
+          <button @click="showInvoiceAddModal = true" class="NewInfoButton">+ 取引追加</button>
         </div>
       </div>
       <div class="detailContainer">
@@ -187,24 +213,27 @@ async function handleTransactionSaved() {
             <div class="page-content">
               <div v-if="activePage === 'page1'" class="page page1">
                 <div class="calcContainer">
-                  <span class="sales-label">総売上</span>
-                  <span class="sales-amount">{{ useFormat().formatCurrency(customer?.totalAmount || 0) }}</span>
+                  <span class="sales-label">合計金額</span>
+                  <span class="sales-amount">{{ useFormat().formatCurrency(invoice?.totalAmount || 0) }}</span>
                 </div>
                 <div class="table-container">
                   <table class="table">
                     <thead>
                     <tr>
                       <th class="sortable">
-                        請求書番号
+                        製品名
                       </th>
                       <th class="sortable">
-                        合計金額
+                        金額
                       </th>
                       <th class="sortable">
-                        日付
+                        原価
                       </th>
                       <th class="sortable">
-                        ステータス
+                        税額
+                      </th>
+                      <th class="sortable">
+                        税率
                       </th>
                       <th class="sortable">
                         編集
@@ -215,36 +244,37 @@ async function handleTransactionSaved() {
                     </tr>
                     </thead>
                     <tbody>
-                      <tr
-                        v-for="invoice in invoices"
-                        :key="invoice._id"
+                    <tr
+                        v-for="transact in transaction"
+                        :key="transact._id"
                         class="table-row"
-                      >
-                        <td class="product">
-                          <NuxtLink :to="`/crm/customer/${customerId}/invoice/${invoice._id}`" class="invoiceLink">
-                            {{ invoice.invoiceNumber }}
-                          </NuxtLink>
-                        </td>
-                        <td class="amount">
-                          {{ useFormat().formatCurrency(invoice.totalAmount) }}
-                        </td>
-                        <td>
-                          {{ invoice.invoiceRequest }}
-                        </td>
-                        <td>
-                          {{ invoice.invoiceStatus }}
-                        </td>
-                        <td>
-                          <button @click="openEditModal(invoice._id)" class="edit-button">
-                            <v-icon name="la-edit-solid" />
-                          </button>
-                        </td>
-                        <td>
-                          <button @click="openDeleteModal(invoice._id)" class="edit-button">
-                            <v-icon name="la-trash-solid" />
-                          </button>
-                        </td>
-                      </tr>
+                    >
+                      <td class="product">
+                        {{ transact.product }}
+                      </td>
+                      <td class="amount">
+                        {{ useFormat().formatCurrency(transact.amount) }}
+                      </td>
+                      <td>
+                        {{ useFormat().formatCurrency(transact.cost) }}
+                      </td>
+                      <td>
+                        {{ useFormat().formatCurrency(transact.taxInAmount) }}
+                      </td>
+                      <td>
+                        {{ transact.tax_rate }} %
+                      </td>
+                      <td>
+                        <button @click="openEditModal(transact._id)" class="edit-button">
+                          <v-icon name="la-edit-solid" />
+                        </button>
+                      </td>
+                      <td>
+                        <button @click="openDeleteModal(transact._id)" class="edit-button">
+                          <v-icon name="la-trash-solid" />
+                        </button>
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
                 </div>
@@ -326,38 +356,38 @@ async function handleTransactionSaved() {
         </div>
       </div>
       <TemplateModal
-        v-if="showInvoiceModal"
-        title="請求書追加"
-        section-title="請求情報を追加"
-        :submit-url="submitUrl"
-        :fields="invoiceFields"
-        success-message="請求書を保存しました"
-        @close-modal="showInvoiceModal = false"
-        @refresh="loadTransaction(); loadCustomer();"
+          v-if="showInvoiceAddModal"
+          title="取引情報"
+          section-title="取引情報を追加"
+          :submit-url="submitUrl"
+          :fields="invoiceAddFields"
+          success-message="取引情報を保存しました"
+          @close-modal="showInvoiceAddModal = false"
+          :invoiceId="invoiceId"
+          @refresh="handleTransactionSaved"
       />
 
       <TemplateModal
           v-if="showEditInvoiceModal"
-          title="請求書修正"
-          section-title="請求書を修正"
+          title="取引情報修正"
+          section-title="取引情報を修正"
           :update-url="submitUrl2"
-          :fields="invoiceFields"
-          success-message="請求書を保存しました"
+          :fields="invoiceAddFields"
+          success-message="取引情報を保存しました"
           @close-modal="showEditInvoiceModal = false"
-          :invoiceId="selectedInvoiceId"
-          :customerId="customerId"
-          :editInvoice="true"
+          :transactionId="selectedTransactionId"
+          :editTransaction="true"
           @refresh="handleTransactionSaved"
       />
 
       <DeleteModal
           v-if="showDeleteInvoiceModal"
-          title="請求書削除"
-          section-title="請求書を削除しようとしています"
+          title="取引情報削除"
+          section-title="取引情報を削除しようとしています"
           :delete-url="submitUrl3"
-          success-message="請求書を削除しました"
+          success-message="取引情報を削除しました"
           @close-modal="showDeleteInvoiceModal = false"
-          :transactionId="selectedInvoiceId"
+          :transactionId="selectedTransactionId"
           @refresh="handleTransactionSaved"
       />
     </div>
@@ -393,11 +423,6 @@ async function handleTransactionSaved() {
   border-bottom: 2px solid #2376cc;
 }
 
-.invoiceLink {
-  color: orange;
-  text-decoration: underline;
-}
-
 .field-row {
   display: flex;
   align-items: center;
@@ -427,7 +452,6 @@ async function handleTransactionSaved() {
 }
 
 .sortable {
-  cursor: pointer;
   user-select: none;
 }
 
