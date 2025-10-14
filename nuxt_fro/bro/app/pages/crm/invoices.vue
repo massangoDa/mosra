@@ -33,7 +33,7 @@ onMounted(() => {
     </div>
     <div class="page-content">
       <div class="table-container">
-        <table class="invoices-table">
+        <table class="table">
           <thead>
           <tr>
             <th class="sortable">
@@ -54,7 +54,7 @@ onMounted(() => {
           <tr
               v-for="invoice in invoices"
               :class="{
-                'transaction-row': true,
+                'trow': true,
                 'success': invoice.invoiceStatus == '完了',
                 'progress': invoice.invoiceStatus == '取引中'
               }"
@@ -85,74 +85,12 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 120px);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-}
-
 .page-content {
   display: flex;
   flex: 1;
   overflow: hidden;
   min-height: 0;
   gap: 20px;
-}
-
-.table-container {
-  flex: 1;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  overflow: hidden;
-  min-height: 0;
-  margin-top: 1em;
-}
-
-.invoices-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.invoices-table thead {
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
-}
-
-.invoices-table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
-  position: relative;
-}
-
-.transaction-row {
-  border-bottom: 1px solid #dee2e6;
-  transition: all 0.2s ease;
-}
-
-.transaction-row:hover {
-  background-color: #f8f9fa;
-}
-
-.invoices-table td {
-  padding: 12px 16px;
-  font-size: 0.9rem;
-  vertical-align: middle;
 }
 
 .sortable {

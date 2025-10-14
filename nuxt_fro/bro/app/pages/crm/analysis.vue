@@ -123,12 +123,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 120px);
-}
-
 .header {
   margin-bottom: 20px;
 }
@@ -223,5 +217,23 @@ onMounted(() => {
 .chart {
   width: 100%;
   height: 100%;
+}
+
+:root.dark {
+  .summary-card {
+    background: #2d3748;
+  }
+  .chart-section {
+    background: #2d3748;
+  }
+  .card-subtext {
+    color: #a0aec0;
+  }
+  .page-subtitle {
+    color: #a0aec0;
+  }
+  .section-description {
+    color: #a0aec0;
+  }
 }
 </style>

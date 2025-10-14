@@ -139,26 +139,6 @@ const calendarFields = [
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 120px);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-}
-.header-right {
-  display: flex;
-  gap: 8px;
-}
 .NewInfoButton {
   background-color: #007bff;
   color: white;
@@ -193,9 +173,6 @@ const calendarFields = [
   color: #000;
   transition: 0.4s;
   padding: 3px;
-}
-:deep(a:hover) {
-  background-color: #fff;
 }
 
 /*カレンダー内部を深くまで味わう*/
@@ -291,5 +268,60 @@ const calendarFields = [
 /* 未来のイベント */
 :deep(.fc-event-future) {
   background-color: #10B981;
+}
+
+:root.dark {
+  .calendar {
+    background-color: #2d3748;
+  }
+  :deep(a, .green) {
+    color: #cbd5e0;
+  }
+  :deep(.fc-prev-button),
+  :deep(.fc-next-button) {
+    color: #cbd5e0;
+  }
+  :deep(.fc-prev-button:hover),
+  :deep(.fc-next-button:hover) {
+    background-color: #1a202c;
+  }
+  :deep(.fc-toolbar-title) {
+    color: #cbd5e0;
+  }
+  :deep(.fc-button-group .fc-button) {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    color: #cbd5e0;
+  }
+  :deep(.fc-day-today) {
+    background-color: #2d3748 !important;
+  }
+  :deep(.fc-daygrid-day-number) {
+    color: #cbd5e0;
+  }
+  :deep(.fc-day-sat .fc-daygrid-day-number) {
+    color: #60A5FA;
+  }
+  :deep(.fc-day-sun .fc-daygrid-day-number) {
+    color: #F87171;
+  }
+  :deep(.fc-event) {
+    background-color: #2563EB;
+  }
+  :deep(.fc-event:hover) {
+    background-color: #1E40AF;
+  }
+  :deep(.fc-daygrid-event) {
+    border-left: 4px solid #1E40AF;
+  }
+  :deep(.fc-event-past) {
+    background-color: #6B7280;
+  }
+  :deep(.fc-event-today) {
+    background-color: #D97706;
+  }
+  :deep(.fc-event-future) {
+    background-color: #059669;
+  }
 }
 </style>

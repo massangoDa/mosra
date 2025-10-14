@@ -110,7 +110,7 @@ const customerInfoFields = [
       </div>
       <!--   tableスタイルで行こうぜ   -->
       <div class="table-container">
-        <table class="customer-table">
+        <table class="table">
           <thead>
             <tr>
               <th class="sortable">
@@ -128,7 +128,7 @@ const customerInfoFields = [
             <tr
               v-for="customer in customers"
               :key="customer._id"
-              class="customer-row"
+              class="table-row"
             >
               <td class="company-name" >
                 <NuxtLink :to="`/crm/customer/${customer._id}`" class="link">
@@ -172,27 +172,6 @@ const customerInfoFields = [
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 120px);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-}
-.header-right {
-  display: flex;
-  gap: 8px;
-}
-
 .NewInfoButton {
   background-color: #007bff;
   color: white;
@@ -207,53 +186,10 @@ const customerInfoFields = [
   background-color: #0056b3;
 }
 
-.table-container {
-  flex: 1;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.customer-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.customer-table thead {
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
-}
-
-.customer-table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
-  position: relative;
-}
-
-.customer-row {
-  border-bottom: 1px solid #dee2e6;
-  transition: background-color 0.2s ease;
-}
-.customer-row:hover {
-  background-color: #f8f9fa;
-}
-
-.customer-table td {
-  padding: 12px 16px;
-  font-size: 0.9rem;
-  vertical-align: middle;
-}
-
 .company-name {
   color: #4285f4;
   font-weight: 500;
   cursor: pointer;
-}
-.company-name:hover {
   text-decoration: underline;
 }
 
