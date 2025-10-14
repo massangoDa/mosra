@@ -3,11 +3,25 @@ import cors from "cors";
 import {MongoClient, ObjectId} from "mongodb";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import * as path from "node:path";
+import { fileURLToPath } from 'url';
+import {authenticate} from "@google-cloud/local-auth";
+import {google} from "googleapis";
+import * as fs from "node:fs";
+import { convert } from 'html-to-text';
 
 const url = "mongodb://162.43.33.158:27017/crm?directConnection=true&serverSelectionTimeoutMS=5000&appName=mongosh+2.3.0";
 const SECRET_KEY = "MOSSANGOOES";
 const app = express();
 const PORT = 5000;
+
+// Gmail権限
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
+const CREDENTIALS_PATH = path.join(__dirname, 'credentials.json');
+const TOKEN_PATH = path.join(__dirname, 'token.json');
 
 app.use(cors());
 app.use(express.json());
@@ -28,7 +42,7 @@ await connectToMongo();
 
 // ルート設定
 app.get("/", async (req, res) => {
-    res.send("APIサーバーが起動しました！");
+    await gmailMain();
 });
 
 // login機能
@@ -263,6 +277,93 @@ const recalculateInvoicesTotal = async (customerId) => {
 const taxCalculation = (amount, tax_rate) => {
     return Math.round(amount * (tax_rate / 100));
 }
+
+// Google Authを実行
+async function googleAuthenticate() {
+    const auth = await authenticate({
+        scopes: SCOPES,
+        keyfilePath: CREDENTIALS_PATH,
+    });
+    return auth;
+}
+// 大元
+async function gmailMain() {
+    const auth = await googleAuthenticate();
+    // メッセージ(10件)の表示
+    const messages = await getRecentEmails(auth);
+    // メッセージデータの取得
+    const msgDates = await Promise.all(
+        messages.map(async (m) => await getEmailDateByMessageId(auth, m.id))
+    );
+    const textMessages = await Promise.all(
+        msgDates.map(async (md) => {
+            const payload = md.payload;
+            if (!payload || !('mimeType' in payload)) return;
+            if (payload.mimeType === 'multipart/alternative') {
+                // 内部の最初に解決された Promise が返される
+                return await Promise.any(
+                    payload.parts.map((part) => parseBody(part))
+                );
+            } else {
+                return parseBody(payload);
+            }
+        })
+    )
+    console.log(textMessages);
+}
+// アカウントのラベルの一覧
+async function getRecentEmails(auth) {
+    // 新しいGmail APIクライアントを作成
+    const gmail = google.gmail({ version: 'v1', auth });
+    //  新規メールを取得
+    const res = await gmail.users.messages.list({
+        userId: 'me',
+        labelIds: ['INBOX'],
+        maxResults: 1,
+    });
+    return res.data.messages;
+}
+// Message IDからmessageの詳細データ取得
+async function getEmailDateByMessageId(auth, messageId) {
+    const gmail = google.gmail({ version: 'v1', auth });
+    const res = await gmail.users.messages.get({
+        userId: 'me',
+        id: messageId,
+    });
+    return res.data;
+}
+// input の html/text 文字列からタグ情報などを取り除く
+const htmlConvert = (input) => {
+    // config
+    const options = {
+        ignoreHref: true,
+        ignoreImage: true,
+        noAnchorUrl: true,
+        singleNewLineParagraphs: true,
+    };
+
+    return convert(input, options);
+};
+// payload糖のmimeTypeによって、適切ない方法で本文を取り出す
+const parseBody = (container) => new Promise((resolve, reject) => {
+    // 空判定
+    if (!(container.body) || container.body.size === 0) reject();
+    try {
+        // base64 デコード
+        const body = Buffer.from(container.body.data, 'base64').toString();
+        if (container.mimeType === 'text/plain') {
+            resolve(body);
+        }
+        else if (container.mimeType === 'text/html') {
+            resolve(htmlConvert(body));
+        }
+        else {
+            reject();
+        }
+    } catch (error) {
+        reject(error);
+    }
+});
 
 /*
  ダッシュボード関連
@@ -1015,6 +1116,75 @@ app.post('/api/calendar-events', authenticateToken, async (req, res) => {
     }
 })
 
+/*
+ 検索関連
+———————————————*/
+app.get('/api/search/customer/:customerId/companyName', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        const resultCompanyName = await db.collection("customers").findOne({
+            _id: new ObjectId(customerId),
+            userId: userId,
+        }, {
+            projection: { companyName: 1 }
+        });
+
+        res.json({
+            companyName: resultCompanyName.companyName,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+
+/*
+ コメント機能関連
+———————————————*/
+// コメント追加
+app.post('/api/customers/:customerId/comments', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+        const { message } = req.body;
+
+        const comments = {
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            comment: message,
+            createdAt: new Date(),
+        };
+        const commentResult = await db.collection("comments").insertOne(comments);
+
+        res.status(201).json({ success: true, commentResult });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+// コメント表示
+app.get('/api/customers/:customerId/comments', authenticateToken, async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.user.id;
+
+        const comments = await db.collection("comments").find({
+            userId: userId,
+            customerId: new ObjectId(customerId),
+        }).sort({ createdAt: 1 }).toArray();
+
+        const commentsWithName = comments.map(comment => ({
+            ...comment,
+            name: req.user.name
+        }));
+
+        res.json(commentsWithName);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
 
 // サーバー起動
 app.listen(PORT, () => {
