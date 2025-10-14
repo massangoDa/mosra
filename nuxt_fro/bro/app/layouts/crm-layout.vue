@@ -3,6 +3,36 @@ import '~/assets/css/crm.css'
 
 const { userInfo, loading, fetchUserInfo, authToken, logout } = useAuth()
 
+// ダークモード管理
+const isDark = ref(false)
+
+// 初期化時にlocalStorageから読み込み、なければシステム設定を使用
+onMounted(() => {
+  const saved = localStorage.getItem('theme')
+  if (saved) {
+    isDark.value = saved === 'dark'
+  } else {
+    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  updateTheme()
+})
+
+// テーマ切り替え関数
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  updateTheme()
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
+
+// HTMLタグにクラスを追加/削除
+const updateTheme = () => {
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+}
+
 const handleLogout = async () => {
   await logout()
 }
@@ -37,8 +67,13 @@ watch(authToken, async (newToken) => {
       </nav>
       <!--   メインコンテンツ　  -->
       <main class="main-content">
-        <div class="account">
-          <p>{{ userInfo?.name }}</p>
+        <div class="top-controls">
+          <button @click="toggleTheme" class="theme-toggle">
+            <v-icon :name="isDark ? 'md-sunny' : 'md-darkmode'" />
+          </button>
+          <div class="account">
+            <p> <v-icon name="md-accountbox" class="icon"/> {{ userInfo?.name }}</p>
+          </div>
         </div>
         <slot />
       </main>
@@ -56,5 +91,88 @@ watch(authToken, async (newToken) => {
 
 .logout {
   cursor: pointer;
+}
+
+.icon {
+  margin-right: 8px;
+}
+
+.main-content {
+  width: 83%;
+  padding: 20px;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 右上のコントロールエリアを作成 */
+.top-controls {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+}
+
+.theme-toggle {
+  background-color: #fff;
+  border: 2px solid #e2e8f0;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.account {
+  background-color: #fff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.account p {
+  margin: 0;
+}
+
+/* ダークモード */
+:root.dark .theme-toggle {
+  background-color: #2d3748;
+  border-color: #4a5568;
+}
+
+:root.dark .theme-toggle:hover {
+  background-color: #374151;
+  border-color: #6b7280;
+}
+
+:root.dark .account {
+  background-color: #2d3748;
+  border-color: #4a5568;
+  color: #fff;
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  color: #4a5568;
+  transition: color 0.3s ease;
+}
+
+:root.dark .theme-toggle svg {
+  color: #fbbf24;
 }
 </style>
