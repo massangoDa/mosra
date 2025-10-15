@@ -51,3 +51,11 @@ export interface Comment {
     name: string;
     createdAt: string;
 }
+
+export interface SearchResult {
+    _id: string;
+    customerId: string;
+    invoiceId: string;
+    product: string;
+    amount: number;
+}

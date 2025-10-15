@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
     // 検索関連
     search: {
         companyName: (customerId: string) => `/api/search/customer/${customerId}/companyName`,
+        transactions: (query: string) => `/api/search/customers/transactions?q=${query}`,
     },
 
     // コメント機能関連

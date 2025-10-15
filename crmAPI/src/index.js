@@ -278,6 +278,27 @@ const taxCalculation = (amount, tax_rate) => {
     return Math.round(amount * (tax_rate / 100));
 }
 
+// 正規化関数
+function normalizeForSearch(str) {
+    if (!str) return '';
+
+    return str
+        // カタカナをひらがなに変換
+        .replace(/[\u30a1-\u30f6]/g, (match) => {
+            const chr = match.charCodeAt(0) - 0x60;
+            return String.fromCharCode(chr);
+        })
+        // 長音記号を削除
+        .replace(/ー/g, '')
+        // 全角英数を半角に
+        .normalize('NFKC')
+        // 小文字に統一
+        .toLowerCase()
+        // スペースを削除
+        .replace(/\s+/g, '')
+        .trim();
+}
+
 // Google Authを実行
 async function googleAuthenticate() {
     const auth = await authenticate({
@@ -676,6 +697,9 @@ app.post('/api/customers/:customerId/transactions', authenticateToken, async (re
         // 税の計算
         const taxInAmount = taxCalculation(amount, tax_rate);
 
+        // 正規化関数で曖昧検索できるようにする
+        const searchProduct = normalizeForSearch(product);
+
         const transaction = {
             userId: userId,
             customerId: new ObjectId(customerId),
@@ -686,6 +710,7 @@ app.post('/api/customers/:customerId/transactions', authenticateToken, async (re
             totalAmount: amount + taxInAmount,
             cost: cost,
             tax_rate: tax_rate,
+            searchProduct: searchProduct,
             createdAt: new Date(),
         }
 
@@ -957,6 +982,9 @@ app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
         // 税計算
         const taxInAmount = taxCalculation(amount, tax_rate);
 
+        // 正規化関数で曖昧検索できるようにする
+        const searchProduct = normalizeForSearch(product);
+
         // 更新する内容
         const updateData = {
             $set: {
@@ -966,6 +994,7 @@ app.put('/api/customers/:customerId/invoices/:invoiceId/transactions/:transactio
                 totalAmount: amount + taxInAmount,
                 cost: cost,
                 tax_rate: tax_rate,
+                searchProduct: searchProduct,
                 updatedAt: new Date(),
             }
         };
@@ -1119,6 +1148,7 @@ app.post('/api/calendar-events', authenticateToken, async (req, res) => {
 /*
  検索関連
 ———————————————*/
+// 顧客IDで顧客名を取得
 app.get('/api/search/customer/:customerId/companyName', authenticateToken, async (req, res) => {
     try {
         const customerId = req.params.customerId;
@@ -1138,7 +1168,28 @@ app.get('/api/search/customer/:customerId/companyName', authenticateToken, async
         res.status(500).json({ success: false, error: error.message });
     }
 })
+// 取引した物の名前のある請求書を取得
+app.get('/api/search/customers/transactions', authenticateToken, async (req, res) => {
+    try {
+        const query = req.query.q;
+        const userId = req.user.id;
 
+        const normalized = normalizeForSearch(query);
+
+        const transactions = await db.collection("transactions").find({
+            userId: userId,
+            searchProduct: { $regex: normalized, $options: 'i' }
+        }).sort({ createdAt: -1 }).toArray();
+
+        res.json({
+            success: true,
+            transactions
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
 
 /*
  コメント機能関連
