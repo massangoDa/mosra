@@ -45,6 +45,28 @@ watch(authToken, async (newToken) => {
 }, {
   immediate: true,
 })
+
+// 検索の話
+const showSearch = ref(false);
+
+function handleKeyDown(event: KeyboardEvent) {
+  if ((event.ctrlKey) && event.key === 'k') {
+    event.preventDefault();
+    showSearch.value = true;
+  }
+
+  if (event.key === 'Escape') {
+    showSearch.value = false;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+})
 </script>
 
 <template>
@@ -52,7 +74,7 @@ watch(authToken, async (newToken) => {
     <div class="main-area">
       <!--   サイドバー(左)   -->
       <nav class="sidebar">
-        <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-dashboard" class="sidebar-link-icon"/>Dashboard</NuxtLink>
+        <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-dashboard" class="sidebar-link-icon"/>ダッシュボード</NuxtLink>
         <NuxtLink to="/crm/customerInf" class="sidebar-link"><v-icon name="md-info" class="sidebar-link-icon"/>顧客情報</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-handshake" class="sidebar-link-icon"/>商談・案件</NuxtLink>
         <NuxtLink to="/crm/calendar" class="sidebar-link"><v-icon name="bi-calendar-event" class="sidebar-link-icon"/>カレンダー</NuxtLink>
@@ -67,6 +89,12 @@ watch(authToken, async (newToken) => {
       </nav>
       <!--   メインコンテンツ　  -->
       <main class="main-content">
+        <div class="search">
+          <button @click="showSearch = true" class="search-trigger">
+            <v-icon name="io-search" />
+            <span>検索</span>
+          </button>
+        </div>
         <div class="top-controls">
           <button @click="toggleTheme" class="theme-toggle">
             <v-icon :name="isDark ? 'md-sunny' : 'md-darkmode'" />
@@ -77,6 +105,11 @@ watch(authToken, async (newToken) => {
         </div>
         <slot />
       </main>
+      <!-- 検索モーダル -->
+      <Search
+          v-if="showSearch"
+          @close="showSearch = false"
+      />
     </div>
   </div>
 </template>
@@ -98,7 +131,7 @@ watch(authToken, async (newToken) => {
 }
 
 .main-content {
-  width: 83%;
+  width: 100%;
   padding: 20px;
   overflow-y: hidden;
   display: flex;
@@ -148,6 +181,31 @@ watch(authToken, async (newToken) => {
   margin: 0;
 }
 
+/* 検索窓 */
+.search {
+  position: fixed;
+}
+
+.search-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 250px 10px 24px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: #2c3e50;
+}
+
+.search-trigger:hover {
+  background: #e5e7eb;
+}
+
+
 /* ダークモード */
 :root.dark .theme-toggle {
   background-color: #2d3748;
@@ -162,7 +220,7 @@ watch(authToken, async (newToken) => {
 :root.dark .account {
   background-color: #2d3748;
   border-color: #4a5568;
-  color: #fff;
+  color: #cbd5e0;
 }
 
 .theme-toggle svg {
@@ -174,5 +232,11 @@ watch(authToken, async (newToken) => {
 
 :root.dark .theme-toggle svg {
   color: #fbbf24;
+}
+
+:root.dark .search-trigger {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
 }
 </style>
