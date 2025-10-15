@@ -135,6 +135,23 @@
     width: 70%;
     background-color: #fff;
     border-radius: 8px;
+    overflow-y: auto;
+}
+
+.leftDetail::-webkit-scrollbar {
+    width: 8px;
+}
+.leftDetail::-webkit-scrollbar-track {
+    background: rgba(30, 30, 30, 0.5);
+    border-radius: 8px;
+}
+.leftDetail::-webkit-scrollbar-thumb {
+    background: rgba(100, 100, 100, 0.6);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+.leftDetail::-webkit-scrollbar-thumb:hover {
+    background: rgba(160, 160, 160, 0.8);
 }
 
 .detailContent {
