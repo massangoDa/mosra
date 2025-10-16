@@ -1214,7 +1214,6 @@ app.post('/api/customers/:customerId/comments', authenticateToken, async (req, r
         res.status(500).json({ success: false, error: error.message });
     }
 })
-
 // コメント表示
 app.get('/api/customers/:customerId/comments', authenticateToken, async (req, res) => {
     try {
