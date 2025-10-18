@@ -22,7 +22,7 @@ export const useAuth = () => {
     const login = async (email: string, password: string) => {
         loading.value = true;
         try {
-            const response = await useFetch("/api/login", {
+            const response = await useFetch("/api/accounts/login", {
                 method: "POST",
                 body: { email, password },
             });
@@ -45,7 +45,7 @@ export const useAuth = () => {
     const register = async (email: string, password: string, name: string) => {
         loading.value = true;
         try {
-            const response = await useFetch("/api/register", {
+            const response = await useFetch("/api/accounts/register", {
                 method: "POST",
                 body: { email, password, name },
             });
@@ -66,11 +66,8 @@ export const useAuth = () => {
         try {
             if (authToken.value) {
                 try {
-                    await useFetch("http://localhost:5000/api/logout", {
+                    const response = await useFetch("/api/accounts/logout", {
                         method: "POST",
-                        headers: {
-                            Authorization: `Bearer ${authToken.value}`,
-                        }
                     });
                 } catch (error) {
                     console.warn("サーバー側ログアウトができなかった", error);
