@@ -6,12 +6,8 @@ const getDashboard = (req, res) => {
             message: "ダッシュボードにアクセスした",
             user: req.user
         });
-    } catch (err) {
-        console.error("Error fetching user:", err);
-        res.status(500).json({
-            message: "サーバーエラー",
-            error: err.message
-        });
+    } catch (error) {
+        res.error(500, error.message);
     }
 }
 
@@ -99,8 +95,8 @@ const getMonthlySales = async (req, res) => {
             }
         })
     } catch (error) {
-        console.log("売上取得エラー", error);
-        res.status(500).json({ success: false, error: error.message });
+        console.log("getMonthlySalesでエラーが発生した", error);
+        res.error(500, error.message);
     }
 }
 

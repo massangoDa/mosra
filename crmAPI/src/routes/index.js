@@ -1,9 +1,14 @@
 import express from 'express';
 const router = express.Router();
-import dashboardRoutes from "./dashboard.js";
 
+import accountsRoutes from "./accounts.js";
+import dashboardRoutes from "./dashboard.js";
+import customersRoutes from "./customers.js";
+import searchRoutes from "./search.js";
+
+router.use("/accounts", accountsRoutes)
 router.use("/dashboard", dashboardRoutes);
-// 明日はココ。router.useで/customers の場合
-// それと、/customers:customerId/transactions これは取引関連を入れたい
+router.use("/customers", customersRoutes);
+router.use("/search", searchRoutes);
 
 export default router;
