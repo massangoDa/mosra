@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxi dev --https --ssl-cert ./192.168.0.23+2.pem --ssl-key ./192.168.0.23+2-key.pem --host 192.168.0.23 --port 3000",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
