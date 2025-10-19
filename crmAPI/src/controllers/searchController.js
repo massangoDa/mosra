@@ -44,7 +44,36 @@ const searchTransactions = async (req, res) => {
     }
 }
 
+const searchLastNameFirstName = async (req, res) => {
+    try {
+        const contactId = req.params.contactId;
+        const userId = req.user.id;
+
+        console.log("contactId", contactId);
+
+        const resultContact = await db.collection("contacts").findOne({
+            _id: new ObjectId(contactId),
+            userId: userId,
+        }, {
+            projection: { lastName: 1, firstName: 1 }
+        });
+
+        if (!resultContact) {
+            return res.error(404);
+        }
+
+        res.json({
+            lastName: resultContact.lastName,
+            firstName: resultContact.firstName,
+        });
+
+    } catch (error) {
+        res.error(500, error.message);
+    }
+}
+
 export default {
     searchCompanyName,
     searchTransactions,
+    searchLastNameFirstName,
 }
