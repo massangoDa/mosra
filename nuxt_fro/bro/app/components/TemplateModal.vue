@@ -72,7 +72,7 @@ interface FormField {
   type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date' | 'datetime'| 'color';
   placeholder?: string;
   required?: boolean;
-  options?: string[];
+  options?: (string | SelectOption)[];
   rows?: number;
   fullWidth?: boolean;
   templateButton?: string[];
@@ -366,6 +366,8 @@ onMounted(() => {
                   :id="field.name"
                   v-model="form[field.name]"
                   :items="field.options"
+                  :item-text="typeof field.options?.[0] === 'string' ? undefined : (item) => item.label"
+                  :item-value="typeof field.options?.[0] === 'string' ? undefined : (item) => item.value"
                 />
               </div>
             </div>
