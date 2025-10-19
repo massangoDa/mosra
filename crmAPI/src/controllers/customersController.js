@@ -16,12 +16,13 @@ const getCustomers = async (req, res) => {
 
 const createCustomer = async (req, res) => {
     try {
-        const { companyName, type, category, website, phone, description, totalAmount } = req.body;
+        const { companyName, type, category, website, phone, contact, description, totalAmount } = req.body;
         // ユーザーIDで紐づけ
         const userId = req.user.id;
 
         const customer = {
             userId: userId,
+            contactId: contact ? new ObjectId(contact) : null,
             companyName: companyName,
             type: type,
             category: category,

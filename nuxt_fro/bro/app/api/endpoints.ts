@@ -36,11 +36,20 @@ export const API_ENDPOINTS = {
     search: {
         companyName: (customerId: string) => `/api/search/customer/${customerId}/companyName`,
         transactions: (query: string) => `/api/search/customers/transactions?q=${query}`,
+        lastNameFirstName: (contactId: string) => `/api/search/contact/${contactId}/lastNameFirstName`,
     },
 
     // コメント機能関連
     comments: {
         create: (customerId: string) => `/api/customers/${customerId}/comments`,
         list: (customerId: string) => `/api/customers/${customerId}/comments`,
+    },
+
+    // 連絡先関連
+    contacts: {
+        create: '/api/contacts',
+        list:'/api/contacts',
+        update: (contactId: string) => `/api/contacts/${contactId}`,
+        delete: (contactId: string) => `/api/contacts/${contactId}`,
     }
 }

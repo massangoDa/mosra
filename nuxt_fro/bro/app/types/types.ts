@@ -1,6 +1,7 @@
 // 型定義は全てこの中へ(多くなればファイル分けします)
 export interface Customer {
     _id: string;
+    contactId: string;
     companyName: string;
     type?: string;
     category?: string;
@@ -58,4 +59,14 @@ export interface SearchResult {
     invoiceId: string;
     product: string;
     amount: number;
+}
+
+export interface Contacts {
+    _id: string;
+    customerId: string;
+    lastName: string;
+    firstName: string;
+    email: string;
+    phone: string;
+    notes: string;
 }
