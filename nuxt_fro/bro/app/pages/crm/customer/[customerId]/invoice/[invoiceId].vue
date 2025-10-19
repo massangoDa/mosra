@@ -169,6 +169,19 @@ async function handleTransactionSaved() {
   await loadCustomer();
   await loadInvoice();
 }
+
+const contextMenu = ref<any>(null);
+const contextmenuItems = [
+  { id: 'edit', label: '編集' },
+  { id: 'delete', label: '削除' },
+];
+function handleContextMenuClick(transactionId: string, itemId: string) {
+  if (itemId === 'edit') {
+    openEditModal(transactionId)
+  } else if (itemId === 'delete') {
+    openDeleteModal(transactionId)
+  }
+}
 </script>
 
 <template>
@@ -235,12 +248,6 @@ async function handleTransactionSaved() {
                       <th class="sortable">
                         税率
                       </th>
-                      <th class="sortable">
-                        編集
-                      </th>
-                      <th class="sortable">
-                        削除
-                      </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -248,6 +255,7 @@ async function handleTransactionSaved() {
                         v-for="transact in transaction"
                         :key="transact._id"
                         class="table-row"
+                        @contextmenu="contextMenu?.openMenu($event, transact._id)"
                     >
                       <td class="product">
                         {{ transact.product }}
@@ -263,16 +271,6 @@ async function handleTransactionSaved() {
                       </td>
                       <td>
                         {{ transact.tax_rate }} %
-                      </td>
-                      <td>
-                        <button @click="openEditModal(transact._id)" class="edit-button">
-                          <v-icon name="la-edit-solid" />
-                        </button>
-                      </td>
-                      <td>
-                        <button @click="openDeleteModal(transact._id)" class="edit-button">
-                          <v-icon name="la-trash-solid" />
-                        </button>
                       </td>
                     </tr>
                     </tbody>
@@ -389,6 +387,12 @@ async function handleTransactionSaved() {
           @close-modal="showDeleteInvoiceModal = false"
           :transactionId="selectedTransactionId"
           @refresh="handleTransactionSaved"
+      />
+
+      <ContextMenu
+          ref="contextMenu"
+          :items="contextmenuItems"
+          @item-click="handleContextMenuClick"
       />
     </div>
   </div>
