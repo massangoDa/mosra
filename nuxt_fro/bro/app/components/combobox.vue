@@ -1,19 +1,30 @@
 <!-- components/Combobox.vue -->
 <script setup lang="ts">
+interface SelectOption {
+  label: string
+  value: string | number
+}
+
+type ComboboxItem = string | SelectOption
+
 interface Props {
-  items: string[]
-  modelValue: string
+  items: ComboboxItem[]
+  modelValue: string | number
   placeholder?: string
   disabled?: boolean
+  itemText?: (item: ComboboxItem) => string
+  itemValue?: (item: ComboboxItem) => string | number
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: string): void
+  (e: 'update:modelValue', value: string | number): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: '選択してください',
-  disabled: false
+  disabled: false,
+  itemText: (item: ComboboxItem) => typeof item === 'string' ? item : item.label,
+  itemValue: (item: ComboboxItem) => typeof item === 'string' ? item : item.value,
 })
 
 const emit = defineEmits<Emits>()
@@ -21,10 +32,28 @@ const emit = defineEmits<Emits>()
 const isOpen = ref(false)
 const comboboxRef = ref<HTMLElement | null>(null)
 
+// テキスト表示用のヘルパー
+const getItemText = (item: ComboboxItem): string => {
+  return props.itemText(item)
+}
+
+// 値取得用のヘルパー
+const getItemValue = (item: ComboboxItem): string | number => {
+  return props.itemValue(item)
+}
+
 // 選択肢をクリックした時の処理
-const selectItem = (item: string) => {
-  emit('update:modelValue', item)
+const selectItem = (item: ComboboxItem) => {
+  const value = getItemValue(item)
+  emit('update:modelValue', value)
   isOpen.value = false
+}
+
+// 現在の値に対応するテキストを取得
+const getCurrentText = (): string => {
+  if (!props.modelValue) return props.placeholder
+  const item = props.items.find(item => getItemValue(item) === props.modelValue)
+  return item ? getItemText(item) : props.placeholder
 }
 
 // comboboxの外をクリックした時に閉じる
@@ -63,7 +92,7 @@ onUnmounted(() => {
         :disabled="disabled"
     >
       <span class="combobox-value" :class="{ 'placeholder': !modelValue }">
-        {{ modelValue || placeholder }}
+        {{ getCurrentText() }}
       </span>
       <svg class="combobox-icon" :class="{ 'rotated': isOpen }" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -74,13 +103,13 @@ onUnmounted(() => {
       <div v-if="isOpen && !disabled" class="combobox-dropdown">
         <ul class="combobox-list">
           <li
-              v-for="item in items"
-              :key="item"
+              v-for="(item, index) in items"
+              :key="index"
               class="combobox-option"
-              :class="{ 'selected': item === modelValue }"
+              :class="{ 'selected': getItemValue(item) === modelValue }"
               @click="selectItem(item)"
           >
-            {{ item }}
+            {{ getItemText(item) }}
           </li>
         </ul>
       </div>
