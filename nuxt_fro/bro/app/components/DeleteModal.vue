@@ -39,6 +39,9 @@ const props = defineProps({
   transactionId: {
     type: String,
   },
+  contactId: {
+    type: String,
+  }
 });
 
 const emit = defineEmits<{
@@ -50,6 +53,7 @@ const { customerId, invoiceId } = useRoute().params;
 // 削除処理
 async function onSubmit() {
   try {
+    console.log(props.deleteUrl)
     const res = await $fetch(`${props.deleteUrl}`, {
       method: 'DELETE',
       headers: {
