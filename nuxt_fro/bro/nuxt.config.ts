@@ -7,12 +7,12 @@ export default defineNuxtConfig({
         '@nuxt/image',
         '@nuxt/ui',
         '@pinia/nuxt',
-        'nuxt-security'
+        'nuxt-security',
     ],
     css: [
-      '~/assets/css/main.css',
-      '~/assets/css/base.css',
-      'katex/dist/katex.min.css'
+        '~/assets/css/main.css',
+        '~/assets/css/base.css',
+        'katex/dist/katex.min.css',
     ],
     runtimeConfig: {
         public: {
