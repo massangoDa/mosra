@@ -6,6 +6,8 @@ const { userInfo, loading, fetchUserInfo, authToken, logout } = useAuth()
 // ダークモード管理
 const isDark = ref(false)
 
+const isMenuOpen = ref(false)
+
 // 初期化時にlocalStorageから読み込み、なければシステム設定を使用
 onMounted(() => {
   const saved = localStorage.getItem('theme')
@@ -67,6 +69,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);
 })
+
+
 </script>
 
 <template>
@@ -75,7 +79,16 @@ onUnmounted(() => {
       <!--   サイドバー(左)   -->
       <nav class="sidebar">
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-dashboard" class="sidebar-link-icon"/>ダッシュボード</NuxtLink>
-        <NuxtLink to="/crm/customerInf" class="sidebar-link"><v-icon name="md-info" class="sidebar-link-icon"/>顧客情報</NuxtLink>
+        <div class="menu-item-has-children" :class="{ open: isMenuOpen }">
+          <NuxtLink to="" class="sidebar-link" @click="isMenuOpen = !isMenuOpen">
+            <v-icon name="md-info" class="sidebar-link-icon"/>顧客情報
+            <v-icon name="oi-chevron-up" class="chevron-icon"/>
+          </NuxtLink>
+          <ul class="sub-menu">
+            <li><NuxtLink to="/crm/contacts" class="sidebar-link"><v-icon name="md-permcontactcalendar" class="sidebar-link-icon" />連絡先</NuxtLink></li>
+            <li><NuxtLink to="/crm/customerInf" class="sidebar-link"><v-icon name="md-corporatefare" class="sidebar-link-icon" />取引先</NuxtLink></li>
+          </ul>
+        </div>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-handshake" class="sidebar-link-icon"/>商談・案件</NuxtLink>
         <NuxtLink to="/crm/calendar" class="sidebar-link"><v-icon name="bi-calendar-event" class="sidebar-link-icon"/>カレンダー</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-message" class="sidebar-link-icon"/>メッセージ</NuxtLink>

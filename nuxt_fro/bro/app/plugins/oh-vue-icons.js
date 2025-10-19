@@ -22,10 +22,13 @@ import {
     MdSunny,
     MdAccountbox,
     IoSend,
-    IoSearch
+    IoSearch,
+    OiChevronUp,
+    MdCorporatefare,
+    MdPermcontactcalendar
 } from 'oh-vue-icons/icons';
 
-addIcons(FaSpotify, FaGithub, FaPencilAlt, HiHome, HiPencilAlt, BiInfoCircle, BiSearch, BiCalendarEvent, BiPcDisplay, MdDashboard, MdMessage, MdAnalytics, MdInfo, MdHandshake, MdLogout, LaEditSolid, LaTrashSolid, IoWarning, MdDarkmode, MdSunny, MdAccountbox, IoSend, IoSearch);
+addIcons(FaSpotify, FaGithub, FaPencilAlt, HiHome, HiPencilAlt, BiInfoCircle, BiSearch, BiCalendarEvent, BiPcDisplay, MdDashboard, MdMessage, MdAnalytics, MdInfo, MdHandshake, MdLogout, LaEditSolid, LaTrashSolid, IoWarning, MdDarkmode, MdSunny, MdAccountbox, IoSend, IoSearch, OiChevronUp, MdCorporatefare, MdPermcontactcalendar);
 
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.component('v-icon', OhVueIcon);
