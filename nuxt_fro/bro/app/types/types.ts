@@ -70,3 +70,21 @@ export interface Contacts {
     phone: string;
     notes: string;
 }
+
+export interface IdConfig {
+    customerId: string;
+    invoiceId: string;
+    transactionId: string;
+}
+
+export interface FormField {
+    name: string;
+    label: string;
+    type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date' | 'datetime'| 'color';
+    placeholder?: string;
+    required?: boolean;
+    options?: (string | SelectOption)[];
+    rows?: number;
+    fullWidth?: boolean;
+    templateButton?: string[];
+}
