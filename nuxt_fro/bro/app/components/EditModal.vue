@@ -2,6 +2,7 @@
 import Toast from 'vue-toastification'
 import { useToast } from 'vue-toastification'
 import { ref, reactive, onMounted } from "vue";
+import type {IdConfig, FormField} from "~/types/types";
 
 const toast = useToast()
 
@@ -18,10 +19,6 @@ const props = defineProps({
   },
   // API関連
   fetchUrl: {
-    type: String,
-    required: false
-  },
-  submitUrl: {
     type: String,
     required: false
   },
@@ -48,44 +45,16 @@ const props = defineProps({
     type: String,
     default: '保存に失敗しました'
   },
-  // IDの受け渡し
-  customerId: {
-    type: String,
-  },
-  invoiceId: {
-    type: String,
-  },
-  transactionId: {
-    type: String,
-  },
-  editTransaction: {
-    type: Boolean,
-  },
-  editInvoice: {
-    type: Boolean,
-  },
-  editContact: {
-    type: Boolean,
+  // 基本的にIDは使わないけど、例外があった場合のため(元々使おうと思っていたけど使わなかったから言い訳)
+  id: {
+    type: [String, Object] as PropType<string | IdConfig>,
+    required: false
   }
 });
-
-interface FormField {
-  name: string;
-  label: string;
-  type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date' | 'datetime'| 'color';
-  placeholder?: string;
-  required?: boolean;
-  options?: (string | SelectOption)[];
-  rows?: number;
-  fullWidth?: boolean;
-  templateButton?: string[];
-}
 
 const emit = defineEmits<{
   closeModal: []
 }>()
-
-const { customerId, invoiceId } = useRoute().params;
 
 const form = reactive<Record<string, any>>({})
 
@@ -97,14 +66,12 @@ function formatDateToYYYYMMDD(date: Date | string): string {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}/${month}/${day}`;
 }
-
 // 日付文字列をHTML input[type="date"]形式に変換 (YYYY-MM-DD)
 function formatDateToInputValue(dateString: string): string {
   if (!dateString) return '';
   // YYYY/MM/DD形式をYYYY-MM-DD形式に変換
   return dateString.replace(/\//g, '-');
 }
-
 // HTML input[type="date"]の値をYYYY/MM/DD形式に変換
 function formatInputValueToDate(inputValue: string): string {
   if (!inputValue) return '';
@@ -125,7 +92,6 @@ function formatDateTimeToInputValue(isoString: string): string {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
-
 // HTML input[type="time"]の値(HH:mm)と日付フィールドの値を組み合わせてISO文字列に変換
 function formatInputValueToDateTime(timeValue: string, fieldName: string): string {
   if (!timeValue) return '';
@@ -152,29 +118,17 @@ function formatInputValueToDateTime(timeValue: string, fieldName: string): strin
   return dateTime.toISOString();
 }
 
-const colorPalette = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
-  '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
-  '#F8B500', '#52D726', '#FF1493', '#808080',
-];
 // データ初期化
 function initializeForm() {
   props.fields.forEach(field => {
     form[field.name] = props.initialData[field.name] || ''
   });
-  // invoiceIdがあるなら
-  if (props.invoiceId) {
-    form.invoiceId = props.invoiceId;
-  }
-  if (props.transactionId) {
-    form._id = props.transactionId;
-  }
 }
 
 // データ取得
 async function fetchFormData() {
   try {
-    const res = await fetchData().fetch(`/api${props.fetchUrl}`)
+    const res = await fetchData().fetch(`${props.fetchUrl}`)
     // フォームに値を設定
     props.fields.forEach(field => {
       form[field.name] = res[field.name] || ''
@@ -185,79 +139,18 @@ async function fetchFormData() {
   }
 }
 
-// 取引のフォーム初期値を設定する
-async function fetchBaseFormData() {
-  try {
-    const res = await fetchData().fetch(`/api/customers/${customerId}/invoices/${invoiceId}/transactions/${props.transactionId}`)
-
-    // フォームの初期値として設定
-    form.product = res.product || ''
-    form.amount = res.amount || ''
-    form.cost = res.cost || ''
-    form.tax_rate = res.tax_rate || ''
-  } catch (error) {
-    toast.error('エラー');
-    console.error(error)
-  }
-}
-
-// 請求書のフォーム初期値を設定
-async function fetchInvoiceBaseFormData() {
-  try {
-    const res = await fetchData().fetch(`/api/customers/${props.customerId}/invoices/${props.invoiceId}`)
-
-    // フォームの初期値として設定
-    form.invoiceNumber = res.invoiceNumber || ''
-    form.totalAmount = res.totalAmount || ''
-    form.invoiceRequest = res.invoiceRequest || ''
-    form.invoiceStatus = res.invoiceStatus || ''
-  } catch (error) {
-    toast.error('エラー');
-    console.error(error)
-  }
-}
-
-// 連絡先のフォーム初期値を設定
-async function fetchContactBaseFormData() {
-  try {
-    const res = await fetchData().fetch()
-
-    // 次回は一つの連絡先の情報取得をAPIで作ってここで使う
-
-    // フォームの初期値として設定
-    form.invoiceNumber = res.invoiceNumber || ''
-    form.totalAmount = res.totalAmount || ''
-    form.invoiceRequest = res.invoiceRequest || ''
-    form.invoiceStatus = res.invoiceStatus || ''
-  } catch (error) {
-    toast.error('エラー');
-    console.error(error)
-  }
-}
-
 // 送信処理
 async function onSubmit() {
-  console.log('Form data:', form)
   try {
-    if (props.updateUrl != undefined) {
-      const res = await $fetch(`${props.updateUrl}`, {
-        method: 'PUT',
-        body: form,
-        headers: {
-          Authorization: `Bearer ${useAuth().authToken.value}`
-        },
-      })
-      toast.success(props.successMessage)
-    } else if (props.submitUrl != undefined) {
-      const res = await $fetch(`${props.submitUrl}`, {
-        method: 'POST',
-        body: form,
-        headers: {
-          Authorization: `Bearer ${useAuth().authToken.value}`
-        },
-      })
-      toast.success(props.successMessage)
-    }
+    const res = await $fetch(`${props.updateUrl}`, {
+      method: 'PUT',
+      body: form,
+      headers: {
+        Authorization: `Bearer ${useAuth().authToken.value}`
+      },
+    })
+    toast.success(props.successMessage)
+
     emit("closeModal")
     emit("refresh")
   } catch (error) {
@@ -277,18 +170,7 @@ const applyTemplate = (fieldName: string, templateValue: string) => {
 
 onMounted(() => {
   initializeForm()
-  if (props.fetchUrl) {
-    fetchFormData()
-  }
-  if (props.editTransaction) {
-    fetchBaseFormData()
-  }
-  if (props.editInvoice) {
-    fetchInvoiceBaseFormData()
-  }
-  if (props.editContact) {
-    fetchContactBaseFormData()
-  }
+  fetchFormData()
 })
 </script>
 
@@ -305,10 +187,10 @@ onMounted(() => {
             <div class="form-grid">
               <!--      動的フォームフィールド        -->
               <div
-                v-for="field in fields"
-                :key="field.name"
-                class="form-field"
-                :class="{
+                  v-for="field in fields"
+                  :key="field.name"
+                  class="form-field"
+                  :class="{
                   required: field.required,
                   'full-width': field.fullWidth
                 }"
@@ -375,23 +257,23 @@ onMounted(() => {
                 </div>
 
                 <textarea
-                  v-else-if="field.type === 'textarea'"
-                  :id="field.name"
-                  :placeholder="field.placeholder"
-                  :rows="field.rows || 3"
-                  class="form-textarea"
-                  v-model="form[field.name]"
-                  :required="field.required"
+                    v-else-if="field.type === 'textarea'"
+                    :id="field.name"
+                    :placeholder="field.placeholder"
+                    :rows="field.rows || 3"
+                    class="form-textarea"
+                    v-model="form[field.name]"
+                    :required="field.required"
                 ></textarea>
 
                 <!-- セレクトボックス -->
                 <Combobox
-                  v-else-if="field.type === 'select'"
-                  :id="field.name"
-                  v-model="form[field.name]"
-                  :items="field.options"
-                  :item-text="typeof field.options?.[0] === 'string' ? undefined : (item) => item.label"
-                  :item-value="typeof field.options?.[0] === 'string' ? undefined : (item) => item.value"
+                    v-else-if="field.type === 'select'"
+                    :id="field.name"
+                    v-model="form[field.name]"
+                    :items="field.options"
+                    :item-text="typeof field.options?.[0] === 'string' ? undefined : (item) => item.label"
+                    :item-value="typeof field.options?.[0] === 'string' ? undefined : (item) => item.value"
                 />
               </div>
             </div>

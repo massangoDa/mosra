@@ -127,6 +127,16 @@ const submitUrl2 = computed(() =>
         ? API_ENDPOINTS.customers.invoices.transactionUpdate(customerId, invoiceId, selectedTransactionId.value)
         : ""
 )
+const fetchTransactionForm = computed(() =>
+    selectedTransactionId.value
+        ? API_ENDPOINTS.customers.invoices.transactionDetail(customerId, invoiceId, selectedTransactionId.value)
+        : ""
+)
+const updateTransaction = computed(() =>
+    selectedTransactionId.value
+        ? API_ENDPOINTS.customers.invoices.transactionUpdate(customerId, invoiceId, selectedTransactionId.value)
+        : ""
+)
 const submitUrl3 = computed(() =>
   API_ENDPOINTS.customers.invoices.transactionDelete(customerId, invoiceId, selectedTransactionId.value)
 )
@@ -365,16 +375,15 @@ function handleContextMenuClick(transactionId: string, itemId: string) {
           @refresh="handleTransactionSaved"
       />
 
-      <TemplateModal
+      <EditModal
           v-if="showEditInvoiceModal"
           title="取引情報修正"
           section-title="取引情報を修正"
-          :update-url="submitUrl2"
+          :fetch-url="fetchTransactionForm"
+          :update-url="updateTransaction"
           :fields="invoiceAddFields"
           success-message="取引情報を保存しました"
           @close-modal="showEditInvoiceModal = false"
-          :transactionId="selectedTransactionId"
-          :editTransaction="true"
           @refresh="handleTransactionSaved"
       />
 

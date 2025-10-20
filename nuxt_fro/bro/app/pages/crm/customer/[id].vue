@@ -101,6 +101,16 @@ const submitUrl2 = computed(() =>
         ? API_ENDPOINTS.customers.invoices.update(customerId, selectedInvoiceId.value)
         : ""
 )
+const fetchInvoiceField = computed(() =>
+    selectedInvoiceId.value
+        ? API_ENDPOINTS.customers.invoices.detail(customerId, selectedInvoiceId.value)
+        : ""
+)
+const updateInvoice = computed(() =>
+    selectedInvoiceId.value
+        ? API_ENDPOINTS.customers.invoices.update(customerId, selectedInvoiceId.value)
+        : ""
+)
 const submitUrl3 = computed(() =>
     API_ENDPOINTS.customers.invoices.delete(customerId, selectedInvoiceId.value)
 )
@@ -334,17 +344,29 @@ function handleContextMenuClick(invoiceId: string, itemId: string) {
         @refresh="loadTransaction(); loadCustomer();"
       />
 
-      <TemplateModal
+<!--      <TemplateModal-->
+<!--          v-if="showEditInvoiceModal"-->
+<!--          title="請求書修正"-->
+<!--          section-title="請求書を修正"-->
+<!--          :update-url="submitUrl2"-->
+<!--          :fields="invoiceFields"-->
+<!--          success-message="請求書を保存しました"-->
+<!--          @close-modal="showEditInvoiceModal = false"-->
+<!--          :invoiceId="selectedInvoiceId"-->
+<!--          :customerId="customerId"-->
+<!--          :editInvoice="true"-->
+<!--          @refresh="handleTransactionSaved"-->
+<!--      />-->
+
+      <EditModal
           v-if="showEditInvoiceModal"
           title="請求書修正"
           section-title="請求書を修正"
-          :update-url="submitUrl2"
+          :fetch-url="fetchInvoiceField"
+          :update-url="updateInvoice"
           :fields="invoiceFields"
           success-message="請求書を保存しました"
           @close-modal="showEditInvoiceModal = false"
-          :invoiceId="selectedInvoiceId"
-          :customerId="customerId"
-          :editInvoice="true"
           @refresh="handleTransactionSaved"
       />
 

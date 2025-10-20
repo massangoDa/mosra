@@ -30,9 +30,15 @@ onMounted(() => {
 })
 
 const showContactInfoModal = ref(false);
+const showEditContactModal = ref(false);
 const showDeleteContactModal = ref(false);
 
 const selectedContactId = ref<string | null>(null)
+
+function openEditModal(contactId: string) {
+  selectedContactId.value = contactId
+  showEditContactModal.value = true
+}
 
 function openDeleteModal(contactId: string) {
   selectedContactId.value = contactId
@@ -42,6 +48,11 @@ function openDeleteModal(contactId: string) {
 
 const submitUrl = computed(() =>
     API_ENDPOINTS.contacts.create
+)
+const editContactUrl = computed(() =>
+    selectedContactId.value
+        ? API_ENDPOINTS.contacts.update(selectedContactId.value)
+        : ""
 )
 const deleteContactUrl = computed(() =>
     API_ENDPOINTS.contacts.delete(selectedContactId.value)
@@ -87,12 +98,15 @@ const customerInfoFields = computed(() =>[
 const contextMenu = ref<any>(null);
 
 const contextmenuItems = [
+  { id: 'edit', label:'編集' },
   { id: 'delete', label: '削除' },
 ];
 
 function handleContextMenuClick(contactId: string, itemId: string) {
   if (itemId === 'delete') {
     openDeleteModal(contactId);
+  } else if (itemId === 'edit') {
+    openEditModal(contactId);
   }
 }
 </script>
@@ -161,6 +175,19 @@ function handleContextMenuClick(contactId: string, itemId: string) {
           success-message="連絡先情報を保存しました"
           @close-modal="showContactInfoModal = false"
           @refresh="loadContacts();"
+      />
+
+      <TemplateModal
+          v-if="showEditContactModal"
+          title="連絡先修正"
+          section-title="連絡先情報を修正"
+          :update-url="editContactUrl"
+          :fields="customerInfoFields"
+          success-message="連絡先情報を保存しました"
+          @close-modal="showEditContactModal = false"
+          :contactId="selectedContactId"
+          :editTransaction="true"
+          @refresh="loadContacts"
       />
 
       <DeleteModal
