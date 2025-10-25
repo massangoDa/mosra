@@ -12,6 +12,8 @@ export default defineNuxtConfig({
     css: [
         '~/assets/css/main.css',
         '~/assets/css/base.css',
+        '~/assets/css/variables.css',
+        '~/assets/css/utils.css',
         'katex/dist/katex.min.css',
     ],
     runtimeConfig: {
