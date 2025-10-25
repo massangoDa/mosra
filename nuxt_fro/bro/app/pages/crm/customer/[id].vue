@@ -6,6 +6,7 @@ import {fetchInvoices} from "~/api/invoices";
 import type {Comment, Customer, Invoice} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {useToast} from "vue-toastification";
+import '~/assets/css/pages/id.css'
 
 definePageMeta({
   layout: 'crm-layout',
@@ -391,113 +392,4 @@ function handleContextMenuClick(invoiceId: string, itemId: string) {
 </template>
 
 <style scoped>
-.NewInfoButton {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 16px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-.NewInfoButton:hover {
-  background-color: #0056b3;
-}
-
-.link {
-  padding: 4px 24px;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  color: #666;
-}
-.link:hover {
-  border-bottom: 2px solid #2376cc;
-  background-color: transparent;
-}
-.link.active {
-  border-bottom: 2px solid #2376cc;
-}
-
-.invoiceLink {
-  color: orange;
-  text-decoration: underline;
-}
-
-.field-row {
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  border-bottom: 1px solid #f0f0f0;
-  min-height: 20px;
-}
-.field-row:first-child{
-  margin-top: 10px
-}
-.field-row:last-child {
-  border-bottom: none;
-}
-
-.field-label {
-  width: 120px;
-  color: #666;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.field-value {
-  flex: 1;
-  color: #333;
-  font-size: 0.9rem;
-  margin-left: 40px;
-}
-
-.sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
-.calcContainer {
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px 24px;
-  margin: 20px 0;
-  text-align: center;
-}
-.calcContainer .sales-label {
-  color: #6b7280;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-}
-.calcContainer .sales-amount {
-  color: #111827;
-  font-size: 32px;
-  font-weight: 700;
-}
-
-:root.dark {
-  .calcContainer {
-    background: #2d3748;
-    border-color: #4a5568;
-  }
-  .calcContainer .sales-label {
-    color: #cbd5e0;
-  }
-  .calcContainer .sales-amount {
-    color: #cbd5e0;
-  }
-  .link {
-    color: #cbd5e0;
-  }
-  .field-label {
-    color: #cbd5e0;
-  }
-  .field-value {
-    color: #cbd5e0;
-  }
-}
 </style>

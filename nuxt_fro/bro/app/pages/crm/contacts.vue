@@ -152,7 +152,7 @@ function handleContextMenuClick(contactId: string, itemId: string) {
               {{ contact.lastName }} {{ contact.firstName || '' }}
             </td>
             <td class="company-name">
-              <NuxtLink :to="`/crm/customer/${contact.customerId}`" class="link">
+              <NuxtLink :to="`/crm/customer/${contact.customerId}`" class="company-name">
                 {{ contact.customerId }}
               </NuxtLink>
             </td>
@@ -210,40 +210,4 @@ function handleContextMenuClick(contactId: string, itemId: string) {
 </template>
 
 <style scoped>
-.NewInfoButton {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 16px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-.NewInfoButton:hover {
-  background-color: #0056b3;
-}
-
-.company-name {
-  color: #4285f4;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.link {
-  text-decoration: none;
-  color: #4285f4;
-  transition: background-color 0.3s ease;
-}
-.link:hover {
-  background-color: transparent;
-}
-
-.sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
-
 </style>

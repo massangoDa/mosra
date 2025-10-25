@@ -4,6 +4,7 @@ import {fetchCustomers} from "~/api/customers";
 import {Chart, registerables} from "chart.js";
 import {ref} from "vue";
 import type {Customer} from "~/types/types";
+import '~/assets/css/pages/analysis.css'
 
 definePageMeta({
   layout: 'crm-layout',
@@ -123,117 +124,5 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.header {
-  margin-bottom: 20px;
-}
-.page-title {
-  font-weight: 700;
-  margin: 0 0 4px 0;
-}
-.page-subtitle {
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0;
-}
 
-.analysis-container {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.summary-card {
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  transition: all 0.3s ease;
-}
-
-.card-content {
-  flex: 1;
-}
-
-.card-label {
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.9;
-  margin: 0 0 8px 0;
-}
-
-.card-value {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1;
-}
-
-.card-subtext {
-  font-size: 1rem;
-  opacity: 0.8;
-  font-weight: 500;
-  color: #6b7280;
-}
-
-.chart-section {
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 32px;
-}
-
-.section-header {
-  margin-bottom: 24px;
-}
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 4px 0;
-}
-.section-description {
-  font-size: 1rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.chart-container {
-  width: 100%;
-  height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.chart {
-  width: 100%;
-  height: 100%;
-}
-
-:root.dark {
-  .summary-card {
-    background: #2d3748;
-  }
-  .chart-section {
-    background: #2d3748;
-  }
-  .card-subtext {
-    color: #a0aec0;
-  }
-  .page-subtitle {
-    color: #a0aec0;
-  }
-  .section-description {
-    color: #a0aec0;
-  }
-}
 </style>

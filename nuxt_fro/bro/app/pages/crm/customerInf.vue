@@ -5,6 +5,7 @@ import {fetchCustomers} from "~/api/customers";
 import type {Customer, Contacts} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchContacts} from "~/api/contacts";
+import '~/assets/css/pages/customerInf.css'
 
 const customers = ref<Customer[]>([])
 
@@ -89,18 +90,6 @@ const customerInfoFields = computed(() =>[
       placeholder: '03-1234-5678'
     },
     {
-      name: 'contact',
-      label: '取引先の担当者',
-      type: 'select',
-      options: [
-        { label: '後で作る(連絡先から作成)', value: '' },
-          ...contacts.value.map(contact => ({
-            label: `${contact.lastName} ${contact.firstName}`,
-            value: contact._id,
-          }))
-      ]
-    },
-    {
       name: 'description',
       label: '説明',
       type: 'textarea',
@@ -156,7 +145,7 @@ function handleContextMenuClick(customerId: string, itemId: string) {
               @contextmenu="contextMenu?.openMenu($event, customer._id)"
             >
               <td class="company-name" >
-                <NuxtLink :to="`/crm/customer/${customer._id}`" class="link">
+                <NuxtLink :to="`/crm/customer/${customer._id}`" class="company-name">
                   {{ customer.companyName }}
                 </NuxtLink>
               </td>
@@ -198,40 +187,5 @@ function handleContextMenuClick(customerId: string, itemId: string) {
 </template>
 
 <style scoped>
-.NewInfoButton {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 16px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-.NewInfoButton:hover {
-  background-color: #0056b3;
-}
-
-.company-name {
-  color: #4285f4;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.link {
-  text-decoration: none;
-  color: #4285f4;
-  transition: background-color 0.3s ease;
-}
-.link:hover {
-  background-color: transparent;
-}
-
-.sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
 
 </style>

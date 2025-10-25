@@ -2,6 +2,7 @@
 import { useToast } from 'vue-toastification'
 import type {Invoice} from "~/types/types";
 import {fetchAllInvoices} from "~/api/allInvoices";
+import '~/assets/css/pages/id.css'
 
 definePageMeta({
   layout: 'crm-layout',
@@ -54,7 +55,7 @@ onMounted(() => {
           <tr
               v-for="invoice in invoices"
               :class="{
-                'trow': true,
+                'table-row': true,
                 'success': invoice.invoiceStatus == '完了',
                 'progress': invoice.invoiceStatus == '取引中'
               }"
@@ -91,16 +92,6 @@ onMounted(() => {
   overflow: hidden;
   min-height: 0;
   gap: 20px;
-}
-
-.sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
-.invoiceLink {
-  color: orange;
-  text-decoration: underline;
 }
 
 .status-badge {
