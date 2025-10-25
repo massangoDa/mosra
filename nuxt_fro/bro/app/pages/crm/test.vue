@@ -118,6 +118,7 @@ const handleFileChange = async (event: Event) => {
   }
 }
 
+
 const loadExcelFile = async (file) => {
   if (!file) {
     console.error('ファイルがありません')
@@ -132,10 +133,21 @@ const loadExcelFile = async (file) => {
   try {
     const XLSX = await import('xlsx')
     const arrayBuffer = await file.arrayBuffer()
-    const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+    const workbook = XLSX.read(arrayBuffer, { type: 'array', cellStyles: true })
 
     const firstSheetName = workbook.SheetNames[0]
     const worksheet = workbook.Sheets[firstSheetName]
+    console.log(worksheet["C1"])
+    console.log("既存のマージ:", worksheet["!merges"])
+
+    // 色を取得
+    for (const cellAddress in worksheet) {
+      const cell = worksheet[cellAddress]
+      if (cell && cell.s && cell.s.fgColor) {
+        const color = cell.s.fgColor.rgb
+        console.log("test", cellAddress, color)
+      }
+    }
 
     const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
 
@@ -144,7 +156,15 @@ const loadExcelFile = async (file) => {
       row.forEach((cell, ci) => {
         if (cell !== undefined && cell !== null) {
           if (!cellsData[ri]) cellsData[ri] = {}
-          cellsData[ri][ci] = { text: String(cell) }
+          const cellObj:any = { text: String(cell) }
+
+          // セルの色をbgにセット
+          const cellAddress = XLSX.utils.encode_cell({ r: ri, c: ci })
+          const wsCell = worksheet[cellAddress]
+          const color = wsCell?.s?.bgColor?.rgb || wsCell?.s?.fgColor?.rgb
+          if (color) cellObj.bg = `#${color}`
+
+          cellsData[ri][ci] = cellObj
         }
       })
     })
@@ -163,7 +183,7 @@ const loadExcelFile = async (file) => {
       },
       cols: {
         len: Math.max(...rows.map(row => row.length || 0), 26)
-      }
+      },
     }]
 
     spreadsheetInstance.value.loadData(data)
@@ -198,5 +218,7 @@ const loadExcelFile = async (file) => {
 <style scoped>
 .test {
   margin: auto auto;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 </style>
