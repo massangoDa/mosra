@@ -1,0 +1,10 @@
+.section {
+    background-color: var(--color-background);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.form {
+    display: flex;
+}

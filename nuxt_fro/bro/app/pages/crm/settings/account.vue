@@ -12,22 +12,26 @@ const sidebarLink = [
   {
     name: 'アカウント',
     icon: 'md-accountcircle',
-    to: '#'
+    to: '/crm/settings/account'
+  },
+  {
+    name: 'セキュリティ',
+    icon: 'md-lock',
+    to: '/crm/settings/security'
   }
 ]
 </script>
 
 <template>
   <PageContainer title="設定" :sidebar="sidebarLink">
-    <p>名前</p>
-    <input type="text" />
-    <p>メールアドレス</p>
-    <input type="email">
-    <p>パスワード</p>
-    <input type="password" />
+    <h2>名前</h2>
+    <div class="section">
+      <form action="#" class="form">
+        <input type="text" />
+      </form>
+    </div>
   </PageContainer>
 </template>
 
 <style scoped>
-
 </style>
