@@ -64,9 +64,9 @@ defineProps({
 .sidebar {
   flex-shrink: 0;
   width: 220px;
+  justify-content: start;
 }
 .content {
-  background-color: var(--color-background);
   flex: 1;
   padding: 24px;
   border-radius: 16px;
