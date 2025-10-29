@@ -45,12 +45,11 @@ async function submitName () {
   }
 }
 
-onMounted(async () => {
-  await fetchUserInfo()
-  if (userInfo.value?.name) {
-    inputValue.value = userInfo.value.name
+watch(userInfo, async (newInfo) => {
+  if (newInfo?.name && inputValue.value === '') {
+    inputValue.value = newInfo.name;
   }
-})
+}, { immediate: true });
 
 </script>
 
@@ -69,8 +68,14 @@ onMounted(async () => {
     <div class="section">
       <div class="form">
         <input v-model="inputValue" type="text" class="input-name" />
-        <div v-if="inputValue !== userInfo?.name">
-          <button class="NewInfoButton" @click="submitName"><v-icon name="md-check" />保存</button>
+        <div>
+          <button
+              class="NewInfoButton"
+              :disabled="inputValue === userInfo?.name || inputValue.trim() === ''"
+              @click="submitName"
+          >
+            <v-icon name="md-check" />保存
+          </button>
         </div>
       </div>
     </div>

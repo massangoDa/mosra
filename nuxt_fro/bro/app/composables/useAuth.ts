@@ -99,14 +99,13 @@ export const useAuth = () => {
                 return;
             }
 
-            const response = await useFetch("http://localhost:5000/api/dashboard", {
+            const response = await $fetch("/api/dashboard", {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${authToken.value}`,
                 },
             });
-            const userData = response.data.value?.user || response.data?.user;
-            userInfo.value = userData || null;
+            userInfo.value = response.user || null;
         } catch (error) {
             // エラー起こるならtoken無効
             userInfo.value = null;

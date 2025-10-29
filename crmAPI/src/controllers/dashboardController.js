@@ -1,12 +1,26 @@
 import { db } from '../db.js';
+import {ObjectId} from "mongodb";
 
-const getDashboard = (req, res) => {
+const getDashboard = async (req, res) => {
     try {
+        // idからuserを検索
+        const userId = req.user.id;
+
+        const user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+
+        if (!user) {
+            res.error(404);
+        }
+
         res.json({
-            message: "ダッシュボードにアクセスした",
-            user: req.user
+            user: {
+                id: userId,
+                email: user.email,
+                name: user.name,
+            }
         });
     } catch (error) {
+        console.log("ユーザー情報取得でエラー:", error);
         res.error(500, error.message);
     }
 }
