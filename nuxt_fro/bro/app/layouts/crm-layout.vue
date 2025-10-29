@@ -93,8 +93,9 @@ onUnmounted(() => {
         <NuxtLink to="/crm/calendar" class="sidebar-link"><v-icon name="bi-calendar-event" class="sidebar-link-icon"/>カレンダー</NuxtLink>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-message" class="sidebar-link-icon"/>メッセージ</NuxtLink>
         <NuxtLink to="/crm/analysis" class="sidebar-link"><v-icon name="md-analytics" class="sidebar-link-icon"/>分析</NuxtLink>
-        <div class="logout" @click="handleLogout">
-          <div class="sidebar-link">
+        <div class="logout">
+          <NuxtLink to="/crm/settings/account" class="sidebar-link"><v-icon name="md-settings" class="sidebar-link-icon"/>設定</NuxtLink>
+          <div class="sidebar-link" @click="handleLogout">
             <v-icon name="md-logout" class="sidebar-link-icon"/>
             {{ loading ? 'ログアウト中...' : 'Logout' }}
           </div>

@@ -11,14 +11,19 @@
 }
 
 input {
-    width: 350px;
+    width: 450px;
     font-size: 1rem;
     border-radius: 6px;
     border: 1px solid var(--color-border);
     background-color: var(--color-input-background);
     color: var(--color-text);
     box-sizing: border-box;
-    padding: 5px 15px;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+input:focus {
+    border-color: var(--color-focus);
 }
 
 .NewInfoButton {

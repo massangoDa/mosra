@@ -21,6 +21,9 @@
     /* 基本ボーダー */
     --color-border: #e2e8f0;
 
+    /* フォーカス */
+    --color-focus: #007bff;
+
     /* リンク */
     --color-link: #007bff;
     --color-link-hover: #2376cc;
@@ -61,6 +64,8 @@
     /* ボタン */
     --color-button-background: #007bff;
     --color-button-background-hover: #0056b3;
+    --color-button-disabled-background: #e2e8f0;
+    --color-button-disabled-label: #64748b;
 
     /* インプット */
     --color-input-background: #f4f9fd;

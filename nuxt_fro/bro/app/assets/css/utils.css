@@ -11,6 +11,11 @@
 .NewInfoButton:hover {
     background-color: var(--color-button-background-hover);
 }
+.NewInfoButton:disabled {
+    cursor: not-allowed;
+    background-color: var(--color-button-disabled-background);
+    color: var(--color-button-disabled-label);
+}
 
 .company-name {
     color: var(--color-info-label);

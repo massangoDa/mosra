@@ -28,7 +28,8 @@ import {
     MdPermcontactcalendar,
     MdAccountcircle,
     MdLock,
-    MdCheck
+    MdCheck,
+    MdSettings
 } from 'oh-vue-icons/icons';
 
 addIcons(
@@ -61,6 +62,7 @@ addIcons(
     MdAccountcircle,
     MdLock,
     MdCheck,
+    MdSettings,
 );
 
 export default defineNuxtPlugin((nuxtApp) => {
