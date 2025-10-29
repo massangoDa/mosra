@@ -4,6 +4,11 @@ export const API_ENDPOINTS = {
     calendarEvents: () => `/api/calendar-events`,
     createCalendarEvent: () => `/api/calendar-events`,
 
+    // アカウント関連
+    accounts: {
+        update: '/api/accounts/user',
+    },
+
     // 顧客関連
     customers: {
         create: '/api/customers',
