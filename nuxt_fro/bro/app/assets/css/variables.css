@@ -61,6 +61,9 @@
     /* ボタン */
     --color-button-background: #007bff;
     --color-button-background-hover: #0056b3;
+
+    /* インプット */
+    --color-input-background: #f4f9fd;
 }
 
 :root.dark {
@@ -96,4 +99,7 @@
     /* ステータス(情報) */
     --color-info-label: #3b82f6;
     --color-info-label-hover: #2563eb;
+
+    /* インプット */
+    --color-input-background: #1a202c;
 }

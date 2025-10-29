@@ -1,6 +1,6 @@
 export const useAuth = () => {
     // JWTトークンをlocalstorageで管理するのはもうやめだ
-    const userInfo = ref<{ id?: string; email?: string; name?: string } | null>(null);
+    const userInfo = useState<{ id?: string; email?: string; name?: string } | null>('userInfo', () => null);
     const loading = ref(false);
     const router = useRouter();
 

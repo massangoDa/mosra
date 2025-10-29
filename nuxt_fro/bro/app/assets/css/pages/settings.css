@@ -2,9 +2,25 @@
     background-color: var(--color-background);
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 36px;
 }
 
 .form {
     display: flex;
+    flex-direction: column;
+}
+
+input {
+    width: 350px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-input-background);
+    color: var(--color-text);
+    box-sizing: border-box;
+    padding: 5px 15px;
+}
+
+.NewInfoButton {
+    margin-top: 1rem;
 }
