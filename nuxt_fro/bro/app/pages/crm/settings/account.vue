@@ -58,7 +58,7 @@ watch(userInfo, async (newInfo) => {
     <h2>アイコン</h2>
     <div class="section">
       <div class="form">
-        <img src="" alt="ユーザーアイコン">
+        <img :src="userInfo?.icon" alt="ユーザーアイコン" class="user-icon">
         <div>
           <button class="NewInfoButton">アイコン画像を変更</button>
         </div>
@@ -83,5 +83,8 @@ watch(userInfo, async (newInfo) => {
 </template>
 
 <style scoped>
-
+.user-icon {
+  width: 72px;
+  height: 72px;
+}
 </style>

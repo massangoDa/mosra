@@ -53,6 +53,10 @@ export default defineNuxtConfig({
                 "/api/": {
                     target: 'http://192.168.0.23:5000',
                     secure: false
+                },
+                "/uploads": {
+                    target: 'http://192.168.0.23:5000',
+                    secure: false
                 }
             },
         }

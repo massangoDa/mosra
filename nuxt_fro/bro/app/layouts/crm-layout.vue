@@ -114,7 +114,7 @@ onUnmounted(() => {
             <v-icon :name="isDark ? 'md-sunny' : 'md-darkmode'" />
           </button>
           <div class="account">
-            <p> <v-icon name="md-accountbox" class="icon"/> {{ userInfo?.name }}</p>
+            <div><img :src="userInfo?.icon" class="icon" alt=""/>{{ userInfo?.name }}</div>
           </div>
         </div>
         <slot />
@@ -142,6 +142,9 @@ onUnmounted(() => {
 
 .icon {
   margin-right: 8px;
+  width: 24px;
+  height: 24px;
+  vertical-align: text-top;
 }
 
 .main-content {

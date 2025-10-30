@@ -3,10 +3,16 @@ import routes from './routes/index.js';
 import {authenticateToken} from "./middleware/auth.js";
 import {db} from "./db.js";
 import {manageCalendarEvent} from "./utils/manageCalendarEvent.js";
+import * as path from "node:path";
+import {fileURLToPath} from "url";
 
 const app = express();
 
 app.use(express.json());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // responseの型を固定化
 app.use((req, res, next) => {

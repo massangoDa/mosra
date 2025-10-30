@@ -53,6 +53,7 @@ const registerAccount = async (req, res) => {
             email: email,
             password: hashPassword,
             name: name,
+            icon: '/uploads/icons/default.png',
             createdAt: new Date(),
             updatedAt: new Date()
         }

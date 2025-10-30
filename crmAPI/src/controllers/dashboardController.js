@@ -17,6 +17,7 @@ const getDashboard = async (req, res) => {
                 id: userId,
                 email: user.email,
                 name: user.name,
+                icon: user.icon,
             }
         });
     } catch (error) {
