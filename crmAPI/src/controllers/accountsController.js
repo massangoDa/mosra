@@ -28,6 +28,15 @@ const loginAccount = async (req, res) => {
             expiresIn: "24h"
         });
 
+        // ログイン履歴を保存
+        const loginHistory = {
+            userId: user._id.toString(),
+            loginTime: new Date(),
+            ipAddress: req.ip,
+            device: req.get('User-Agent'),
+        }
+        await db.collection("login-history").insertOne(loginHistory);
+
         res.json({
             message: "ログイン成功",
             user: {
@@ -105,9 +114,25 @@ const updateAccount = async (req, res) => {
     }
 }
 
+const getLoginHistory = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const result = await db.collection("login-history").find({
+            userId: userId
+        }).sort({ createdAt: -1 }).toArray();
+
+        res.json(result);
+    } catch (error) {
+        console.log("ログイン履歴取得でエラー", error);
+        res.error(500, error.message);
+    }
+}
+
 export default {
     loginAccount,
     registerAccount,
     logoutAccount,
     updateAccount,
+    getLoginHistory,
 }

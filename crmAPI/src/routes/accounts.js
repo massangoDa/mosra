@@ -7,5 +7,6 @@ router.post('/login', accountsController.loginAccount); // 単
 router.post('/register', accountsController.registerAccount); // 単
 router.post('/logout', accountsController.logoutAccount); // 単
 router.put('/user', accountsController.updateAccount); // 単
+router.get('/loginHistory', authenticateToken, accountsController.getLoginHistory); // 複
 
 export default router;
