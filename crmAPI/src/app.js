@@ -14,6 +14,9 @@ const __dirname = path.dirname(__filename);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.set("trust proxy", true);
+
+
 // responseの型を固定化
 app.use((req, res, next) => {
     res.error = (status, error) => {
