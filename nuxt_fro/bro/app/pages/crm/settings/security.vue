@@ -3,10 +3,17 @@ import {ref} from "vue";
 import GridPageContainer from "~/components/PageContainer.vue";
 import '~/assets/css/pages/settings.css'
 import PageContainer from "~/components/PageContainer.vue";
+import type {loginHistory} from "~/types/types";
+import {API_ENDPOINTS} from "~/api/endpoints";
+import {useToast} from "vue-toastification";
+
+const toast = useToast();
 
 definePageMeta({
   layout: 'crm-layout',
 })
+
+const loginHistory = ref<loginHistory[]>([])
 
 const sidebarLink = [
   {
@@ -20,6 +27,20 @@ const sidebarLink = [
     to: '/crm/settings/security'
   }
 ]
+
+async function loadLoginHistory() {
+  try {
+    loginHistory.value = await fetchData().fetch(API_ENDPOINTS.accounts.loginHistory);
+  } catch (error) {
+    toast.error("ログイン履歴取得でエラーが発生しました")
+    console.log(error)
+  }
+}
+
+onMounted(async () => {
+  await loadLoginHistory()
+})
+
 </script>
 
 <template>
@@ -34,7 +55,11 @@ const sidebarLink = [
 
     <h2>ログイン履歴</h2>
     <div class="section">
-      <p>なし</p>
+      <div v-for="login in loginHistory">
+        <p>{{ login.loginTime }}</p>
+        <p>{{ login.ipAddress }}</p>
+        <p>{{ login.device }}</p>
+      </div>
     </div>
   </PageContainer>
 </template>

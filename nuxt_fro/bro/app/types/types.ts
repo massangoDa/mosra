@@ -88,3 +88,9 @@ export interface FormField {
     fullWidth?: boolean;
     templateButton?: string[];
 }
+
+export interface loginHistory {
+    loginTime: string;
+    ipAddress: string;
+    device: string;
+}
