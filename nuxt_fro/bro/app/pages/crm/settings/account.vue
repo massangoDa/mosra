@@ -119,7 +119,7 @@ watch(userInfo, async (newInfo) => {
 }
 .fileInputButton::file-selector-button {
   font-weight: bold;
-  color: var(--color-text);
+  color: white;
   background: var(--color-button-background);
   font-size: 14px;
   border: 0;
