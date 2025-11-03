@@ -28,12 +28,26 @@ const loginAccount = async (req, res) => {
             expiresIn: "24h"
         });
 
+        // ログインしたOSを判断
+        let operatingSystem;
+        const userAgent = req.get('User-Agent');
+
+        if (userAgent.includes('Windows NT')) {
+            operatingSystem = 'Windows';
+        } else if (userAgent.includes('Macintosh')) {
+            operatingSystem = 'Mac';
+        } else if (userAgent.includes('Linux')) {
+            operatingSystem = 'Linux';
+        } else {
+            operatingSystem = 'Unknown';
+        }
+
         // ログイン履歴を保存
         const loginHistory = {
             userId: user._id.toString(),
             loginTime: new Date(),
             ipAddress: req.ip,
-            device: req.get('User-Agent'),
+            device: operatingSystem,
         }
         await db.collection("login-history").insertOne(loginHistory);
 
@@ -120,7 +134,7 @@ const getLoginHistory = async (req, res) => {
 
         const result = await db.collection("login-history").find({
             userId: userId
-        }).sort({ createdAt: -1 }).toArray();
+        }).toArray();
 
         res.json(result);
     } catch (error) {
