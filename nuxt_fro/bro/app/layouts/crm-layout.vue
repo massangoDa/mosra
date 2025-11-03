@@ -104,10 +104,7 @@ onUnmounted(() => {
       <!--   メインコンテンツ　  -->
       <main class="main-content">
         <div class="search">
-          <button @click="showSearch = true" class="search-trigger">
-            <v-icon name="io-search" />
-            <span>検索</span>
-          </button>
+          <Search />
         </div>
         <div class="top-controls">
           <button @click="toggleTheme" class="theme-toggle">
@@ -119,11 +116,6 @@ onUnmounted(() => {
         </div>
         <slot />
       </main>
-      <!-- 検索モーダル -->
-      <Search
-          v-if="showSearch"
-          @close="showSearch = false"
-      />
     </div>
   </div>
 </template>
@@ -196,30 +188,6 @@ onUnmounted(() => {
 
 .account p {
   margin: 0;
-}
-
-/* 検索窓 */
-.search {
-  position: fixed;
-}
-
-.search-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  padding: 10px 250px 10px 24px;
-  background: #fff;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-  color: #2c3e50;
-}
-
-.search-trigger:hover {
-  background: #e5e7eb;
 }
 
 

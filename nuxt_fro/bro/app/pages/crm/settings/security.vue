@@ -55,8 +55,14 @@ onMounted(async () => {
 
     <h2>ログイン履歴</h2>
     <div class="section">
-      <div v-for="login in loginHistory">
-        <p>{{ login.loginTime }}</p>
+      <div v-for="login in loginHistory.slice(0, 5)" class="item">
+        <v-icon :name="login.device === 'Windows' ? 'md-desktopwindows' :
+                 login.device === 'Mac' ? 'md-desktopmac' :
+                 login.device === 'Linux' ? 'md-devicesother' :
+                 'md-desktopwindows'"
+                class="icon"
+        />
+        <p>{{ useFormat().formatDate(login.loginTime) }}</p>
         <p>{{ login.ipAddress }}</p>
         <p>{{ login.device }}</p>
       </div>
@@ -65,4 +71,52 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background-color: var(--color-input-background);
+  border-radius: 8px;
+  color: var(--color-info-label);
+}
+
+.item p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.item p:nth-of-type(1) {
+  flex: 1;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.item p:nth-of-type(2) {
+  flex: 1;
+  color: var(--color-text-secondary);
+  font-family: 'Courier New', monospace;
+}
+
+.item p:nth-of-type(3) {
+  flex: 0 0 auto;
+  padding: 4px 12px;
+  background-color: var(--color-input-background);
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+    font-size: 1rem;
+}
 </style>

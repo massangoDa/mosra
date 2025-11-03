@@ -29,7 +29,10 @@ import {
     MdAccountcircle,
     MdLock,
     MdCheck,
-    MdSettings
+    MdSettings,
+    MdDesktopwindows,
+    MdDevicesother,
+    MdDesktopmac
 } from 'oh-vue-icons/icons';
 
 addIcons(
@@ -63,6 +66,9 @@ addIcons(
     MdLock,
     MdCheck,
     MdSettings,
+    MdDesktopwindows,
+    MdDevicesother,
+    MdDesktopmac
 );
 
 export default defineNuxtPlugin((nuxtApp) => {

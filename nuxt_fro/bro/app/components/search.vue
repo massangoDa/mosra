@@ -42,7 +42,7 @@ async function searchData(event: Event) {
 <template>
   <div>
     <div class="search">
-      <div class="search-wrap">
+      <div :class="{'search-wrap': true, 'search-open': searchQuery.length > 0}">
         <div class="search-input">
           <input
               type="text"
@@ -57,10 +57,10 @@ async function searchData(event: Event) {
               :key="result._id"
           >
             <div class="item-title">{{ result.product }}</div>
-            <div class="item-description">{{ result.amount }}</div>
+            <div class="item-description">{{ useFormat().formatCurrency(result.amount) }}</div>
           </div>
         </div>
-        <div class="search-empty" v-else>
+        <div class="search-empty" v-else-if="searchResults.length === 0 && searchQuery.length > 0">
           結果がありません
         </div>
       </div>
@@ -71,47 +71,40 @@ async function searchData(event: Event) {
 <style scoped>
 .search {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 80px 20px 20px;
 }
 
 .search-wrap {
-  background-color: #fff;
-  border-radius: 16px;
-  max-width: 900px;
-  width: 100%;
-  max-height: calc(100vh - 160px);
-  overflow: hidden;
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 12px;
+  background: var(--color-background);
+  border-radius: 12px;
+  transition: all 0.2s;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.search-open {
+  padding: 14px;
 }
 
 .search-input {
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
 }
 
+
 .search-input input {
   width: 100%;
-  padding: 12px 16px;
   font-size: 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
   outline: none;
   transition: border-color 0.2s;
+  background-color: var(--color-background);
+  cursor: pointer;
 }
-
 .search-input input:focus {
   border-color: #3b82f6;
 }
@@ -155,33 +148,5 @@ async function searchData(event: Event) {
   text-align: center;
   color: #9ca3af;
   font-size: 14px;
-}
-
-.test-buttons {
-  padding: 12px 20px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-  background-color: #f9fafb;
-}
-
-.test-buttons button {
-  padding: 8px 16px;
-  font-size: 13px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.test-buttons button:hover {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
-}
-
-.test-buttons button:active {
-  transform: scale(0.98);
 }
 </style>
