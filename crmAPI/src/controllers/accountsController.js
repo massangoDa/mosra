@@ -2,6 +2,28 @@ import { db } from '../db.js'
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {ObjectId} from "mongodb";
+import * as path from "node:path";
+import * as fs from "node:fs";
+import {fileURLToPath} from "url";
+import multer from "multer";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// multer設定
+const storage = multer.diskStorage({
+    destination(req, file, cb) {
+        const dir = path.join(__dirname, "..", "uploads", "icons");
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+    },
+    filename(req, file, cb) {
+        cb(null, `${req.body.id}${path.extname(file.originalname)}`);
+    },
+});
+
+const upload = multer({ storage });
+
 
 const loginAccount = async (req, res) => {
     try {
@@ -134,11 +156,35 @@ const getLoginHistory = async (req, res) => {
 
         const result = await db.collection("login-history").find({
             userId: userId
-        }).toArray();
+        }).sort({ loginTime: -1 }).toArray();
 
         res.json(result);
     } catch (error) {
         console.log("ログイン履歴取得でエラー", error);
+        res.error(500, error.message);
+    }
+}
+
+const updateIcon = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const existingUser = await db.collection("users").findOne({ _id: new ObjectId(id) });
+
+        if (!existingUser) {
+            return res.status(404).json({success: false, error: 'ユーザーが見つかりませんでした'});
+        }
+
+        // アイコンデータを/uploads/icons/xx.png で保存
+        const filePath = `/uploads/icons/${req.file.filename}`;
+
+        await db.collection("users").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { icon: filePath } }
+        );
+
+        res.success(200);
+    } catch (error) {
+        console.log("アイコン更新でエラー発生", error);
         res.error(500, error.message);
     }
 }
@@ -149,4 +195,5 @@ export default {
     logoutAccount,
     updateAccount,
     getLoginHistory,
+    updateIcon,
 }

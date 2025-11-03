@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     // アカウント関連
     accounts: {
         update: '/api/accounts/user',
+        updateIcon: '/api/accounts/user/icon',
         loginHistory: '/api/accounts/loginHistory',
     },
 

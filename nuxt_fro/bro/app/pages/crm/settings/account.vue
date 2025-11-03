@@ -28,6 +28,7 @@ const sidebarLink = [
   }
 ]
 
+// 名前変更
 async function submitName () {
   try {
     const res = await fetchData().fetch(API_ENDPOINTS.accounts.update, 'PUT', {
@@ -41,6 +42,29 @@ async function submitName () {
     toast.success("名前が変更されました。")
   } catch (error) {
     toast.error("名前変更でエラーが発生しました。")
+    console.log(error)
+  }
+}
+
+// アイコン変更
+async function submitIcon (e: Event) {
+  const target = e.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) {
+    toast.error("ファイルを選択してください。");
+    return;
+  }
+
+  const file = target.files[0];
+  const formData = new FormData();
+  formData.append("id", userInfo.value?.id || '');
+  formData.append("icon", file)
+  try {
+    const res = await fetchData().fetch(API_ENDPOINTS.accounts.updateIcon, 'PUT', formData);
+
+    await fetchUserInfo();
+
+    toast.success("アイコンが変更されました。");
+  } catch (error) {
     console.log(error)
   }
 }
@@ -60,7 +84,7 @@ watch(userInfo, async (newInfo) => {
       <div class="form">
         <img :src="userInfo?.icon" alt="ユーザーアイコン" class="user-icon">
         <div>
-          <button class="NewInfoButton">アイコン画像を変更</button>
+          <input type="file" class="fileInputButton" @change="submitIcon" />
         </div>
       </div>
     </div>
@@ -86,5 +110,22 @@ watch(userInfo, async (newInfo) => {
 .user-icon {
   width: 72px;
   height: 72px;
+}
+
+.fileInputButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.fileInputButton::file-selector-button {
+  font-weight: bold;
+  color: var(--color-text);
+  background: var(--color-button-background);
+  font-size: 14px;
+  border: 0;
+  border-radius: 10em;
+  padding: 8px 16px;
+  text-align: center;
+  cursor: pointer;
 }
 </style>
