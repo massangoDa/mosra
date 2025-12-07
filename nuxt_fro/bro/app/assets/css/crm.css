@@ -21,6 +21,27 @@
 .sidebar-content {
     flex: 1;
 }
+.sidebar.sidebar--mini {
+    width: 72px;
+    max-width: 72px;
+    min-width: 72px;
+    padding-inline: 12px;
+}
+.sidebar.sidebar--mini .sidebar-link {
+    justify-content: center;
+    padding-inline: 0;
+    font-size: 0;
+}
+.sidebar.sidebar--mini .sidebar-link-icon {
+    margin-right: 0;
+    font-size: 20px;
+}
+.sidebar.sidebar--mini .chevron-icon {
+    display: none;
+}
+.sidebar.sidebar--mini .sub-menu {
+    display: none;
+}
 .sidebar-link {
     display: flex;
     padding: 10px;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref, inject, onMounted, onUnmounted, type Ref } from 'vue'
 import GridPageContainer from "~/components/PageContainer.vue";
 import '~/assets/css/pages/settings.css'
 import PageContainer from "~/components/PageContainer.vue";
@@ -14,6 +14,7 @@ definePageMeta({
 })
 
 const loginHistory = ref<loginHistory[]>([])
+const hasOuterSidebar = inject<Ref<boolean> | null>('hasInnerSidebar', null)
 
 const sidebarLink = [
   {
@@ -39,8 +40,17 @@ async function loadLoginHistory() {
 
 onMounted(async () => {
   await loadLoginHistory()
+
+  if (hasOuterSidebar) {
+    hasOuterSidebar.value = true
+  }
 })
 
+onUnmounted(() => {
+  if (hasOuterSidebar) {
+    hasOuterSidebar.value = false
+  }
+})
 </script>
 
 <template>

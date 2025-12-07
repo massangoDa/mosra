@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref, inject, onMounted, onUnmounted, type Ref } from 'vue'
 import GridPageContainer from "~/components/PageContainer.vue";
 import '~/assets/css/pages/settings.css'
 import PageContainer from "~/components/PageContainer.vue";
@@ -10,6 +10,7 @@ const { userInfo, fetchUserInfo } = useAuth()
 const toast = useToast();
 
 const inputValue = ref('')
+const hasOuterSidebar = inject<Ref<boolean> | null>('hasInnerSidebar', null)
 
 definePageMeta({
   layout: 'crm-layout',
@@ -75,6 +76,16 @@ watch(userInfo, async (newInfo) => {
   }
 }, { immediate: true });
 
+onMounted(() => {
+  if (hasOuterSidebar) {
+    hasOuterSidebar.value = true
+  }
+})
+onUnmounted(() => {
+  if (hasOuterSidebar) {
+    hasOuterSidebar.value = false
+  }
+})
 </script>
 
 <template>
