@@ -66,6 +66,9 @@ const props = defineProps({
   },
   editContact: {
     type: Boolean,
+  },
+  description: {
+    type: String,
   }
 });
 
@@ -395,6 +398,7 @@ onMounted(() => {
                 />
               </div>
             </div>
+            <p v-if="description" v-html="description"></p>
           </section>
           <div class="form-actions">
             <button type="button" @click="$emit('closeModal')" class="btn btn-secondary">
