@@ -48,6 +48,15 @@
     font-size: 0.9rem;
     margin-left: 40px;
 }
+.field-value-link {
+    color: var(--color-link);
+    font-size: 0.9rem;
+    margin-left: 40px;
+    flex: 1;
+}
+.field-value-link:hover {
+    color: var(--color-link-hover);
+}
 
 .calcContainer {
     background: var(--color-background);
