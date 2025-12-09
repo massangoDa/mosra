@@ -5,6 +5,7 @@ import customersController from '../controllers/customersController.js';
 import transactionsRoutes from './transactions.js';
 import invoicesRoutes from './invoices.js';
 import commentsRoutes from './comments.js';
+import casesRoutes from './cases.js';
 
 router.get('/', authenticateToken, customersController.getCustomers); // 複
 router.post('/', authenticateToken, customersController.createCustomer); // 単
@@ -16,5 +17,6 @@ router.delete('/:customerId', authenticateToken, customersController.deleteCusto
 router.use("/:customerId/transactions", transactionsRoutes);
 router.use("/:customerId/invoices", invoicesRoutes);
 router.use("/:customerId/comments", commentsRoutes);
+router.use("/:customerId/cases", casesRoutes);
 
 export default router;
