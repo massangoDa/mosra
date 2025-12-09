@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import type {Customer} from "~/types/types";
+import type {Customer, Cases} from "~/types/types";
 import {fetchCustomer} from "~/api/customer";
+import '~/assets/css/pages/id.css'
+import {API_ENDPOINTS} from "~/api/endpoints";
+import {fetchCase} from "~/api/cases";
 
 definePageMeta({
   layout: 'crm-layout'
 })
 
 const customer = ref<Customer | null>(null)
+const caseData = ref<Cases[] | null>(null)
 
 const { customerId } = useRoute().params;
 
@@ -37,13 +41,22 @@ async function loadCustomer() {
   }
 }
 
+async function loadCase() {
+  try {
+    caseData.value = await fetchCase(customerId)
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 onMounted(async () => {
   await loadCustomer()
+  await loadCase()
 })
 
 const showCaseModal = ref(false)
 
-const submitCaseUrl = ``
+const submitCaseUrl = API_ENDPOINTS.customers.cases.create(customerId)
 
 const caseFields = [
   {
@@ -91,6 +104,14 @@ const caseFields = [
       <button @click="showCaseModal = true" class="NewInfoButton">+ 請求書追加</button>
     </template>
     <h2>案件</h2>
+    <div
+        v-for="caseItem in caseData"
+        class="section"
+    >
+      <p>{{ caseItem.caseName }}</p>
+      <p>{{ caseItem.category }}</p>
+      <p>{{ caseItem.monthlyFee }}</p>
+    </div>
   </PageContainer>
   <TemplateModal
       v-if="showCaseModal"
@@ -101,8 +122,7 @@ const caseFields = [
       success-message="請求書を保存しました"
       @close-modal="showCaseModal = false"
       description="区分を『<span style='color:#d9534f; font-weight:bold;'>単発</span>』にしたときは、金額にそのまま請求額を入力し、請求サイクルには『<span style='color:#0275d8; font-weight:bold;'>1回のみ</span>』を選んでください。"
-
-      @refresh=""
+      @refresh="loadCase"
   />
 </div>
 </template>
