@@ -94,3 +94,12 @@ export interface loginHistory {
     ipAddress: string;
     device: string;
 }
+
+export interface Cases {
+    caseName: string;
+    category: string;
+    caseStartDate: string;
+    caseFinishDate: string;
+    monthlyFee: number;
+    billingCycle: string;
+}
