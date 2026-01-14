@@ -1,0 +1,81 @@
+.link {
+    padding: 4px 24px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text);
+}
+.link:hover {
+    border-bottom: 2px solid var(--color-link-hover);
+    background-color: transparent;
+}
+.link.active {
+    border-bottom: 2px solid var(--color-link-hover);
+}
+
+.invoiceLink {
+    text-decoration: none;
+    color: var(--color-link);
+    transition: background-color 0.3s ease;
+}
+.invoiceLink:hover {
+    background-color: transparent;
+}
+
+.field-row {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--color-border);
+    min-height: 20px;
+}
+.field-row:first-child{
+    margin-top: 10px
+}
+.field-row:last-child {
+    border-bottom: none;
+}
+
+.field-label {
+    width: 120px;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.field-value {
+    flex: 1;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    margin-left: 40px;
+}
+.field-value-link {
+    color: var(--color-link);
+    font-size: 0.9rem;
+    margin-left: 40px;
+    flex: 1;
+}
+.field-value-link:hover {
+    color: var(--color-link-hover);
+}
+
+.calcContainer {
+    background: var(--color-background);
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    text-align: center;
+}
+.calcContainer .sales-label {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.calcContainer .sales-amount {
+    color: var(--color-text);
+    font-size: 32px;
+    font-weight: 700;
+}
