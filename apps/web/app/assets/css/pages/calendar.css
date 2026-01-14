@@ -1,0 +1,14 @@
+.calendar-container {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.calendar {
+    flex: 1;
+    background-color: var(--color-background);
+    border-radius: 16px;
+    padding: 24px;
+}
