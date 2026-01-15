@@ -101,25 +101,27 @@ const caseFields = [
 <div>
   <PageContainer :title="customer?.companyName" :sidebar="sidebarLink">
     <template #header-right>
-      <button @click="showCaseModal = true" class="NewInfoButton">+ 請求書追加</button>
+      <button @click="showCaseModal = true" class="NewInfoButton">+ 案件追加</button>
     </template>
     <h2>案件</h2>
-    <div
+    <NuxtLink
         v-for="caseItem in caseData"
-        class="section"
+        :key="caseItem._id"
+        :to="`/crm/customer/${customerId}/case/${caseItem._id}`"
+        class="section case-link"
     >
       <p>{{ caseItem.caseName }}</p>
       <p>{{ caseItem.category }}</p>
       <p>{{ caseItem.monthlyFee }}</p>
-    </div>
+    </NuxtLink>
   </PageContainer>
   <TemplateModal
       v-if="showCaseModal"
       title="案件追加"
-      section-title="請求書を追加"
+      section-title="案件を追加"
       :submit-url="submitCaseUrl"
       :fields="caseFields"
-      success-message="請求書を保存しました"
+      success-message="案件を保存しました"
       @close-modal="showCaseModal = false"
       description="区分を『<span style='color:#d9534f; font-weight:bold;'>単発</span>』にしたときは、金額にそのまま請求額を入力し、請求サイクルには『<span style='color:#0275d8; font-weight:bold;'>1回のみ</span>』を選んでください。"
       @refresh="loadCase"

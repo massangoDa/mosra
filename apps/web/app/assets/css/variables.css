@@ -13,6 +13,7 @@
     /* 基本背景色 */
     --color-background: #fff;
     --color-background-hover: #f8fafc;
+    --color-background-hover-secondary: #f9fbfc;
 
     /* 基本テキスト */
     --color-text: #000;
@@ -75,6 +76,7 @@
     /* 基本背景色 */
     --color-background: #2d3748;
     --color-background-hover: #1a202c;
+    --color-background-hover-secondary: #252f40;
 
     /* 基本テキスト */
     --color-text: #e2e8f0;
