@@ -19,7 +19,7 @@ const sidebarLink = [
   {
     name: '案件',
     icon: 'md-lock',
-    to: `/crm/customer/${customerId}/new/case`
+    to: `/crm/customer/${customerId}/new/cases`
   },
   {
     name: 'サブスクリプション',
@@ -107,7 +107,7 @@ const caseFields = [
     <NuxtLink
         v-for="caseItem in caseData"
         :key="caseItem._id"
-        :to="`/crm/customer/${customerId}/case/${caseItem._id}`"
+        :to="`/crm/customer/${customerId}/new/case/${caseItem._id}`"
         class="section case-link"
     >
       <p>{{ caseItem.caseName }}</p>
