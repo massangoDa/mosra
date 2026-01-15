@@ -79,3 +79,13 @@
     font-size: 32px;
     font-weight: 700;
 }
+
+.case-link {
+    display: block;
+    text-decoration: none;
+    color: var(--color-text);
+    background-color: var(--color-background);
+}
+.case-link:hover {
+    background-color: var(--color-background-hover-secondary);
+}

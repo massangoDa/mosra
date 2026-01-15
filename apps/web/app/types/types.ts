@@ -96,6 +96,7 @@ export interface loginHistory {
 }
 
 export interface Cases {
+    _id: string;
     caseName: string;
     category: string;
     caseStartDate: string;
