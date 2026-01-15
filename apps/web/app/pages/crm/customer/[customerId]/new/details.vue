@@ -15,7 +15,7 @@ const sidebarLink = [
   {
     name: '案件',
     icon: 'md-lock',
-    to: `/crm/customer/${customerId}/new/case`
+    to: `/crm/customer/${customerId}/new/cases`
   },
   {
     name: 'サブスクリプション',
