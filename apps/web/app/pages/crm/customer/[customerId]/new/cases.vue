@@ -104,16 +104,18 @@ const caseFields = [
       <button @click="showCaseModal = true" class="NewInfoButton">+ 案件追加</button>
     </template>
     <h2>案件</h2>
-    <NuxtLink
-        v-for="caseItem in caseData"
-        :key="caseItem._id"
-        :to="`/crm/customer/${customerId}/new/case/${caseItem._id}`"
-        class="section case-link"
-    >
-      <p>{{ caseItem.caseName }}</p>
-      <p>{{ caseItem.category }}</p>
-      <p>{{ caseItem.monthlyFee }}</p>
-    </NuxtLink>
+    <div class="section">
+      <NuxtLink
+          v-for="caseItem in caseData"
+          :key="caseItem._id"
+          :to="`/crm/customer/${customerId}/new/case/${caseItem._id}`"
+          class="section case-link"
+      >
+        <p>{{ caseItem.caseName }}</p>
+        <p>{{ caseItem.category }}</p>
+        <p>{{ caseItem.monthlyFee }}</p>
+      </NuxtLink>
+    </div>
   </PageContainer>
   <TemplateModal
       v-if="showCaseModal"
