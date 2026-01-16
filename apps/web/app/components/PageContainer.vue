@@ -24,16 +24,6 @@ defineProps({
 <template>
   <div>
     <div class="container">
-      <div class="header">
-        <div class="header-left">
-          <h1 class="page-title">{{ title }}</h1>
-          <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
-          <slot name="header-left" />
-        </div>
-        <div v-if="$slots['header-right']" class="header-right">
-          <slot name="header-right" />
-        </div>
-      </div>
       <div class="page-container">
         <nav v-if="sidebar && sidebar.length" class="sidebar">
           <NuxtLink
@@ -47,6 +37,16 @@ defineProps({
           </NuxtLink>
         </nav>
         <div class="content">
+          <div class="header">
+            <div class="header-left">
+              <h1 class="page-title">{{ title }}</h1>
+              <p v-if="subtitle" class="page-subtitle">{{ subtitle }}</p>
+              <slot name="header-left" />
+            </div>
+            <div v-if="$slots['header-right']" class="header-right">
+              <slot name="header-right" />
+            </div>
+          </div>
           <slot />
         </div>
       </div>

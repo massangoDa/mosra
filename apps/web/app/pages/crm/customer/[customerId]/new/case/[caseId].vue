@@ -6,15 +6,16 @@ import {fetchTransactions} from "~/api/transactions";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchInvoice} from "~/api/invoice";
 import '~/assets/css/pages/id.css'
-import type {Customer} from "~/types/types";
+import type {Customer, Cases} from "~/types/types";
 
 definePageMeta({
   layout: 'crm-layout'
 })
 
 const customer = ref<Customer | null>(null)
+const caseData = ref<Cases | null>(null)
 
-const { customerId } = useRoute().params;
+const { customerId, caseId } = useRoute().params;
 
 const sidebarLink = [
   {
@@ -41,16 +42,25 @@ async function loadCustomer() {
     console.error(error);
   }
 }
+async function loadCase() {
+  try {
+    caseData.value = await fetchData().fetch(API_ENDPOINTS.customers.cases.detail(customerId, caseId))
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 onMounted(async () => {
   await loadCustomer()
+  await loadCase()
 })
 
 </script>
 
 <template>
   <div>
-    <PageContainer :title="customer?.companyName" :sidebar="sidebarLink">
+    <PageContainer :title="`${customer?.companyName} - ${caseData?.caseName}`" :sidebar="sidebarLink">
+
     </PageContainer>
   </div>
 </template>
