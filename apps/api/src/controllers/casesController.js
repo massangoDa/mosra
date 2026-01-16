@@ -43,7 +43,27 @@ const getCases = async (req, res) => {
     }
 }
 
+const getCase = async (req, res) => {
+    try {
+        const customerId = req.params.customerId;
+        const caseId = req.params.caseId;
+        const userId = req.user.id;
+
+        const caseResult = await db.collection("cases").findOne({
+            userId: userId,
+            customerId: new ObjectId(customerId),
+            _id: new ObjectId(caseId)
+        });
+
+        res.json(caseResult);
+    } catch (error) {
+        console.log("案件(単)取得でエラーが発生:", error);
+        res.error(500, error.message);
+    }
+}
+
 export default {
     createCase,
     getCases,
+    getCase,
 }
