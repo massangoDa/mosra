@@ -42,6 +42,7 @@ export const API_ENDPOINTS = {
         cases: {
             create: (customerId: string) => `/api/customers/${customerId}/cases`,
             list: (customerId: string) => `/api/customers/${customerId}/cases`,
+            detail: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}`,
         }
     },
 
