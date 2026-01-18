@@ -89,6 +89,15 @@ export interface FormField {
     templateButton?: string[];
 }
 
+export interface Form {
+    name: string;
+    label: string;
+    type: 'text' | 'number' | 'phone' | 'website' | 'textarea' | 'select' | 'date' | 'datetime';
+    placeholder?: string;
+    options?: (string | SelectOption)[];
+    required?: boolean;
+}
+
 export interface loginHistory {
     loginTime: string;
     ipAddress: string;

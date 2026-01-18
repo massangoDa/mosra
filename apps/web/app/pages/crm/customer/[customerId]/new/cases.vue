@@ -58,11 +58,22 @@ const showCaseModal = ref(false)
 
 const submitCaseUrl = API_ENDPOINTS.customers.cases.create(customerId)
 
-const caseFields = [
+const caseFormData = reactive({
+  category: '',
+  billingCycle: ''
+})
+
+const caseFields = computed(() => [
   {
     name: 'caseName',
     label: '案件名',
     type: 'text',
+    required: true
+  },
+  {
+    name: 'caseDescription',
+    label: '案件概要',
+    type: 'textarea',
   },
   {
     name: 'category',
@@ -72,28 +83,45 @@ const caseFields = [
   },
   {
     name: 'caseStartDate',
-    label: '契約開始日',
+    label: '予定開始日',
     type: 'date',
     format: 'YYYY/MM/DD',
+    required: true
   },
   {
     name: 'caseFinishDate',
-    label: '契約終了日',
+    label: '予定終了日',
     type: 'date',
     format: 'YYYY/MM/DD',
   },
   {
     name: 'monthlyFee',
-    label: '金額',
+    label: caseFormData.category === '単発'
+        ? '金額（総額）'
+        : '金額（月額）',
     type: 'number',
   },
   {
     name: 'billingCycle',
     label: '請求サイクル',
     type: 'select',
-    options: ['毎月', '2ヶ月毎', '年1回', '一回のみ'],
+    options: caseFormData.category === '単発'
+      ? ['一回のみ']
+      :['毎月', '2ヶ月毎', '年1回', '一回のみ'],
+  },
+  {
+    name: 'status',
+    label: 'ステータス',
+    type: 'select',
+    options: ['見積中', '進行中', '停止', '完了'],
   }
-]
+])
+
+watch(() => caseFormData.category, (newVal) => {
+  if (newVal === '単発') {
+    caseFormData.billingCycle = '一回のみ'
+  }
+})
 
 </script>
 
@@ -112,20 +140,21 @@ const caseFields = [
           class="section case-link"
       >
         <p>{{ caseItem.caseName }}</p>
+        <p>{{ caseItem.caseDescription }}</p>
         <p>{{ caseItem.category }}</p>
         <p>{{ caseItem.monthlyFee }}</p>
       </NuxtLink>
     </div>
   </PageContainer>
-  <TemplateModal
+  <Modal
       v-if="showCaseModal"
+      v-model:form-data="caseFormData"
       title="案件追加"
       section-title="案件を追加"
       :submit-url="submitCaseUrl"
       :fields="caseFields"
       success-message="案件を保存しました"
       @close-modal="showCaseModal = false"
-      description="区分を『<span style='color:#d9534f; font-weight:bold;'>単発</span>』にしたときは、金額にそのまま請求額を入力し、請求サイクルには『<span style='color:#0275d8; font-weight:bold;'>1回のみ</span>』を選んでください。"
       @refresh="loadCase"
   />
 </div>
