@@ -1,7 +1,7 @@
 // 型定義は全てこの中へ(多くなればファイル分けします)
 export interface Customer {
     _id: string;
-    contactId: string;
+    contactId?: string;
     companyName: string;
     type?: string;
     category?: string;
