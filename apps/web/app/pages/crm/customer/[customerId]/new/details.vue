@@ -14,17 +14,17 @@ const { customerId } = useRoute().params;
 const sidebarLink = [
   {
     name: '案件',
-    icon: 'md-lock',
+    icon: 'md-viewkanban',
     to: `/crm/customer/${customerId}/new/cases`
   },
   {
     name: 'サブスクリプション',
-    icon: 'md-lock',
+    icon: 'md-eventrepeat',
     to: `/crm/customer/${customerId}/new/subscription`
   },
   {
     name: '詳細',
-    icon: 'md-lock',
+    icon: 'md-info',
     to: `/crm/customer/${customerId}/new/details`
   }
 ]
