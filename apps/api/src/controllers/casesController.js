@@ -3,7 +3,7 @@ import {ObjectId} from "mongodb";
 
 const createCase = async (req, res) => {
     try {
-        const { caseName, caseDescription, category, caseStartDate, caseFinishDate, monthlyFee, billingCycle, status } = req.body;
+        const { caseName, caseDescription, category, caseStartDate, caseFinishDate, amount, billingCycle, status } = req.body;
         const customerId = req.params.customerId;
         const userId = req.user.id;
 
@@ -15,7 +15,7 @@ const createCase = async (req, res) => {
             category: category,
             caseStartDate: caseStartDate,
             caseFinishDate: caseFinishDate,
-            monthlyFee: monthlyFee,
+            amount: amount,
             billingCycle: billingCycle,
             status: status,
             createdAt: new Date(),
