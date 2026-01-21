@@ -107,9 +107,11 @@ export interface loginHistory {
 export interface Cases {
     _id: string;
     caseName: string;
+    caseDescription: string;
     category: string;
     caseStartDate: string;
     caseFinishDate: string;
-    monthlyFee: number;
+    amount: number;
     billingCycle: string;
+    status: string;
 }
