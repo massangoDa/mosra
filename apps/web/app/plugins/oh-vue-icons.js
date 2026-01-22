@@ -34,7 +34,8 @@ import {
     MdDevicesother,
     MdDesktopmac,
     MdViewkanban,
-    MdEventrepeat
+    MdEventrepeat,
+    MdKeyboardreturn
 } from 'oh-vue-icons/icons';
 
 addIcons(
@@ -73,6 +74,7 @@ addIcons(
     MdDesktopmac,
     MdViewkanban,
     MdEventrepeat,
+    MdKeyboardreturn
 );
 
 export default defineNuxtPlugin((nuxtApp) => {
