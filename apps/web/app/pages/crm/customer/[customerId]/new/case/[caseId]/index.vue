@@ -19,20 +19,20 @@ const { customerId, caseId } = useRoute().params;
 
 const sidebarLink = [
   {
-    name: '案件',
-    icon: 'md-viewkanban',
+    name: '案件一覧に戻る',
+    icon: 'md-keyboardreturn',
     to: `/crm/customer/${customerId}/new/cases`
   },
   {
-    name: 'サブスクリプション',
-    icon: 'md-eventrepeat',
-    to: `/crm/customer/${customerId}/new/subscription`
+    name: '案件内容',
+    icon: 'md-info',
+    to: `/crm/customer/${customerId}/new/case/${caseId}`
   },
   {
-    name: '詳細',
-    icon: 'md-info',
-    to: `/crm/customer/${customerId}/new/details`
-  }
+    name: '請求書',
+    icon: 'md-eventrepeat',
+    to: `/crm/customer/${customerId}/new/case/${caseId}/invoices`
+  },
 ]
 
 async function loadCustomer() {
