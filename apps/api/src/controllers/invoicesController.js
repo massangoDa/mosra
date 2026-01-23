@@ -8,16 +8,18 @@ import {manageCalendarEvent} from "../utils/manageCalendarEvent.js";
 const getInvoices = async (req, res) => {
     try {
         const customerId = req.params.customerId;
+        const caseId = req.params.caseId;
         const userId = req.user.id;
 
         const invoices = await db.collection("invoices").find({
             userId: userId,
             customerId: new ObjectId(customerId),
+            caseId: new ObjectId(caseId),
         }).sort({ createdAt: -1 }).toArray();
 
         res.json(invoices);
     } catch (error) {
-        console.log("請求書(単)の取得でエラー発生");
+        console.log("請求書の取得でエラー発生");
         res.error(500, error.message);
     }
 }
@@ -26,11 +28,13 @@ const createInvoice = async (req, res) => {
     try {
         const { invoiceNumber, totalAmount, invoiceRequest, invoiceStatus } = req.body;
         const customerId = req.params.customerId;
+        const caseId = req.params.caseId;
         const userId = req.user.id;
 
         const invoices = {
             userId: userId,
             customerId: new ObjectId(customerId),
+            caseId: new ObjectId(caseId),
             invoiceNumber: invoiceNumber,
             totalAmount: totalAmount,
             invoiceRequest: invoiceRequest,
