@@ -6,7 +6,9 @@ import {fetchTransactions} from "~/api/transactions";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchInvoice} from "~/api/invoice";
 import '~/assets/css/pages/id.css'
-import type {Customer, Cases} from "~/types/types";
+import type {Customer, Cases, Invoice} from "~/types/types";
+import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
+import Invoices from "~/pages/crm/customer/[customerId]/new/case/[caseId]/invoices.vue";
 
 definePageMeta({
   layout: 'crm-layout'
@@ -14,6 +16,7 @@ definePageMeta({
 
 const customer = ref<Customer | null>(null)
 const caseData = ref<Cases | null>(null)
+const invoices = ref<Invoice[]>([])
 
 const { customerId, caseId } = useRoute().params;
 
@@ -53,6 +56,7 @@ async function loadCase() {
 onMounted(async () => {
   await loadCustomer()
   await loadCase()
+  await useDataLoader().loadData(NEW_API_ENDPOINTS.customers.cases.invoices.list(customerId, caseId), invoices)
 })
 
 </script>
@@ -99,7 +103,48 @@ onMounted(async () => {
       </div>
       <h2>最新の請求書</h2>
       <div class="section">
-
+        <div class="table-container">
+          <table class="table">
+            <thead>
+            <tr>
+              <th class="sortable">
+                請求書番号
+              </th>
+              <th class="sortable">
+                合計金額
+              </th>
+              <th class="sortable">
+                日付
+              </th>
+              <th class="sortable">
+                ステータス
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr
+                v-for="invoice in invoices.slice(0, 5)"
+                :key="invoice._id"
+                class="table-row"
+            >
+              <td class="product">
+                <NuxtLink :to="`/crm/customer/${customerId}/invoice/${invoice._id}`" class="invoiceLink">
+                  {{ invoice.invoiceNumber }}
+                </NuxtLink>
+              </td>
+              <td class="amount">
+                {{ useFormat().formatCurrency(invoice.totalAmount) }}
+              </td>
+              <td>
+                {{ invoice.invoiceRequest }}
+              </td>
+              <td>
+                {{ invoice.invoiceStatus }}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </PageContainer>
   </div>
