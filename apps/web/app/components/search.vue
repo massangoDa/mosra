@@ -2,6 +2,10 @@
 import { ref } from 'vue';
 import type {SearchResult} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
+const route = useRoute()
+// 第二サイドバーがあるかどうか
+const hasInnerSidebar = ref(false)
+provide('hasInnerSidebar', hasInnerSidebar)
 
 const emit = defineEmits(['close']);
 
@@ -37,11 +41,20 @@ async function searchData(event: Event) {
     searchResults.value = [];
   }
 }
+
+watch(
+    () => route.path,
+    (path) => {
+      // sidebar1をミニ化してsidebar2を大きくする
+      hasInnerSidebar.value = path.startsWith('/crm/settings') || /^\/crm\/customer\/[^/]+\/new\//.test(path)
+    },
+    { immediate: true }
+)
 </script>
 
 <template>
   <div>
-    <div class="search">
+    <div :class="['search', { 'search--sidebar': hasInnerSidebar }]">
       <div :class="{'search-wrap': true, 'search-open': searchQuery.length > 0}">
         <div class="search-input">
           <input
@@ -71,6 +84,10 @@ async function searchData(event: Event) {
 <style scoped>
 .search {
   position: fixed;
+}
+
+.search--sidebar {
+  margin-left: 20px;
 }
 
 .search-wrap {

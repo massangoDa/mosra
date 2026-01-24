@@ -2,25 +2,26 @@
 import {ref} from "vue";
 import type {Customer} from "~/types/types";
 import {fetchCustomer} from "~/api/customer";
+import {useCustomerStore} from "~/store/customer";
 
 definePageMeta({
   layout: 'crm-layout'
 })
 
-const customer = ref<Customer | null>(null)
+const customerStore = useCustomerStore()
 
 const { customerId } = useRoute().params;
 
 const sidebarLink = [
   {
+    name: '顧客一覧に戻る',
+    icon: 'md-keyboardreturn',
+    to: `/crm/customerInf/`
+  },
+  {
     name: '案件',
     icon: 'md-viewkanban',
     to: `/crm/customer/${customerId}/new/cases`
-  },
-  {
-    name: 'サブスクリプション',
-    icon: 'md-eventrepeat',
-    to: `/crm/customer/${customerId}/new/subscription`
   },
   {
     name: '詳細',
@@ -29,49 +30,41 @@ const sidebarLink = [
   }
 ]
 
-async function loadCustomer() {
-  try {
-    customer.value = await fetchCustomer(customerId)
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 onMounted(async () => {
-  await loadCustomer()
+  await customerStore.loadCustomer(customerId)
 })
 
 </script>
 
 <template>
   <div>
-    <PageContainer :title="customer?.companyName" :sidebar="sidebarLink">
+    <PageContainer :title="customerStore.customer?.companyName" :sidebar="sidebarLink">
       <h2>詳細</h2>
       <div class="section">
         <div class="content">
           <div class="field-row">
             <p class="field-label">取引先名</p>
-            <p class="field-value">{{ customer?.companyName }}</p>
+            <p class="field-value">{{ customerStore.customer?.companyName }}</p>
           </div>
           <div class="field-row">
             <p class="field-label">種別</p>
-            <p class="field-value">{{ customer?.type }}</p>
+            <p class="field-value">{{ customerStore.customer?.type }}</p>
           </div>
           <div class="field-row">
             <p class="field-label">カテゴリー</p>
-            <p class="field-value">{{ customer?.category }}</p>
+            <p class="field-value">{{ customerStore.customer?.category }}</p>
           </div>
           <div class="field-row">
             <p class="field-label">Webサイト</p>
-            <a class="field-value-link" :href="customer?.website">{{ customer?.website }}</a>
+            <a class="field-value-link" :href="customerStore.customer?.website">{{ customerStore.customer?.website }}</a>
           </div>
           <div class="field-row">
             <p class="field-label">電話番号</p>
-            <p class="field-value">{{ customer?.phone }}</p>
+            <p class="field-value">{{ customerStore.customer?.phone }}</p>
           </div>
           <div class="field-row">
             <p class="field-label">説明</p>
-            <p class="field-value">{{ customer?.description }}</p>
+            <p class="field-value">{{ customerStore.customer?.description }}</p>
           </div>
         </div>
       </div>

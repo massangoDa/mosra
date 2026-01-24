@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import '~/assets/css/pages/id.css'
 import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
-import type {Invoice} from "~/types/types";
+import type {Customer, Invoice} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
+import {useCustomerStore} from "~/store/customer";
 
 definePageMeta({
   layout: 'crm-layout'
 })
 
-const customer = ref<Customer | null>(null)
 const invoices = ref<Invoice[]>([])
+const customerStore = useCustomerStore()
 
 const { customerId, caseId } = useRoute().params;
 
@@ -57,16 +58,16 @@ const invoiceFields = [
 const showInvoiceModal = ref(false);
 const invoiceFormData = ref({});
 
-onMounted(() => {
-  useDataLoader().loadData(API_ENDPOINTS.customers.detail(customerId), customer)
-  useDataLoader().loadData(NEW_API_ENDPOINTS.customers.cases.invoices.list(customerId, caseId), invoices);
+onMounted(async () => {
+  await useDataLoader().loadData(NEW_API_ENDPOINTS.customers.cases.invoices.list(customerId, caseId), invoices)
+  await customerStore.loadCustomer(customerId)
 })
 
 </script>
 
 <template>
   <div>
-    <PageContainer :title="`${customer?.companyName}`" :sidebar="sidebarLink">
+    <PageContainer :title="`${customerStore.customer?.companyName}`" :sidebar="sidebarLink">
       <template #header-right>
         <button @click="showInvoiceModal = true" class="NewInfoButton">
           + 請求書作成
@@ -101,7 +102,7 @@ onMounted(() => {
                   class="table-row"
               >
                 <td class="product">
-                  <NuxtLink :to="`/crm/customer/${customerId}/invoice/${invoice._id}`" class="invoiceLink">
+                  <NuxtLink :to="`/crm/customer/${customerId}/new/case/${caseId}/invoice/${invoice._id}`" class="invoiceLink">
                     {{ invoice.invoiceNumber }}
                   </NuxtLink>
                 </td>

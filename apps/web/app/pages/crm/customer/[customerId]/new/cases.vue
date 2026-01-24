@@ -1,30 +1,33 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import type {Customer, Cases} from "~/types/types";
+import type {Customer, Case} from "~/types/types";
 import {fetchCustomer} from "~/api/customer";
 import '~/assets/css/pages/id.css'
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchCase} from "~/api/cases";
+import {useCustomerStore} from "~/store/customer";
+import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
 
 definePageMeta({
   layout: 'crm-layout'
 })
 
 const customer = ref<Customer | null>(null)
-const caseData = ref<Cases[] | null>(null)
+const caseData = ref<Case[] | null>(null)
+const customerStore = useCustomerStore()
 
 const { customerId } = useRoute().params;
 
 const sidebarLink = [
   {
+    name: '顧客一覧に戻る',
+    icon: 'md-keyboardreturn',
+    to: `/crm/customerInf/`
+  },
+  {
     name: '案件',
     icon: 'md-viewkanban',
     to: `/crm/customer/${customerId}/new/cases`
-  },
-  {
-    name: 'サブスクリプション',
-    icon: 'md-eventrepeat',
-    to: `/crm/customer/${customerId}/new/subscription`
   },
   {
     name: '詳細',
@@ -33,30 +36,12 @@ const sidebarLink = [
   }
 ]
 
-async function loadCustomer() {
-  try {
-    customer.value = await fetchCustomer(customerId)
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function loadCase() {
-  try {
-    caseData.value = await fetchCase(customerId)
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 onMounted(async () => {
-  await loadCustomer()
-  await loadCase()
+  await customerStore.loadCustomer(customerId)
+  await useDataLoader().loadData(NEW_API_ENDPOINTS.customers.cases.list(customerId), caseData)
 })
 
 const showCaseModal = ref(false)
-
-const submitCaseUrl = API_ENDPOINTS.customers.cases.create(customerId)
 
 const caseFormData = reactive({
   category: '',
@@ -127,7 +112,7 @@ watch(() => caseFormData.category, (newVal) => {
 
 <template>
 <div>
-  <PageContainer :title="customer?.companyName" :sidebar="sidebarLink">
+  <PageContainer :title="customerStore.customer?.companyName" :sidebar="sidebarLink">
     <template #header-right>
       <button @click="showCaseModal = true" class="NewInfoButton">+ 案件追加</button>
     </template>
@@ -142,7 +127,7 @@ watch(() => caseFormData.category, (newVal) => {
         <p>{{ caseItem.caseName }}</p>
         <p>{{ caseItem.caseDescription }}</p>
         <p>{{ caseItem.category }}</p>
-        <p>{{ caseItem.monthlyFee }}</p>
+        <p>{{ caseItem.amount }}</p>
       </NuxtLink>
     </div>
   </PageContainer>
@@ -151,7 +136,7 @@ watch(() => caseFormData.category, (newVal) => {
       v-model:form-data="caseFormData"
       title="案件追加"
       section-title="案件を追加"
-      :submit-url="submitCaseUrl"
+      :submit-url="NEW_API_ENDPOINTS.customers.cases.create(customerId)"
       :fields="caseFields"
       success-message="案件を保存しました"
       @close-modal="showCaseModal = false"
