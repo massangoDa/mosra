@@ -1,7 +1,7 @@
-import { db } from "../db.js";
+import { db } from "../../db.js";
 import {ObjectId} from "mongodb";
-import {recalculateInvoicesTotal, recalculateInvoiceTotal, taxCalculation} from "../utils/recalculate.js";
-import {normalizeForSearch} from "../utils/normalizeForSearch.js";
+import {recalculateInvoicesTotal, recalculateInvoiceTotal, taxCalculation} from "../../utils/recalculate.js";
+import {normalizeForSearch} from "../../utils/normalizeForSearch.js";
 
 
 const getTransactions = async (req, res) => {

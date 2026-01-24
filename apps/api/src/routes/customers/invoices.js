@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router({ mergeParams: true });
 import { authenticateToken } from '../../middleware/auth.js';
-import invoicesController from '../../controllers/invoicesController.js';
+import invoicesController from '../../controllers/cases/invoicesController.js';
 
 router.get('/', authenticateToken, invoicesController.getInvoices); // 複
 router.post('/', authenticateToken, invoicesController.createInvoice); // 単

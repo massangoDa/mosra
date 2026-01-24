@@ -1,8 +1,8 @@
-import { db } from "../db.js";
+import { db } from "../../db.js";
 import {ObjectId} from "mongodb";
-import {recalculateInvoicesTotal, recalculateInvoiceTotal, taxCalculation} from "../utils/recalculate.js";
-import {normalizeForSearch} from "../utils/normalizeForSearch.js";
-import {manageCalendarEvent} from "../utils/manageCalendarEvent.js";
+import {recalculateInvoicesTotal, recalculateInvoiceTotal, taxCalculation} from "../../utils/recalculate.js";
+import {normalizeForSearch} from "../../utils/normalizeForSearch.js";
+import {manageCalendarEvent} from "../../utils/manageCalendarEvent.js";
 
 
 const getInvoices = async (req, res) => {
@@ -66,16 +66,18 @@ const createInvoice = async (req, res) => {
 const getInvoice = async (req, res) => {
     try {
         const customerId = req.params.customerId;
+        const caseId = req.params.caseId;
         const userId = req.user.id;
         const invoiceId = req.params.invoiceId;
 
-        const invoices = await db.collection("invoices").findOne({
+        const invoice = await db.collection("invoices").findOne({
             userId: userId,
             customerId: new ObjectId(customerId),
+            caseId: new ObjectId(caseId),
             _id: new ObjectId(invoiceId),
         });
 
-        res.json(invoices);
+        res.json(invoice);
     } catch (error) {
         res.error(500, error.message);
     }
