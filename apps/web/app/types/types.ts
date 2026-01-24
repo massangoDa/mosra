@@ -104,7 +104,7 @@ export interface loginHistory {
     device: string;
 }
 
-export interface Cases {
+export interface Case {
     _id: string;
     caseName: string;
     caseDescription: string;

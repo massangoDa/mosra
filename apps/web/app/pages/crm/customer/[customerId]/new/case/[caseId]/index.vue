@@ -6,17 +6,18 @@ import {fetchTransactions} from "~/api/transactions";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchInvoice} from "~/api/invoice";
 import '~/assets/css/pages/id.css'
-import type {Customer, Cases, Invoice} from "~/types/types";
+import type {Customer, Case, Invoice} from "~/types/types";
 import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
 import Invoices from "~/pages/crm/customer/[customerId]/new/case/[caseId]/invoices.vue";
+import {useCustomerStore} from "~/store/customer";
 
 definePageMeta({
   layout: 'crm-layout'
 })
 
-const customer = ref<Customer | null>(null)
-const caseData = ref<Cases | null>(null)
+const caseData = ref<Case | null>(null)
 const invoices = ref<Invoice[]>([])
+const customerStore = useCustomerStore()
 
 const { customerId, caseId } = useRoute().params;
 
@@ -37,14 +38,6 @@ const sidebarLink = [
     to: `/crm/customer/${customerId}/new/case/${caseId}/invoices`
   },
 ]
-
-async function loadCustomer() {
-  try {
-    customer.value = await fetchCustomer(customerId)
-  } catch (error) {
-    console.error(error);
-  }
-}
 async function loadCase() {
   try {
     caseData.value = await fetchData().fetch(API_ENDPOINTS.customers.cases.detail(customerId, caseId))
@@ -54,7 +47,7 @@ async function loadCase() {
 }
 
 onMounted(async () => {
-  await loadCustomer()
+  await customerStore.loadCustomer(customerId)
   await loadCase()
   await useDataLoader().loadData(NEW_API_ENDPOINTS.customers.cases.invoices.list(customerId, caseId), invoices)
 })
@@ -63,7 +56,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageContainer :title="`${customer?.companyName} - ${caseData?.caseName}`" :sidebar="sidebarLink">
+    <PageContainer :title="`${customerStore.customer?.companyName} - ${caseData?.caseName}`" :sidebar="sidebarLink">
       <h2>案件内容</h2>
       <div class="section">
         <div class="content">
@@ -128,7 +121,7 @@ onMounted(async () => {
                 class="table-row"
             >
               <td class="product">
-                <NuxtLink :to="`/crm/customer/${customerId}/invoice/${invoice._id}`" class="invoiceLink">
+                <NuxtLink :to="`/crm/customer/${customerId}/new/case/${caseId}/invoice/${invoice._id}`" class="invoiceLink">
                   {{ invoice.invoiceNumber }}
                 </NuxtLink>
               </td>

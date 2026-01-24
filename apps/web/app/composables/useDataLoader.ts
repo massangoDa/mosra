@@ -1,14 +1,11 @@
-export const useDataLoader = () => {
-
-    const loadData = async <T>(url: string, ref: Ref<T[]>) => {
+export function useDataLoader() {
+    async function loadData<T>(url: string, target: Ref<T | null>) {
         try {
-            ref.value = await fetchData().fetch(url, 'GET');
+            target.value = await fetchData().fetch(url)
         } catch (error) {
-            console.log(error);
+            console.error(error)
         }
     }
 
-    return {
-        loadData,
-    }
+    return { loadData }
 }
