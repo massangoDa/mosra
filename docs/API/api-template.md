@@ -1,6 +1,6 @@
 # APIテンプレート
 
-`API_Template` はAPIの作成する際のテンプレートを提供します。
+`api-template` はAPIの作成する際のテンプレートを提供します。
 
 ## 実装の決まり (Controller)
 
