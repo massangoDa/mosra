@@ -13,7 +13,7 @@
 ## コンポーネント
 フロントエンド（Nuxt.js）で使用されている共通コンポーネントの仕様です。
 
-- [PageContainer (page-container.md)](./components/PageContainer.md)
+- [PageContainer (page-container.md)](components/page-container.md)
   - サイドバー、ヘッダー、コンテンツエリアを持つ標準的なページレイアウト。
 
 ## フォルダ構成
