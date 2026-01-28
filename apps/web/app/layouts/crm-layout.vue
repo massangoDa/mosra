@@ -80,7 +80,7 @@ watch(
     () => route.path,
     (path) => {
       // sidebar1をミニ化してsidebar2を大きくする
-      hasInnerSidebar.value = path.startsWith('/crm/settings') || /^\/crm\/customer\/[^/]+\/new\//.test(path)
+      hasInnerSidebar.value = path.startsWith('/crm/settings') || /^\/crm\/customer\/[^/]+/.test(path)
     },
     { immediate: true }
 )

@@ -145,7 +145,7 @@ function handleContextMenuClick(customerId: string, itemId: string) {
               @contextmenu="contextMenu?.openMenu($event, customer._id)"
             >
               <td class="company-name" >
-                <NuxtLink :to="`/crm/customer/${customer._id}`" class="company-name">
+                <NuxtLink :to="`/crm/customer/${customer._id}/cases`" class="company-name">
                   {{ customer.companyName }}
                 </NuxtLink>
               </td>
