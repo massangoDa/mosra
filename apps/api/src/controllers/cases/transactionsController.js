@@ -24,38 +24,25 @@ const getTransactions = async (req, res) => {
 
 const createTransaction = async (req, res) => {
     try {
-        // ボディーから受け取るものは後で決める
-        const { product, amount, transactionStatus, invoiceId, cost, tax_rate } = req.body;
-        // カスタマーIDで紐づけする
+        const { product, amount, cost, tax_rate } = req.body;
         const customerId = req.params.customerId;
-        // ユーザーID紐づけをする
+        const caseId = req.params.caseId;
+        const invoiceId = req.params.invoiceId;
         const userId = req.user.id;
-
-        // 税の計算
-        const taxInAmount = taxCalculation(amount, tax_rate);
-
-        // 正規化関数で曖昧検索できるようにする
-        const searchProduct = normalizeForSearch(product);
 
         const transaction = {
             userId: userId,
             customerId: new ObjectId(customerId),
+            caseId: new ObjectId(caseId),
             invoiceId: new ObjectId(invoiceId),
             product: product,
             amount: amount,
-            taxInAmount: taxInAmount,
-            totalAmount: amount + taxInAmount,
             cost: cost,
             tax_rate: tax_rate,
-            searchProduct: searchProduct,
             createdAt: new Date(),
         }
 
         const result = await db.collection("transactions").insertOne(transaction);
-
-        // 請求書のtotalAmount計算
-        await recalculateInvoiceTotal(invoiceId);
-        await recalculateInvoicesTotal(customerId);
 
         res.status(201).json({ success: true, customerId: result.insertedId });
     } catch (error) {
