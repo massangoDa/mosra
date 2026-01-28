@@ -15,8 +15,6 @@ export interface Transaction {
     _id: string;
     product: string;
     amount: number;
-    taxInAmount: number;
-    totalAmount: number;
     cost: number;
     tax_rate: number;
 }

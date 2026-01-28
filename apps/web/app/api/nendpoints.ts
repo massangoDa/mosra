@@ -8,7 +8,10 @@ export const NEW_API_ENDPOINTS = {
             invoices: {
                 create: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices`,
                 list: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices`,
-                transactions: (customerId: string, caseId: string, invoiceId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions`,
+                transactions: {
+                    create: (customerId: string, caseId: string, invoiceId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions`,
+                    list: (customerId: string, caseId: string, invoiceId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions`,
+                }
             }
         }
     },
