@@ -1,4 +1,4 @@
-name: Test
+name: Build
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-frontend:
+  build-frontned:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
