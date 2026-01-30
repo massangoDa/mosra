@@ -12,6 +12,7 @@ router.post('/:caseId/invoices/', authenticateToken, invoicesController.createIn
 router.get('/:caseId/invoices/', authenticateToken, invoicesController.getInvoices) // 複
 router.get('/:caseId/invoices/:invoiceId/', authenticateToken, invoicesController.getInvoice) // 単
 router.post('/:caseId/invoices/:invoiceId/transactions/', authenticateToken, transactionsController.createTransaction) // 単
-router.get('/:caseId/invoices/:invoiceId/transactions/', authenticateToken, invoicesController.getInvoiceTransactions) // 複
+router.get('/:caseId/invoices/:invoiceId/transactions/', authenticateToken, transactionsController.getTransactions) // 複
+router.put('/:caseId/invoices/:invoiceId/transactions/:transactionId/', authenticateToken, transactionsController.updateTransaction) // 単
 
 export default router;
