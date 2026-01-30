@@ -11,6 +11,7 @@ export const NEW_API_ENDPOINTS = {
                 transactions: {
                     create: (customerId: string, caseId: string, invoiceId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions`,
                     list: (customerId: string, caseId: string, invoiceId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions`,
+                    update: (customerId: string, caseId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions/${transactionId}`
                 }
             }
         }
