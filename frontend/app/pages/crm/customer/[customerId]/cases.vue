@@ -22,7 +22,7 @@ const sidebarLink = [
   {
     name: '顧客一覧に戻る',
     icon: 'md-keyboardreturn',
-    to: `/crm/customerInf/`
+    to: `/crm/customers/`
   },
   {
     name: '案件',

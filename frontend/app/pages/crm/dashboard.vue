@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {fetchAllInvoices} from "~/api/allInvoices";
-import { useToast } from 'vue-toastification'
 import type {Calendar, Invoice} from "~/types/types";
 import {ref} from "vue";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import '~/assets/css/pages/dashboard.css'
+import {useDataLoader} from "#imports";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -23,67 +23,13 @@ watch(authToken, async (newToken) => {
 })
 
 const invoices = ref<Invoice[]>([])
-
-async function loadInvoices() {
-  try {
-    invoices.value = await fetchAllInvoices();
-  } catch (error) {
-    console.error('Error fetching invoices:', error);
-    toast.error("エラーが発生");
-  }
-}
-
 const monthlySales = ref({
   currentMonth: { totalAmount: 0, count: 0 },
   lastMonth: { totalAmount: 0 },
   comparison: { percentageChange: '0', isPositive: true }
 });
-
-async function loadMonthlySales() {
-  try {
-    const res = await $fetch('/api/dashboard/monthly-sales', {
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      }
-    });
-    monthlySales.value = res;
-  } catch (error) {
-    console.error('Error fetching monthly sales:', error);
-  }
-}
-
 const unpaidInvoices = ref({ totalAmount: 0, count: 0 });
-
-async function loadUnpaidInvoices() {
-  try {
-    const res = await $fetch('/api/dashboard/unpaid-invoices', {
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      }
-    });
-    unpaidInvoices.value = res;
-  } catch (error) {
-    console.error('Error fetching unpaid invoices:', error);
-  }
-}
-
-// 今日の予定を表示
 const events = ref<Calendar[]>([])
-
-async function loadSchedule() {
-  try {
-    const res = await $fetch('/api/today-calendar-events', {
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      }
-    });
-    events.value = res;
-  } catch (error) {
-    console.error('Error fetching schedule:', error);
-  }
-}
-
-// 顧客の名前を取得
 const companyNames = ref<Record<string, string>>({});
 
 async function loadInvoiceCompanyNames() {
@@ -108,11 +54,11 @@ async function loadCompanyName(customerId: string) {
 }
 
 onMounted(async () => {
-  await loadInvoices();
+  await useDataLoader().loadData(API_ENDPOINTS.allInvoices(), invoices);
   await loadInvoiceCompanyNames();
-  loadMonthlySales();
-  loadUnpaidInvoices();
-  loadSchedule();
+  await useDataLoader().loadData('/api/dashboard/monthly-sales', monthlySales.value)
+  await useDataLoader().loadData('/api/dashboard/unpaid-invoices', unpaidInvoices.value)
+  await useDataLoader().loadData('/api/today-calendar-events', events.value)
 })
 </script>
 

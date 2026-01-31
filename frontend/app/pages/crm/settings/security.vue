@@ -29,17 +29,8 @@ const sidebarLink = [
   }
 ]
 
-async function loadLoginHistory() {
-  try {
-    loginHistory.value = await fetchData().fetch(API_ENDPOINTS.accounts.loginHistory);
-  } catch (error) {
-    toast.error("ログイン履歴取得でエラーが発生しました")
-    console.log(error)
-  }
-}
-
 onMounted(async () => {
-  await loadLoginHistory()
+  await useDataLoader().loadData(API_ENDPOINTS.accounts.loginHistory, loginHistory)
 
   if (hasOuterSidebar) {
     hasOuterSidebar.value = true

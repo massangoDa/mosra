@@ -5,6 +5,7 @@ import {Chart, registerables} from "chart.js";
 import {ref} from "vue";
 import type {Customer} from "~/types/types";
 import '~/assets/css/pages/analysis.css'
+import {API_ENDPOINTS} from "~/api/endpoints";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -13,14 +14,6 @@ definePageMeta({
 Chart.register(...registerables);
 
 const customers = ref<Customer[] | null>(null)
-
-async function loadCustomers() {
-  try {
-    customers.value = await fetchCustomers();
-  } catch (error) {
-    console.error('Error fetching customers:', error);
-  }
-}
 
 const chartData = computed(() => {
   if (!customers.value || customers.value.length === 0) {
@@ -58,8 +51,8 @@ const customerCount = computed(() => {
   return customers.value?.length || 0;
 })
 
-onMounted(() => {
-  loadCustomers();
+onMounted(async () => {
+  await useDataLoader().loadData(API_ENDPOINTS.customers.list, customers)
 })
 </script>
 

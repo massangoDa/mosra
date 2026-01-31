@@ -94,7 +94,7 @@ watch(
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-dashboard" class="sidebar-link-icon"/>ダッシュボード</NuxtLink>
         <div class="menu-item-has-children" :class="{ open: isMenuOpen }">
           <NuxtLink
-                :to="hasInnerSidebar ? '/crm/customerInf' : ''"
+                :to="hasInnerSidebar ? '/crm/customers' : ''"
                 class="sidebar-link"
                 @click="!hasInnerSidebar && (isMenuOpen = !isMenuOpen)"
               >
@@ -103,7 +103,7 @@ watch(
               </NuxtLink>
               <ul class="sub-menu">
                 <li><NuxtLink to="/crm/contacts" class="sidebar-link"><v-icon name="md-permcontactcalendar" class="sidebar-link-icon" />連絡先</NuxtLink></li>
-                <li><NuxtLink to="/crm/customerInf" class="sidebar-link"><v-icon name="md-corporatefare" class="sidebar-link-icon" />取引先</NuxtLink></li>
+                <li><NuxtLink to="/crm/customers" class="sidebar-link"><v-icon name="md-corporatefare" class="sidebar-link-icon" />取引先</NuxtLink></li>
               </ul>
         </div>
         <NuxtLink to="/crm/dashboard" class="sidebar-link"><v-icon name="md-handshake" class="sidebar-link-icon"/>商談・案件</NuxtLink>

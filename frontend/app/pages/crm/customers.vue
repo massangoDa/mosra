@@ -6,37 +6,24 @@ import type {Customer, Contacts} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchContacts} from "~/api/contacts";
 import '~/assets/css/pages/customerInf.css'
-
-const customers = ref<Customer[]>([])
+import { useToast } from 'vue-toastification'
 
 definePageMeta({
   layout: 'crm-layout',
 })
 
-async function loadCustomers() {
-  try {
-    // ココでのfetchCustomersは、api/customersの関数
-    customers.value = await fetchCustomers();
-  } catch (error) {
-    console.error('Error fetching customers:', error);
-  }
-}
+const toast = useToast();
 
-
-onMounted(() => {
-  loadCustomers();
-})
-
+const customers = ref<Customer[]>([])
 const showCustomerInfoModal = ref(false);
 const showDeleteInvoiceModal = ref(false);
-
-const selectedCustomerId = ref<string | null>(null)
+const selectedCustomerId = ref<string | null>(null);
+const customerFormData = ref({});
 
 function openDeleteModal(customerId: string) {
   selectedCustomerId.value = customerId
   showDeleteInvoiceModal.value = true
 }
-
 
 const submitUrl = computed(() =>
     API_ENDPOINTS.customers.create
@@ -44,7 +31,6 @@ const submitUrl = computed(() =>
 const submitUrl3 = computed(() =>
     API_ENDPOINTS.customers.delete(selectedCustomerId.value)
 )
-
 const customerInfoFields = computed(() =>[
     {
       name: 'companyName',
@@ -101,16 +87,26 @@ const customerInfoFields = computed(() =>[
 )
 
 const contextMenu = ref<any>(null);
-
 const contextmenuItems = [
   { id: 'delete', label: '削除' },
 ];
-
 function handleContextMenuClick(customerId: string, itemId: string) {
   if (itemId === 'delete') {
     openDeleteModal(customerId);
   }
 }
+
+async function loadCustomers() {
+  try {
+    await useDataLoader().loadData(API_ENDPOINTS.customers.list, customers);
+  } catch (error) {
+    toast.success("カスタマー取得中にエラーが発生しました")
+  }
+}
+
+onMounted(async () => {
+  await loadCustomers()
+})
 </script>
 
 <template>
@@ -156,16 +152,17 @@ function handleContextMenuClick(customerId: string, itemId: string) {
           </tbody>
         </table>
       </div>
-      <TemplateModal
+      <Modal
           v-if="showCustomerInfoModal"
           title="取引先情報"
           section-title="取引先を追加"
           :submit-url="submitUrl"
           :fields="customerInfoFields"
+          v-model:form-data="customerFormData"
           success-message="取引先情報を保存しました"
           @close-modal="showCustomerInfoModal = false"
           @refresh="loadCustomers();"
-      />
+        />
 
       <DeleteModal
           v-if="showDeleteInvoiceModal"

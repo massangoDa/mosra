@@ -13,28 +13,11 @@ definePageMeta({
   layout: 'crm-layout',
 })
 
-async function loadContacts() {
-  try {
-    contacts.value = await fetchContacts();
-    for (const contact of contacts.value) {
-      if (contact.customerId && !companyNames.value[contact.customerId]) {
-        await loadCompanyName(contact.customerId);
-      }
-    }
-  } catch (error) {
-    console.error('連絡先でエラー:', error);
-  }
-}
-onMounted(() => {
-  loadContacts();
-})
-
 const showContactInfoModal = ref(false);
 const showEditContactModal = ref(false);
+
 const showDeleteContactModal = ref(false);
-
 const selectedContactId = ref<string | null>(null)
-
 function openEditModal(contactId: string) {
   selectedContactId.value = contactId
   showEditContactModal.value = true
@@ -45,19 +28,20 @@ function openDeleteModal(contactId: string) {
   showDeleteContactModal.value = true
 }
 
-
 const submitUrl = computed(() =>
     API_ENDPOINTS.contacts.create
 )
+
 const editContactUrl = computed(() =>
     selectedContactId.value
         ? API_ENDPOINTS.contacts.update(selectedContactId.value)
         : ""
 )
+
+
 const deleteContactUrl = computed(() =>
     API_ENDPOINTS.contacts.delete(selectedContactId.value)
 )
-
 const customerInfoFields = computed(() =>[
     {
       name: 'lastName',
@@ -94,7 +78,6 @@ const customerInfoFields = computed(() =>[
     },
   ]
 )
-
 const contextMenu = ref<any>(null);
 
 const contextmenuItems = [
@@ -109,6 +92,32 @@ function handleContextMenuClick(contactId: string, itemId: string) {
     openEditModal(contactId);
   }
 }
+
+async function loadContacts() {
+  try {
+    contacts.value = await fetchContacts();
+    for (const contact of contacts.value) {
+      if (contact.customerId && !companyNames.value[contact.customerId]) {
+        await loadCompanyName(contact.customerId);
+      }
+    }
+  } catch (error) {
+    console.error('連絡先でエラー:', error);
+  }
+}
+
+async function loadCompanyName(customerId: string) {
+  try {
+    const res = await fetchData().fetch(API_ENDPOINTS.search.companyName(customerId))
+    companyNames.value[customerId] = res?.companyName || '';
+  } catch (error) {
+    console.error('Error fetching company name:', error);
+  }
+}
+
+onMounted(async () => {
+  await loadContacts();
+})
 </script>
 
 <template>
@@ -152,8 +161,8 @@ function handleContextMenuClick(contactId: string, itemId: string) {
               {{ contact.lastName }} {{ contact.firstName || '' }}
             </td>
             <td class="company-name">
-              <NuxtLink :to="`/crm/customer/${contact.customerId}`" class="company-name">
-                {{ contact.customerId }}
+              <NuxtLink :to="`/crm/customer/${contact.customerId}/details`" class="company-name">
+                {{ companyNames[contact.customerId] || '読み込み中' }}
               </NuxtLink>
             </td>
             <td>
