@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  FRONTEND_PATH: apps/web
+  FRONTEND_PATH: frontend
 
 jobs:
   build-frontend:
