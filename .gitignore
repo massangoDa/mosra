@@ -30,10 +30,10 @@ yarn-error.log*
 logs/
 
 # Uploads (user-generated content) - API only
-apps/api/uploads/
-!apps/api/uploads/icons/
-!apps/api/uploads/icons/default.png
-!apps/api/uploads/.gitkeep
+api/uploads/
+!api/uploads/icons/
+!api/uploads/icons/default.png
+!api/uploads/.gitkeep
 
 # TypeScript
 *.tsbuildinfo
@@ -42,6 +42,6 @@ apps/api/uploads/
 coverage/
 
 # Local HTTPS certs (DO NOT COMMIT)
-apps/web/cert.pem
-apps/web/key.pem
-apps/web/*.pem
+web/cert.pem
+web/key.pem
+web/*.pem
