@@ -22,11 +22,8 @@ export const useAuth = () => {
     const login = async (email: string, password: string) => {
         loading.value = true;
         try {
-            const response = await useFetch("/api/accounts/login", {
-                method: "POST",
-                body: { email, password },
-            });
-            const { token, user } = response.data.value || response.data;
+            const response = await fetchData().fetch('/api/accounts/login', 'POST', { email, password })
+            const { token, user } = response
 
             //tokenの保存
             setAuthToken(token);
@@ -45,10 +42,7 @@ export const useAuth = () => {
     const register = async (email: string, password: string, name: string) => {
         loading.value = true;
         try {
-            const response = await useFetch("/api/accounts/register", {
-                method: "POST",
-                body: { email, password, name },
-            });
+            const response = await fetchData().fetch('/api/accounts/register', 'POST', { email, password, name })
 
             await login(email, password);
 
@@ -66,9 +60,7 @@ export const useAuth = () => {
         try {
             if (authToken.value) {
                 try {
-                    const response = await useFetch("/api/accounts/logout", {
-                        method: "POST",
-                    });
+                    await fetchData().fetch('/api/accounts/logout', 'POST')
                 } catch (error) {
                     console.warn("サーバー側ログアウトができなかった", error);
                 }
@@ -99,12 +91,7 @@ export const useAuth = () => {
                 return;
             }
 
-            const response = await $fetch("/api/dashboard", {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${authToken.value}`,
-                },
-            });
+            const response = await fetchData().fetch('/api/dashboard')
             userInfo.value = response.user || null;
         } catch (error) {
             // エラー起こるならtoken無効

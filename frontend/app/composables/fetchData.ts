@@ -13,7 +13,7 @@ export const fetchData = () => {
             options.body = body
         }
 
-        return await $fetch(`${url}`, options)
+        return await $fetch(url, options)
     }
 
     return {
