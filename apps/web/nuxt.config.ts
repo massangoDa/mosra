@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import {defineNuxtConfig} from "nuxt/config";
+import process from "node:process";
+
 export default defineNuxtConfig({
     compatibilityDate: '2025-07-15',
     devtools: { enabled: true },
@@ -31,16 +34,9 @@ export default defineNuxtConfig({
         requestSizeLimiter: {
             maxRequestSizeInBytes: 2000000
         },
-        // HTTPメソッド制限
-        allowedMethodsRestriction: {
+        allowedMethodsRestricter: {
             methods: ['GET', 'POST', 'PUT', 'DELETE']
         },
-        // CSRF保護
-        csrf: {
-            cookie: {
-                name: 'csrf_token'
-            }
-        }
     },
     devServer: {
         https: true,
@@ -48,7 +44,6 @@ export default defineNuxtConfig({
     },
     vite: {
         server: {
-            https: true,
             proxy: {
                 "/api/": {
                     target: 'http://192.168.0.23:5000',
@@ -60,5 +55,5 @@ export default defineNuxtConfig({
                 }
             },
         }
-    },
+    }
 })
