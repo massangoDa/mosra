@@ -5,6 +5,8 @@ export const NEW_API_ENDPOINTS = {
             create: (customerId: string) => `/api/customers/${customerId}/cases`,
             list: (customerId: string) => `/api/customers/${customerId}/cases`,
             detail: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}`,
+            update: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}`,
+            delete: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}`,
             invoices: {
                 create: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices`,
                 list: (customerId: string, caseId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices`,
