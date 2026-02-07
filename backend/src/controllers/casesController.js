@@ -99,7 +99,8 @@ const updateCase = async (req, res) => {
                     caseFinishDate,
                     amount,
                     billingCycle,
-                    status
+                    status,
+                    updatedAt: new Date()
                 }
             }
         );

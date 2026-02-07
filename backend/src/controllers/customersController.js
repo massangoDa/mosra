@@ -9,35 +9,63 @@ const getCustomers = async (req, res) => {
 
         res.json(customers);
     } catch (error) {
-        console.log("カスタマー取得でエラーが発生", error);
+        console.log("顧客取得でエラーが発生", error);
         res.error(500, error.message)
     }
 }
 
 const createCustomer = async (req, res) => {
+    const session = db.client.startSession();
+
     try {
-        const { companyName, type, category, website, phone, contact, description, totalAmount } = req.body;
-        // ユーザーIDで紐づけ
-        const userId = req.user.id;
+        await session.withTransaction(async () => {
+            const { contactId } = req.body;
+            const userId = req.user.id;
 
-        const customer = {
-            userId: userId,
-            contactId: contact ? new ObjectId(contact) : null,
-            companyName: companyName,
-            type: type,
-            category: category,
-            website: website,
-            phone: phone,
-            description: description,
-            totalAmount: totalAmount,
-            createdAt: new Date(),
-        };
+            const result = await db.collection("customers").insertOne(
+                {
+                    userId: userId,
+                    ...req.body,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                },
+                { session }
+            );
 
-        const result = await db.collection("customers").insertOne(customer);
-        res.success(201);
+            if (!result) {
+                throw new Error("NOT_FOUND")
+            }
+
+            const customerId = result.insertedId;
+
+            const contactResult = await db.collection("contacts").findOneAndUpdate(
+                {
+                    _id: new ObjectId(contactId),
+                    userId: userId
+                },
+                {
+                    $set: {
+                        customerId: new ObjectId(customerId),
+                        updatedAt: new Date()
+                    }
+                },
+                { session }
+            );
+
+            if (!contactResult) {
+                throw new Error("NOT_FOUND")
+            }
+        });
+        res.success(201, "顧客を作成しました");
     } catch (error) {
-        console.log("カスタマー作成でエラーが発生:", error);
-        res.error(500, error.message);
+        console.log("顧客作成でエラーが発生:", error);
+        if (error.message === "NOT_FOUND") {
+            res.error(404, "顧客が見つからなかったか、作成に失敗しました");
+        } else {
+            res.error(500, error.message);
+        }
+    } finally {
+        await session.endSession();
     }
 }
 
@@ -57,52 +85,63 @@ const getCustomer = async (req, res) => {
 }
 
 const updateCustomer = async (req, res) => {
-    try {
-        const { companyName, type, category, website, phone, description, totalAmount } = req.body;
-        const customerId = req.params.customerId;
-        const userId = req.user.id;
+    const session = db.client.startSession();
 
-        // あるかの確認
-        const existingCustomer = await db.collection("customers").findOne({
-            _id: new ObjectId(customerId),
-            userId: userId
+    try {
+        await session.withTransaction(async () => {
+            const { contactId } = req.body;
+            const customerId = req.params.customerId;
+            const userId = req.user.id;
+
+            const result = await db.collection("customers").findOneAndUpdate(
+                {
+                    _id: new ObjectId(customerId),
+                    userId: userId,
+                },
+                {
+                    $set: {
+                        ...req.body,
+                        updatedAt: new Date()
+                    }
+                },
+                { session }
+            );
+
+            if (!result) {
+                throw new Error("NOT_FOUND")
+            }
+
+            if (contactId) {
+                const contactResult = await db.collection("contacts").findOneAndUpdate(
+                    {
+                        _id: new ObjectId(contactId),
+                        userId: userId
+                    },
+                    {
+                        $set: {
+                            customerId: new ObjectId(customerId),
+                            updatedAt: new Date()
+                        }
+                    },
+                    { session }
+                );
+
+                if (!contactResult) {
+                    throw new Error("NOT_FOUND")
+                }
+            }
         });
 
-        if (!existingCustomer) {
-            return res.error(404);
-        }
-
-        // 更新する内容
-        const updateData = {
-            $set: {
-                updatedAt: new Date(),
-            }
-        };
-
-        // 各フィールドが存在する場合のみ追加するようにすれば、何度もfetch回数が減るはず
-        if (companyName !== undefined) updateData.$set.companyName = companyName;
-        if (type !== undefined) updateData.$set.type = type;
-        if (category !== undefined) updateData.$set.category = category;
-        if (website !== undefined) updateData.$set.website = website;
-        if (phone !== undefined) updateData.$set.phone = phone;
-        if (description !== undefined) updateData.$set.description = description;
-        if (totalAmount !== undefined) updateData.$set.totalAmount = totalAmount;
-
-        const result = await db.collection("customers").updateOne({
-                _id: new ObjectId(customerId),
-                userId: userId
-            },
-            updateData
-        );
-
-        if (result.modifiedCount === 0) {
-            return res.error(404);
-        }
-
-        res.json({ success: true, message: "顧客情報が更新されました" });
+        res.success(200, "顧客情報を更新しました");
     } catch (error) {
         console.log("顧客情報更新でエラーが発生", error);
-        res.error(500, error.message);
+        if (error.message === "NOT_FOUND") {
+            res.error(404, "顧客が見つからなかったか、更新に失敗しました");
+        } else {
+            res.error(500, error.message);
+        }
+    } finally {
+        await session.endSession();
     }
 }
 
