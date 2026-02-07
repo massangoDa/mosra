@@ -19,10 +19,10 @@ app.set("trust proxy", true);
 
 // responseの型を固定化
 app.use((req, res, next) => {
-    res.error = (status, error) => {
+    res.error = (status = 500, error) => {
         res.status(status).json({ success: false, error });
     };
-    res.success = (data, status = 200) => {
+    res.success = (status = 200, data) => {
         res.status(status).json({ success: true, data });
     };
     next();
