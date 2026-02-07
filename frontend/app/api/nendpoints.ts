@@ -1,6 +1,7 @@
 export const NEW_API_ENDPOINTS = {
     customers: {
         detail: (customerId: string) => `/api/customers/${customerId}`,
+        update: (customerId: string) => `/api/customers/${customerId}`,
         cases: {
             create: (customerId: string) => `/api/customers/${customerId}/cases`,
             list: (customerId: string) => `/api/customers/${customerId}/cases`,
@@ -18,4 +19,7 @@ export const NEW_API_ENDPOINTS = {
             }
         }
     },
+    contacts: {
+        list: `/api/contacts`
+    }
 }
