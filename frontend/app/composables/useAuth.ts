@@ -1,3 +1,5 @@
+import {API_ENDPOINTS} from "~/api/endpoints";
+
 export const useAuth = () => {
     // JWTトークンをlocalstorageで管理するのはもうやめだ
     const userInfo = useState<{ id?: string; email?: string; name?: string; icon?: string; } | null>('userInfo', () => null);
@@ -91,8 +93,8 @@ export const useAuth = () => {
                 return;
             }
 
-            const response = await fetchData().fetch('/api/dashboard')
-            userInfo.value = response.user || null;
+            const response = await fetchData().fetch(API_ENDPOINTS.dashboard)
+            userInfo.value = response || null;
         } catch (error) {
             // エラー起こるならtoken無効
             userInfo.value = null;

@@ -1,5 +1,5 @@
 export const API_ENDPOINTS = {
-    dashboard: '/api/dashboard',
+    dashboard: '/api/accounts/userInfo',
     allInvoices: () => `/api/invoices`,
     calendarEvents: () => `/api/calendar-events`,
     createCalendarEvent: () => `/api/calendar-events`,
