@@ -22,7 +22,12 @@ const createCase = async (req, res) => {
         }
 
         const result = await db.collection("cases").insertOne(Case);
-        res.success(201);
+
+        if (!result) {
+            return res.error(500, "案件を作成できませんでした");
+        }
+
+        res.success(201, "案件を作成しました");
     } catch (error) {
         console.log("案件作成でエラーが発生:", error);
         res.error(500, error.message);
@@ -38,6 +43,10 @@ const getCases = async (req, res) => {
             userId: userId,
             customerId: new ObjectId(customerId)
         }).sort({ createdAt: -1 }).toArray();
+
+        if (!cases) {
+            return res.error(404, "案件が見つかりませんでした");
+        }
 
         res.json(cases);
     } catch (error) {
@@ -57,6 +66,10 @@ const getCase = async (req, res) => {
             _id: new ObjectId(caseId)
         });
 
+        if (!caseResult) {
+            return res.error(404, "案件が見つかりませんでした");
+        }
+
         res.json(caseResult);
     } catch (error) {
         console.log("案件(単)取得でエラーが発生:", error);
@@ -64,8 +77,93 @@ const getCase = async (req, res) => {
     }
 }
 
+const updateCase = async (req, res) => {
+    try {
+        const { caseName, caseDescription, category, caseStartDate, caseFinishDate, amount, billingCycle, status } = req.body;
+        const customerId = req.params.customerId;
+        const caseId = req.params.caseId;
+        const userId = req.user.id;
+
+        const result = await db.collection("cases").findOneAndUpdate(
+            {
+                _id: new ObjectId(caseId),
+                customerId: new ObjectId(customerId),
+                userId: userId
+            },
+            {
+                $set: {
+                    caseName,
+                    caseDescription,
+                    category,
+                    caseStartDate,
+                    caseFinishDate,
+                    amount,
+                    billingCycle,
+                    status,
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        if (!result) {
+            return res.error(404, "案件が見つかりませんでした");
+        }
+
+        res.success(200, "案件を更新しました");
+    } catch (error) {
+        console.log("案件更新でエラーが発生:", error);
+        res.error(500, error.message);
+    }
+}
+
+const deleteCase = async (req, res) => {
+    const session = db.client.startSession();
+
+    try {
+        await session.withTransaction(async () => {
+            const customerId = req.params.customerId;
+            const caseId = req.params.caseId;
+            const userId = req.user.id;
+
+            const result = await db.collection("cases").deleteOne({
+                _id: new ObjectId(caseId),
+                customerId: new ObjectId(customerId),
+                userId: userId
+            }, { session });
+
+            if (result.deletedCount === 0) {
+                throw new Error("NOT_FOUND");
+            }
+
+            await db.collection("invoices").deleteMany({
+                caseId: new ObjectId(caseId),
+                customerId: new ObjectId(customerId),
+                userId: userId
+            }, { session });
+            await db.collection("transactions").deleteMany({
+                caseId: new ObjectId(caseId),
+                customerId: new ObjectId(customerId),
+                userId: userId
+            }, { session });
+        });
+
+        res.success(200, "案件を削除しました");
+    } catch (error) {
+        console.log("案件削除でエラーが発生:", error);
+
+        if (error.message === "NOT_FOUND") {
+            return res.error(404, "案件が見つかりませんでした");
+        }
+        res.error(500, error.message || "案件の削除に失敗しました");
+    } finally {
+        await session.endSession();
+    }
+}
+
 export default {
     createCase,
     getCases,
     getCase,
+    updateCase,
+    deleteCase
 }

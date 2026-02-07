@@ -20,10 +20,3 @@ export async function connectToMongo() {
 }
 
 export { db };
-
-export async function closeConnection() {
-    if (client) {
-        await client.close();
-        console.log("データベースとの接続が閉じられました");
-    }
-}

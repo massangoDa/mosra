@@ -39,6 +39,14 @@ onMounted(async () => {
 <template>
   <div>
     <PageContainer :title="customerStore.customer?.companyName" :sidebar="sidebarLink">
+      <div v-if="customerStore.customer?.description == ''" class="make-manager">
+        <div class="section">
+          <div class="content">
+            <p>顧客情報に担当者を追加しましょう<NuxtLink to="/crm/contacts">担当者を追加する</NuxtLink></p>
+            <p>担当者の連絡先がありませんか？今すぐ連絡先を追加しましょう<NuxtLink to="/crm/contacts">連絡先を追加する</NuxtLink></p>
+          </div>
+        </div>
+      </div>
       <h2>詳細</h2>
       <div class="section">
         <div class="content">

@@ -7,6 +7,7 @@ import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchContacts} from "~/api/contacts";
 import '~/assets/css/pages/customerInf.css'
 import { useToast } from 'vue-toastification'
+import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
 
 definePageMeta({
   layout: 'crm-layout',
@@ -15,14 +16,21 @@ definePageMeta({
 const toast = useToast();
 
 const customers = ref<Customer[]>([])
+const contacts = ref<Contacts[]>([])
 const showCustomerInfoModal = ref(false);
+const showCustomerEditModal = ref(false);
 const showDeleteInvoiceModal = ref(false);
 const selectedCustomerId = ref<string | null>(null);
 const customerFormData = ref({});
 
+
+function openEditModal(customerId: string) {
+  selectedCustomerId.value = customerId;
+  showCustomerEditModal.value = true;
+}
 function openDeleteModal(customerId: string) {
-  selectedCustomerId.value = customerId
-  showDeleteInvoiceModal.value = true
+  selectedCustomerId.value = customerId;
+  showDeleteInvoiceModal.value = true;
 }
 
 const submitUrl = computed(() =>
@@ -83,15 +91,30 @@ const customerInfoFields = computed(() =>[
       rows: '3',
       fullWidth: true
     },
+    {
+      name: 'contactId',
+      label: '担当者',
+      type: 'select',
+      options: [
+        { label: '指定なし', value: '' },
+        ...contacts.value.map(contact => ({
+          label: `${contact.lastName} ${contact.firstName || ''}`.trim(),
+          value: contact._id
+        }))
+      ]
+    }
   ]
 )
 
 const contextMenu = ref<any>(null);
 const contextmenuItems = [
-  { id: 'delete', label: '削除' },
+  { id: 'edit', label:'編集' },
+  { id: 'delete', label: '削除' }
 ];
 function handleContextMenuClick(customerId: string, itemId: string) {
-  if (itemId === 'delete') {
+  if (itemId === 'edit') {
+    openEditModal(customerId)
+  } else if (itemId === 'delete') {
     openDeleteModal(customerId);
   }
 }
@@ -106,6 +129,7 @@ async function loadCustomers() {
 
 onMounted(async () => {
   await loadCustomers()
+  await useDataLoader().loadData(NEW_API_ENDPOINTS.contacts.list, contacts)
 })
 </script>
 
@@ -162,7 +186,18 @@ onMounted(async () => {
           success-message="取引先情報を保存しました"
           @close-modal="showCustomerInfoModal = false"
           @refresh="loadCustomers();"
-        />
+      />
+      <EditModal
+          v-if="showCustomerEditModal"
+          title="取引先編集"
+          section-title="取引先を編集"
+          :fetch-url="NEW_API_ENDPOINTS.customers.detail(selectedCustomerId)"
+          :update-url="NEW_API_ENDPOINTS.customers.update(selectedCustomerId)"
+          :fields="customerInfoFields"
+          success-message="取引先を更新しました"
+          @close-modal="showCustomerEditModal = false"
+          @refresh="loadCustomers()"
+      />
 
       <DeleteModal
           v-if="showDeleteInvoiceModal"

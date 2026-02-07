@@ -337,6 +337,10 @@
     background: #0056b3;
 }
 
+.main-content a {
+    color: var(--color-link);
+}
+
 :root.dark {
     .app-wrapper {
         background-color: #1a202c;

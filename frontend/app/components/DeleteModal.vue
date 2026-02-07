@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {useToast} from "vue-toastification";
 
 const toast = useToast()
@@ -29,43 +28,24 @@ const props = defineProps({
     type: String,
     default: '削除に失敗しました'
   },
-  // IDの受け渡し
-  customerId: {
-    type: String,
-  },
-  invoiceId: {
-    type: String,
-  },
-  transactionId: {
-    type: String,
-  },
-  contactId: {
-    type: String,
-  }
 });
 
 const emit = defineEmits<{
-  closeModal: []
+  closeModal: [],
+  refresh: []
 }>()
-
-const { customerId, invoiceId } = useRoute().params;
 
 // 削除処理
 async function onSubmit() {
   try {
     console.log(props.deleteUrl)
-    const res = await $fetch(`${props.deleteUrl}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      },
-    })
-    toast.success(props.successMessage)
+    await fetchData().fetch(`${props.deleteUrl}`, "DELETE")
+    toast.success(props.successMessage);
     emit("closeModal")
     emit("refresh")
   } catch (error) {
-        console.error(error)
-        toast.error(props.errorMessage)
+    console.error(error)
+    toast.error(props.errorMessage)
   }
 }
 </script>
