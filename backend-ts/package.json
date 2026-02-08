@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/app.js",
-    "dev": "tsc && nodemon ./dist/app.js"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +27,7 @@
     "@types/mongodb": "^4.0.6",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.2.1",
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.11",
     "typescript": "^5.9.3"
   }
