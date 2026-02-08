@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import type {AuthUser} from "../types/auth.type.js";
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers["authorization"];
@@ -17,7 +18,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
                 message: "トークンが無効"
             });
         }
-        req.user = decoded;
+        req.user = decoded as AuthUser;
         next();
     });
 };

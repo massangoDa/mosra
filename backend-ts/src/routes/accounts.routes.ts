@@ -13,6 +13,9 @@ const upload = multer({ dest: path.join(__dirname, '..', 'uploads', 'icons') });
 router.post('/login', accountsController.loginAccount);
 router.post('/register', accountsController.registerAccount);
 router.post('/logout', accountsController.logoutAccount);
+router.put('/user', authenticateToken, accountsController.updateAccount);
+router.put('/user/icon', authenticateToken, upload.single('icon'), accountsController.updateIcon);
 router.get('/userInfo', authenticateToken, accountsController.getUserInfo);
+router.get('/loginHistory', authenticateToken, accountsController.getLoginHistory);
 
 export default router;
