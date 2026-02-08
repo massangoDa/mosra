@@ -57,7 +57,6 @@ async function submitIcon (e: Event) {
 
   const file = target.files[0];
   const formData = new FormData();
-  formData.append("id", userInfo.value?.id || '');
   formData.append("icon", file)
   try {
     const res = await fetchData().fetch(API_ENDPOINTS.accounts.updateIcon, 'PUT', formData);
