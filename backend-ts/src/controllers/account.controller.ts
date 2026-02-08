@@ -71,7 +71,7 @@ export const loginAccount = async (req: Request, res: Response) => {
 
         // ログイン履歴を保存
         const loginHistory: types.LoginHistory = {
-            userId: new ObjectId(user._id),
+            userId: user._id,
             loginTime: new Date(),
             ipAddress: req.ip,
             device: operatingSystem,
@@ -99,7 +99,7 @@ export const getUserInfo = async (req: Request, res: Response) => {
 
         const user = await db.collection("users").findOne(
             {
-                _id: new ObjectId(userId)
+                _id: userId
             }
         );
 
@@ -155,7 +155,7 @@ export const updateAccount = async (req: Request, res: Response) => {
 
         const result = await db.collection<types.User>("users").findOneAndUpdate(
             {
-                _id: new ObjectId(userId),
+                _id: userId,
             },
             {
                 $set: {
@@ -180,7 +180,7 @@ export const updateAccount = async (req: Request, res: Response) => {
 
 export const updateIcon = async (req: Request, res: Response) => {
     try {
-        const { id } = req.body;
+        const userId = req.user.id;
 
         if (!req.file) {
             return res.status(400).json("ファイルが必要です");
@@ -191,7 +191,7 @@ export const updateIcon = async (req: Request, res: Response) => {
 
         const result = await db.collection<types.User>("users").findOneAndUpdate(
             {
-                _id: new ObjectId(id)
+                _id: userId
             },
             {
                 $set: {
@@ -216,7 +216,7 @@ export const getLoginHistory = async (req: Request, res: Response) => {
         const userId = req.user.id;
 
         const result = await db.collection("login-history").find({
-            userId: new ObjectId(userId)
+            userId
         }).sort({ loginTime: -1 }).toArray();
 
         res.json(result);

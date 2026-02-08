@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import { authenticateToken } from '../middleware/auth.middleware.js';
-import * as accountsController from '../controllers/accounts.controller.js';
+import * as accountsController from '../controllers/account.controller.js';
 import {fileURLToPath} from "url";
 import * as path from "node:path";
 import multer from "multer";

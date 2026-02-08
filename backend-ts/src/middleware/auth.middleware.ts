@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 import type {AuthUser} from "../types/auth.type.js";
+import {ObjectId} from "mongodb";
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers["authorization"];
@@ -18,7 +19,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
                 message: "トークンが無効"
             });
         }
-        req.user = decoded as AuthUser;
+
+        const payload = decoded as any;
+        req.user = {
+            ...payload,
+            id: new ObjectId(payload.id)
+        };
         next();
     });
 };
