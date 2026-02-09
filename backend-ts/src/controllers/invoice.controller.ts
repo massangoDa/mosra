@@ -1,42 +1,57 @@
-import type { Request, Response } from 'express';
-import { ObjectId } from "mongodb";
-import * as types from '../types/types.js';
-import {createInvoiceService, getInvoicesService} from "../services/invoice.service.js";
+import type { Request, Response } from 'express'
+import { ObjectId } from 'mongodb'
+import * as types from '../types/types.js'
+import { createInvoiceService, getInvoiceService, getInvoicesService } from '../services/invoice.service.js'
 
-export const getInvoices = async (req: Request<{ customerId: string, caseId: string }>, res: Response) => {
+export const getInvoices = async (req: Request<types.AppParams>, res: Response) => {
     try {
-        const userId = req.user.id;
-        const customerId = new ObjectId(req.params.customerId);
-        const caseId = new ObjectId(req.params.caseId);
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
 
-        const result = await getInvoicesService(userId, customerId, caseId);
+        const result = await getInvoicesService(userId, customerId, caseId)
 
-        res.json(result);
+        res.json(result)
     } catch (error) {
-        console.log("請求書の取得でエラー発生");
-        res.status(500).json("エラーが発生しました");
+        console.log('請求書の取得でエラー発生')
+        res.status(500).json('エラーが発生しました')
     }
 }
 
-export const createInvoice = async (req: Request<{ customerId: string, caseId: string }>, res: Response) => {
+export const createInvoice = async (req: Request<types.AppParams>, res: Response) => {
     try {
-        const customerId = new ObjectId(req.params.customerId);
-        const caseId = new ObjectId(req.params.caseId);
-        const userId = req.user.id;
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
+        const userId = req.user.id
 
         const payload: types.InputInvoice = {
             ...req.body,
         }
 
-        await createInvoiceService(userId, customerId, caseId, payload);
+        await createInvoiceService(userId, customerId, caseId, payload)
 
-        res.status(201).json("請求書を作成しました");
+        res.status(201).json('請求書を作成しました')
     } catch (error) {
-        console.log("請求書の作成でエラー発生");
-        if (error instanceof Error && error.message === "NOT_FOUND") {
-            res.status(404).json("顧客が見つかりません");
+        console.log('請求書の作成でエラー発生')
+        if (error instanceof Error && error.message === 'NOT_FOUND') {
+            res.status(404).json('顧客が見つかりません')
         } else {
-            res.status(500).json("エラーが発生しました");
+            res.status(500).json('エラーが発生しました')
         }
+    }
+}
+
+export const getInvoice = async (req: Request<types.AppParams>, res: Response) => {
+    try {
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
+        const invoiceId = new ObjectId(req.params.invoiceId)
+
+        const result = await getInvoiceService(userId, customerId, caseId, invoiceId)
+
+        res.json(result)
+    } catch (error) {
+        res.status(500).json('エラーが発生しました')
     }
 }

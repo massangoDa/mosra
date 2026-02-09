@@ -1,6 +1,6 @@
-import {ObjectId, ClientSession} from "mongodb";
-import {db} from "./db.js";
-import * as types from "../types/types.js"
+import { ObjectId, ClientSession } from 'mongodb'
+import { db } from './db.js'
+import * as types from '../types/types.js'
 
 export const createCalendarEvent = async (eventData: types.InputCalendarEvent, options?: { session?: ClientSession }) => {
     try {
@@ -20,16 +20,13 @@ export const createCalendarEvent = async (eventData: types.InputCalendarEvent, o
             location: eventData.location || '',
             createdAt: new Date(),
             updatedAt: new Date(),
-        };
+        }
 
-        const result = await db.collection("calendar-events").insertOne(
-            calendarEvent,
-            options?.session ? { session: options.session } : {}
-        );
+        const result = await db.collection('calendar-events').insertOne(calendarEvent, options?.session ? { session: options.session } : {})
 
-        return { eventId: result.insertedId };
+        return { eventId: result.insertedId }
     } catch (error) {
-        console.log("カレンダーイベントの操作エラー", error);
-        throw error;
+        console.log('カレンダーイベントの操作エラー', error)
+        throw error
     }
 }

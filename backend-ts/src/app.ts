@@ -1,28 +1,28 @@
-import express from "express";
-import dotenv from "dotenv";
-import {connectToMongo} from "./utils/db.js";
-import routes from "./routes/index.js";
-import * as path from "node:path";
-import {fileURLToPath} from "url";
+import express from 'express'
+import dotenv from 'dotenv'
+import { connectToMongo } from './utils/db.js'
+import routes from './routes/index.js'
+import * as path from 'node:path'
+import { fileURLToPath } from 'url'
 
-dotenv.config();
+dotenv.config()
 
-const app = express();
+const app = express()
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000
 
-app.use(express.json());
+app.use(express.json())
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-app.set("trust proxy", true);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.set('trust proxy', true)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
-app.use("/api", routes);
+app.use('/api', routes)
 
 connectToMongo().then(() => {
     app.listen(PORT, () => {
-        console.log(`サーバーが起動しました (ポート:${PORT})`);
+        console.log(`サーバーが起動しました (ポート:${PORT})`)
     })
 })
