@@ -142,13 +142,13 @@ async function fetchFormData() {
 // 送信処理
 async function onSubmit() {
   try {
-    const res = await $fetch(`${props.updateUrl}`, {
-      method: 'PUT',
-      body: form,
-      headers: {
-        Authorization: `Bearer ${useAuth().authToken.value}`
-      },
-    })
+    const cleanedData = Object.fromEntries(
+        Object.entries(form).map(([key, value]) =>
+            [key, value === '' ? null : value]
+        )
+    )
+
+    await fetchData().fetch(`${props.fetchUrl}`, 'PUT', cleanedData)
     toast.success(props.successMessage)
 
     emit("closeModal")

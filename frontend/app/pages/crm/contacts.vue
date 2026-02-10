@@ -5,6 +5,7 @@ import {fetchCustomers} from "~/api/customers";
 import type {Contacts, Customer} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchContacts} from "~/api/contacts";
+import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
 
 const contacts = ref<Contacts[]>([])
 const companyNames = ref<Record<string, string>>({});
@@ -108,7 +109,7 @@ async function loadContacts() {
 
 async function loadCompanyName(customerId: string) {
   try {
-    const res = await fetchData().fetch(API_ENDPOINTS.search.companyName(customerId))
+    const res = await fetchData().fetch(NEW_API_ENDPOINTS.search.companyName(customerId))
     companyNames.value[customerId] = res?.companyName || '';
   } catch (error) {
     console.error('Error fetching company name:', error);
@@ -186,17 +187,16 @@ onMounted(async () => {
           @refresh="loadContacts();"
       />
 
-      <TemplateModal
+      <EditModal
           v-if="showEditContactModal"
-          title="連絡先修正"
-          section-title="連絡先情報を修正"
-          :update-url="editContactUrl"
+          title="連絡先情報修正"
+          section-title="連絡先情報を修正しようとしています"
+          :fetch-url="NEW_API_ENDPOINTS.contacts.detail(selectedContactId)"
+          :update-url="NEW_API_ENDPOINTS.contacts.update(selectedContactId)"
           :fields="customerInfoFields"
           success-message="連絡先情報を保存しました"
           @close-modal="showEditContactModal = false"
-          :contactId="selectedContactId"
-          :editTransaction="true"
-          @refresh="loadContacts"
+          @refresh="loadContacts()"
       />
 
       <DeleteModal

@@ -68,7 +68,7 @@ const saveTransaction = async () => {
     return
   }
 
-  await fetchData().fetch(NEW_API_ENDPOINTS.customers.cases.invoices.transactions.create(customerId, caseId, invoiceId), 'POST', JSON.stringify(newItem.value))
+  await fetchData().fetch(NEW_API_ENDPOINTS.customers.cases.invoices.transactions.create(customerId, caseId, invoiceId), 'POST', newItem.value)
 
   transaction.value.push({ ...newItem.value })
   isAdding.value = false
@@ -82,7 +82,7 @@ const updateTransaction = async () => {
     return
   }
 
-  await fetchData().fetch(NEW_API_ENDPOINTS.customers.cases.invoices.transactions.update(customerId, caseId, invoiceId, editingId.value), 'PUT', JSON.stringify(editForm.value))
+  await fetchData().fetch(NEW_API_ENDPOINTS.customers.cases.invoices.transactions.update(customerId, caseId, invoiceId, editingId.value), 'PUT', editForm.value)
 
   const index = transaction.value.findIndex(t => t._id === editingId.value)
   transaction.value[index] = { ...editForm.value }

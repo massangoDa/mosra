@@ -10,7 +10,7 @@ export const fetchData = () => {
 
         // bodyがある場合のみ追加
         if (body) {
-            options.body = JSON.stringify(body)
+            options.body = body
         }
 
         return await $fetch(url, options)

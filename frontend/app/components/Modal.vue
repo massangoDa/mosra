@@ -42,12 +42,15 @@ const emit = defineEmits<{
   'update:formData': [value: any]
 }>()
 
+// 日付文字列をHTML input[type="date"]形式に変換 (YYYY-MM-DD)
 function formatDateToInputValue(dateString: string): string {
   if (!dateString) return '';
+  // YYYY/MM/DD形式をYYYY-MM-DD形式に変換
   return dateString.replace(/\//g, '-');
 }
 function formatInputValueToDate(inputValue: string): string {
   if (!inputValue) return '';
+  // YYYY-MM-DD形式をYYYY/MM/DD形式に変換
   return inputValue.replace(/-/g, '/');
 }
 function formatDateTimeToInputValue(isoString: string): string {
@@ -57,19 +60,29 @@ function formatDateTimeToInputValue(isoString: string): string {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
+
 function formatInputValueToDateTime(timeValue: string, fieldName: string): string {
   if (!timeValue) return '';
+
+  // form.dateの値を取得（YYYY/MM/DD形式）
   const dateStr = form.date;
   if (!dateStr) {
     console.warn(`date field is empty when setting ${fieldName}`);
-    return timeValue;
+    return timeValue; // 日付がない場合は時間だけ返す
   }
+
+  // YYYY/MM/DDをYYYY-MM-DDに変換
   const datePart = dateStr.replace(/\//g, '-');
+
+  // 日付と時間を結合してDateオブジェクトを作成
   const dateTime = new Date(`${datePart}T${timeValue}:00`);
+
+  // 無効な日付チェック
   if (isNaN(dateTime.getTime())) {
     console.error(`Invalid datetime for ${fieldName}: ${datePart}T${timeValue}:00`);
     return timeValue;
   }
+
   return dateTime.toISOString();
 }
 
@@ -80,7 +93,13 @@ const form = computed({
 
 async function onSubmit() {
   try {
-    const res = await fetchData().fetch(props.submitUrl, "POST", form.value)
+    const cleanedData = Object.fromEntries(
+        Object.entries(form.value).map(([key, value]) =>
+            [key, value === '' ? null : value]
+        )
+    )
+
+    const res = await fetchData().fetch(props.submitUrl, "POST", cleanedData)
     toast.success(props.successMessage);
     emit("closeModal")
     emit("refresh")
@@ -146,6 +165,7 @@ onMounted(() => {
                     @input="form[field.name] = formatInputValueToDate($event.target.value)"
                     :required="field.required"
                 >
+
                 <input
                     v-else-if="field.type === 'datetime'"
                     :id="field.name"
