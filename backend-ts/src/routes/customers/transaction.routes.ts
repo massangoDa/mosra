@@ -8,6 +8,8 @@ import * as transactionsController from '../../controllers/transaction.controlle
 router.get('/', authenticateToken, transactionsController.getTransactions)
 router.post('/', authenticateToken, transactionsController.createTransaction)
 
+router.get('/:transactionId/', authenticateToken, transactionsController.getTransaction)
 router.put('/:transactionId/', authenticateToken, transactionsController.updateTransaction)
+router.delete('/:transactionId/', authenticateToken, transactionsController.deleteTransaction)
 
 export default router

@@ -89,7 +89,7 @@ export const updateCustomerService = async (userId: ObjectId, customerId: Object
             }
 
             if (data.contactId) {
-                const contactResult = await db.collection<types.Customer>('contacts').findOneAndUpdate(
+                const contactResult = await db.collection<types.Contact>('contacts').findOneAndUpdate(
                     {
                         _id: data.contactId,
                         userId,

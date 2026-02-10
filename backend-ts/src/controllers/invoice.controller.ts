@@ -1,7 +1,14 @@
 import type { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import * as types from '../types/types.js'
-import { createInvoiceService, getInvoiceService, getInvoicesService } from '../services/invoice.service.js'
+import {
+    createInvoiceService,
+    deleteInvoiceService,
+    getInvoiceService,
+    getInvoicesService,
+    updateInvoiceService,
+} from '../services/invoice.service.js'
+import { InputInvoiceSchema } from '../schema/input.schema.js'
 
 export const getInvoices = async (req: Request<types.AppParams>, res: Response) => {
     try {
@@ -24,9 +31,7 @@ export const createInvoice = async (req: Request<types.AppParams>, res: Response
         const caseId = new ObjectId(req.params.caseId)
         const userId = req.user.id
 
-        const payload: types.InputInvoice = {
-            ...req.body,
-        }
+        const payload = InputInvoiceSchema.parse(req.body)
 
         await createInvoiceService(userId, customerId, caseId, payload)
 
@@ -53,5 +58,37 @@ export const getInvoice = async (req: Request<types.AppParams>, res: Response) =
         res.json(result)
     } catch (error) {
         res.status(500).json('エラーが発生しました')
+    }
+}
+
+export const updateInvoice = async (req: Request<types.AppParams>, res: Response) => {
+    try {
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
+        const invoiceId = new ObjectId(req.params.invoiceId)
+
+        const payload = InputInvoiceSchema.parse(req.body)
+
+        await updateInvoiceService(userId, customerId, caseId, invoiceId, payload)
+
+        res.status(200).json('請求書を更新しました')
+    } catch (error) {
+        res.status(500).json('エラーが発生しました')
+    }
+}
+
+export const deleteInvoice = async (req: Request<types.AppParams>, res: Response) => {
+    try {
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
+        const invoiceId = new ObjectId(req.params.invoiceId)
+
+        await deleteInvoiceService(userId, customerId, caseId, invoiceId)
+
+        res.status(200).json('請求書を削除しました')
+    } catch (error) {
+        res.status(500).json("エラーが発生しました")
     }
 }

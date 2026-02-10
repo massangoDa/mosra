@@ -1,7 +1,14 @@
 import type { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import * as types from '../types/types.js'
-import { createTransactionService, getTransactionsService, updateTransactionService } from '../services/transaction.service.js'
+import {
+    createTransactionService,
+    deleteTransactionService,
+    getTransactionService,
+    getTransactionsService,
+    updateTransactionService,
+} from '../services/transaction.service.js'
+import { InputTransactionSchema } from '../schema/input.schema.js'
 
 export const getTransactions = async (req: Request<types.AppParams>, res: Response) => {
     try {
@@ -26,9 +33,7 @@ export const createTransaction = async (req: Request<types.AppParams>, res: Resp
         const caseId = new ObjectId(req.params.caseId)
         const invoiceId = new ObjectId(req.params.invoiceId)
 
-        const payload: types.InputTransaction = {
-            ...req.body
-        }
+        const payload = InputTransactionSchema.parse(req.body)
 
         await createTransactionService(userId, customerId, caseId, invoiceId, payload)
 
@@ -36,6 +41,22 @@ export const createTransaction = async (req: Request<types.AppParams>, res: Resp
     } catch (error) {
         console.log('取引履歴作成でエラー発生')
         res.status(500).json('エラーが発生しました')
+    }
+}
+
+export const getTransaction = async (req: Request<types.AppParams>, res: Response) => {
+    try {
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
+        const invoiceId = new ObjectId(req.params.invoiceId)
+        const transactionId = new ObjectId(req.params.transactionId)
+
+        const result = await getTransactionService(userId, customerId, caseId, invoiceId, transactionId)
+
+        res.json(result)
+    } catch (error) {
+        res.status(500).json("エラーが発生しました")
     }
 }
 
@@ -47,9 +68,7 @@ export const updateTransaction = async (req: Request<types.AppParams>, res: Resp
         const invoiceId = new ObjectId(req.params.invoiceId)
         const transactionId = new ObjectId(req.params.transactionId)
 
-        const payload: types.InputTransaction = {
-            ...req.body
-        }
+        const payload = InputTransactionSchema.parse(req.body)
 
         await updateTransactionService(userId, customerId, caseId, invoiceId, transactionId, payload)
 
@@ -57,5 +76,21 @@ export const updateTransaction = async (req: Request<types.AppParams>, res: Resp
     } catch (error) {
         console.log('取引履歴更新でエラー発生')
         res.status(500).json('エラーが発生しました')
+    }
+}
+
+export const deleteTransaction = async (req: Request<types.AppParams>, res: Response) => {
+    try {
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+        const caseId = new ObjectId(req.params.caseId)
+        const invoiceId = new ObjectId(req.params.invoiceId)
+        const transactionId = new ObjectId(req.params.transactionId)
+
+        await deleteTransactionService(userId, customerId, caseId, invoiceId, transactionId)
+
+        res.status(200).json('取引履歴が削除されました')
+    } catch (error) {
+        res.status(500).json("エラーが発生しました")
     }
 }

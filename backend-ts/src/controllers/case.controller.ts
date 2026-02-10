@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import * as types from '../types/types.js'
 import { createCaseService, deleteCaseService, getCaseService, getCasesService, updateCaseService } from '../services/case.service.js'
+import { InputCaseSchema } from '../schema/input.schema.js'
 
 export const getCases = async (req: Request<types.AppParams>, res: Response) => {
     try {
@@ -22,15 +23,13 @@ export const createCase = async (req: Request<types.AppParams>, res: Response) =
         const userId = req.user.id
         const customerId = new ObjectId(req.params.customerId)
 
-        const payload: types.InputCase = {
-            ...req.body,
-        }
+        const payload = InputCaseSchema.parse(req.body)
 
         await createCaseService(userId, customerId, payload)
 
         res.status(201).json('案件を作成しました')
     } catch (error) {
-        console.log('案件作成でエラー')
+        console.log('案件作成でエラー', error)
         res.status(500).json('エラーが発生しました')
     }
 }
@@ -56,9 +55,7 @@ export const updateCase = async (req: Request<types.AppParams>, res: Response) =
         const caseId = new ObjectId(req.params.caseId)
         const userId = req.user.id
 
-        const payload: types.InputCase = {
-            ...req.body,
-        }
+        const payload = InputCaseSchema.parse(req.body)
 
         await updateCaseService(userId, customerId, caseId, payload)
 

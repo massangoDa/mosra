@@ -1,19 +1,22 @@
 import type { ObjectId } from 'mongodb'
 import type { ParamsDictionary } from 'express-serve-static-core'
+import { InputCaseSchema, InputContactSchema, InputCustomerSchema, InputInvoiceSchema, InputTransactionSchema } from '../schema/input.schema.js'
+import * as z from "zod"
 
 export interface AppParams extends ParamsDictionary {
     customerId?: string
     caseId?: string
     invoiceId?: string
     transactionId?: string
+    contactId?: string
 }
 
 export interface ServiceParams {
     userId: ObjectId
-    customerId?: ObjectId
-    caseId?: ObjectId
-    invoiceId?: ObjectId
-    transactionId?: ObjectId
+    customerId: ObjectId
+    caseId: ObjectId
+    invoiceId: ObjectId
+    transactionId: ObjectId
 }
 
 export interface User {
@@ -32,15 +35,7 @@ export interface LoginHistory {
     device: string
 }
 
-export interface InputCustomer {
-    companyName: string
-    type?: string
-    category?: string
-    website?: string
-    phone?: string
-    description?: string
-    contactId?: ObjectId | null
-}
+export type InputCustomer = z.infer<typeof InputCustomerSchema>
 
 export interface CreateCustomer extends InputCustomer {
     userId: ObjectId
@@ -52,16 +47,7 @@ export interface Customer extends CreateCustomer {
     _id: ObjectId
 }
 
-export interface InputCase {
-    caseName: string
-    caseDescription: string
-    category: string
-    caseStartDate: Date
-    caseFinishDate: Date
-    amount: number
-    billingCycle: string
-    status: string
-}
+export type InputCase = z.infer<typeof InputCaseSchema>
 
 export interface CreateCase extends InputCase {
     userId: ObjectId
@@ -74,12 +60,7 @@ export interface Case extends CreateCase {
     _id: ObjectId
 }
 
-export interface InputInvoice {
-    invoiceNumber: string
-    totalAmount: number
-    invoiceRequest: string
-    invoiceStatus: string
-}
+export type InputInvoice = z.infer<typeof InputInvoiceSchema>
 
 export interface CreateInvoice extends InputInvoice {
     userId: ObjectId
@@ -93,12 +74,7 @@ export interface Invoice extends CreateInvoice {
     _id: ObjectId
 }
 
-export interface InputTransaction {
-    product: string
-    amount: number
-    cost: number
-    tax_rate: number
-}
+export type InputTransaction = z.infer<typeof InputTransactionSchema>
 
 export interface CreateTransaction extends InputTransaction {
     userId: ObjectId
@@ -113,12 +89,29 @@ export interface Transaction extends InputTransaction {
     _id: ObjectId
 }
 
+export type InputContact = z.infer<typeof InputContactSchema>
+
+export interface CreateContact extends InputContact {
+    userId: ObjectId
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface Contact extends CreateContact {
+    _id: ObjectId
+}
+
+
+
+
+
+
 export interface InputCalendarEvent {
     userId: ObjectId
     title: string
     description?: string
-    date: string | Date
-    startTime: string | Date
+    date?: string | Date
+    startTime?: string | Date
     endTime?: string | Date
     allDay?: boolean
     category?: string

@@ -8,6 +8,7 @@ import {
     getCustomersService,
     updateCustomerService,
 } from '../services/customer.service.js'
+import { InputCustomerSchema } from '../schema/input.schema.js'
 
 export const getCustomers = async (req: Request, res: Response) => {
     try {
@@ -22,14 +23,11 @@ export const getCustomers = async (req: Request, res: Response) => {
     }
 }
 
-export const createCustomer = async (req: Request, res: Response) => {
+export const createCustomer = async (req: Request<types.AppParams>, res: Response) => {
     try {
         const userId = req.user.id
 
-        const payload: types.InputCustomer = {
-            ...req.body,
-            contactId: req.body.contactId ? new ObjectId(req.body.contactId) : null,
-        }
+        const payload = InputCustomerSchema.parse(req.body)
 
         await createCustomerService(userId, payload)
 
@@ -63,10 +61,7 @@ export const updateCustomer = async (req: Request<types.AppParams>, res: Respons
         const customerId = new ObjectId(req.params.customerId)
         const userId = req.user.id
 
-        const payload: types.InputCustomer = {
-            ...req.body,
-            contactId: req.body.contactId ? new ObjectId(req.body.contactId) : null,
-        }
+        const payload = InputCustomerSchema.parse(req.body)
 
         await updateCustomerService(userId, customerId, payload)
 

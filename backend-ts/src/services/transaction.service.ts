@@ -27,6 +27,18 @@ export const createTransactionService = async (userId: ObjectId, customerId: Obj
     )
 }
 
+export const getTransactionService = async (userId: ObjectId, customerId: ObjectId, caseId: ObjectId, invoiceId: ObjectId, transactionId: ObjectId) => {
+    return await db.collection<types.Transaction>("transactions").findOne(
+        {
+            _id: transactionId,
+            userId,
+            customerId,
+            caseId,
+            invoiceId
+        }
+    )
+}
+
 export const updateTransactionService = async (userId: ObjectId, customerId: ObjectId, caseId: ObjectId, invoiceId: ObjectId, transactionId: ObjectId, data: types.InputTransaction) => {
     return await db.collection<types.Transaction>("transactions").findOneAndUpdate(
         {
@@ -41,6 +53,17 @@ export const updateTransactionService = async (userId: ObjectId, customerId: Obj
                 ...data,
                 updatedAt: new Date()
             }
+        }
+    )
+}
+
+export const deleteTransactionService = async (userId: ObjectId, customerId: ObjectId, caseId: ObjectId, invoiceId: ObjectId, transactionId: ObjectId) => {
+    return await db.collection<types.Transaction>("transactions").deleteOne(
+        {
+            _id: transactionId,
+            userId,
+            customerId,
+            invoiceId
         }
     )
 }

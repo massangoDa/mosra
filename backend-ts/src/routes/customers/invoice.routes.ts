@@ -9,5 +9,7 @@ router.get('/', authenticateToken, invoicesController.getInvoices)
 router.post('/', authenticateToken, invoicesController.createInvoice)
 
 router.get('/:invoiceId/', authenticateToken, invoicesController.getInvoice)
+router.put('/:invoiceId/', authenticateToken, invoicesController.updateInvoice)
+router.delete('/:invoiceId/', authenticateToken, invoicesController.deleteInvoice)
 
 export default router
