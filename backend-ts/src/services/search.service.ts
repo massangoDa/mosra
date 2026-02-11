@@ -13,3 +13,15 @@ export const searchCompanyNameService = async (userId: ObjectId, customerId: Obj
         }
     )
 }
+
+export const searchLastNameFirstNameService = async (userId: ObjectId, contactId: ObjectId) => {
+    return await db.collection("contacts").findOne(
+        {
+            _id: contactId,
+            userId
+        },
+        {
+            projection: { lastName: 1, firstName: 1 }
+        }
+    )
+}

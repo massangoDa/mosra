@@ -10,4 +10,6 @@ router.get('/:customerId', authenticateToken, customersController.getCustomer)
 router.put('/:customerId', authenticateToken, customersController.updateCustomer)
 router.delete('/:customerId', authenticateToken, customersController.deleteCustomer)
 
+router.get('/:customerId/contacts', authenticateToken, customersController.getCustomerContacts)
+
 export default router

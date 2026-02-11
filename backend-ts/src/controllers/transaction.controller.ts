@@ -40,7 +40,11 @@ export const createTransaction = async (req: Request<types.AppParams>, res: Resp
         res.status(201).json('取引履歴が作成されました')
     } catch (error) {
         console.log('取引履歴作成でエラー発生')
-        res.status(500).json('エラーが発生しました')
+        if (error instanceof Error && error.message === 'NOT_FOUND') {
+            res.status(404).json('請求書が見つかりません')
+        } else {
+            res.status(500).json('エラーが発生しました')
+        }
     }
 }
 
@@ -75,7 +79,11 @@ export const updateTransaction = async (req: Request<types.AppParams>, res: Resp
         res.status(200).json('取引履歴が更新されました')
     } catch (error) {
         console.log('取引履歴更新でエラー発生')
-        res.status(500).json('エラーが発生しました')
+        if (error instanceof Error && error.message === 'NOT_FOUND') {
+            res.status(404).json('請求書が見つかりません')
+        } else {
+            res.status(500).json('エラーが発生しました')
+        }
     }
 }
 

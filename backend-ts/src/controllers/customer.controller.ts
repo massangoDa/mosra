@@ -4,6 +4,7 @@ import * as types from '../types/types.js'
 import {
     createCustomerService,
     deleteCustomerService,
+    getCustomerContactsService,
     getCustomerService,
     getCustomersService,
     updateCustomerService,
@@ -91,5 +92,17 @@ export const deleteCustomer = async (req: Request<types.AppParams>, res: Respons
         } else {
             res.status(500).json('エラーが発生しました')
         }
+    }
+}
+
+export const getCustomerContacts = async (req: Request<types.AppParams>, res: Response) => {
+    try {
+        const userId = req.user.id
+        const customerId = new ObjectId(req.params.customerId)
+
+        const contacts = await getCustomerContactsService(userId, customerId)
+        res.json(contacts)
+    } catch (error) {
+        res.status(500).json('エラーが発生しました')
     }
 }

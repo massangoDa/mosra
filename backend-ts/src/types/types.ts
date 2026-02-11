@@ -85,7 +85,7 @@ export interface CreateTransaction extends InputTransaction {
     updatedAt: Date
 }
 
-export interface Transaction extends InputTransaction {
+export interface Transaction extends CreateTransaction {
     _id: ObjectId
 }
 

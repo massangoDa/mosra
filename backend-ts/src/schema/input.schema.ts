@@ -9,7 +9,6 @@ export const InputCustomerSchema = z.object({
     website: zString(),
     phone: zString(),
     description: zString(),
-    contactId: zString().transform(val => val ? new ObjectId(val) : null),
 })
 
 export const InputCaseSchema = z.object({

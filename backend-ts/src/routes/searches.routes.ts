@@ -6,5 +6,6 @@ import * as searchesController from '../controllers/searches.controller.js'
 // search/
 
 router.get('/customer/:customerId/companyName', authenticateToken, searchesController.searchCompanyName)
+router.get('/contact/:contactId/lastNameFirstName', authenticateToken, searchesController.searchLastNameFirstName)
 
 export default router

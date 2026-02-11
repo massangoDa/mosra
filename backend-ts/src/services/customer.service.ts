@@ -30,28 +30,6 @@ export const createCustomerService = async (userId: ObjectId, data: types.InputC
             if (!result.insertedId) {
                 throw new Error('NOT_FOUND')
             }
-
-            const customerId = result.insertedId
-
-            if (data.contactId) {
-                const contactResult = await db.collection('contacts').findOneAndUpdate(
-                    {
-                        _id: data.contactId,
-                        userId,
-                    },
-                    {
-                        $set: {
-                            customerId: customerId,
-                            updatedAt: new Date(),
-                        },
-                    },
-                    { session }
-                )
-
-                if (!contactResult) {
-                    throw new Error('NOT_FOUND')
-                }
-            }
         })
     } finally {
         await session.endSession()
@@ -86,26 +64,6 @@ export const updateCustomerService = async (userId: ObjectId, customerId: Object
 
             if (!result) {
                 throw new Error('NOT_FOUND')
-            }
-
-            if (data.contactId) {
-                const contactResult = await db.collection<types.Contact>('contacts').findOneAndUpdate(
-                    {
-                        _id: data.contactId,
-                        userId,
-                    },
-                    {
-                        $set: {
-                            customerId,
-                            updatedAt: new Date(),
-                        },
-                    },
-                    { session }
-                )
-
-                if (!contactResult) {
-                    throw new Error('NOT_FOUND')
-                }
             }
         })
     } finally {
@@ -155,4 +113,15 @@ export const deleteCustomerService = async (userId: ObjectId, customerId: Object
     } finally {
         await session.endSession()
     }
+}
+
+export const getCustomerContactsService = async (userId: ObjectId, customerId: ObjectId) => {
+    return await db
+        .collection('contacts')
+        .find({
+            userId,
+            customerId,
+        })
+        .sort({ createdAt: -1 })
+        .toArray()
 }
