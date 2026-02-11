@@ -1,5 +1,6 @@
 export const NEW_API_ENDPOINTS = {
     customers: {
+        list: `/api/customers`,
         detail: (customerId: string) => `/api/customers/${customerId}`,
         update: (customerId: string) => `/api/customers/${customerId}`,
         cases: {
@@ -17,7 +18,8 @@ export const NEW_API_ENDPOINTS = {
                     update: (customerId: string, caseId: string, invoiceId: string, transactionId: string) => `/api/customers/${customerId}/cases/${caseId}/invoices/${invoiceId}/transactions/${transactionId}`
                 }
             }
-        }
+        },
+        contacts: (customerId: string) => `/api/customers/${customerId}/contacts`
     },
     contacts: {
         list: `/api/contacts`,
@@ -27,6 +29,7 @@ export const NEW_API_ENDPOINTS = {
         update: (contactId: string) => `/api/contacts/${contactId}`
     },
     search: {
-        companyName: (customerId: string) => `/api/search/customer/${customerId}/companyName`
+        companyName: (customerId: string) => `/api/search/customer/${customerId}/companyName`,
+        contactName: (contactId: string) => `/api/search/contact/${contactId}/lastNameFirstName`
     }
 }

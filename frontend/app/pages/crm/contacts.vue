@@ -6,8 +6,11 @@ import type {Contacts, Customer} from "~/types/types";
 import {API_ENDPOINTS} from "~/api/endpoints";
 import {fetchContacts} from "~/api/contacts";
 import {NEW_API_ENDPOINTS} from "~/api/nendpoints";
+import {useCustomerStore} from "~/store/customer";
+import {useDataLoader} from "#imports";
 
 const contacts = ref<Contacts[]>([])
+const customers = ref<Customer[]>([])
 const companyNames = ref<Record<string, string>>({});
 
 definePageMeta({
@@ -32,13 +35,6 @@ function openDeleteModal(contactId: string) {
 const submitUrl = computed(() =>
     API_ENDPOINTS.contacts.create
 )
-
-const editContactUrl = computed(() =>
-    selectedContactId.value
-        ? API_ENDPOINTS.contacts.update(selectedContactId.value)
-        : ""
-)
-
 
 const deleteContactUrl = computed(() =>
     API_ENDPOINTS.contacts.delete(selectedContactId.value)
@@ -76,6 +72,18 @@ const customerInfoFields = computed(() =>[
       placeholder: '',
       rows: '3',
       fullWidth: true
+    },
+    {
+      name: 'customerId',
+      label: '取引先',
+      type: 'select',
+      options: [
+        { label: '指定なし', value: '' },
+          ...customers.value.map(customer => ({
+            label: `${customer.companyName}`.trim(),
+            value: customer._id
+          }))
+      ]
     },
   ]
 )
@@ -118,6 +126,7 @@ async function loadCompanyName(customerId: string) {
 
 onMounted(async () => {
   await loadContacts();
+  await useDataLoader().loadData(NEW_API_ENDPOINTS.customers.list, customers);
 })
 </script>
 

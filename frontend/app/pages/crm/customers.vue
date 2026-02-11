@@ -16,7 +16,6 @@ definePageMeta({
 const toast = useToast();
 
 const customers = ref<Customer[]>([])
-const contacts = ref<Contacts[]>([])
 const showCustomerInfoModal = ref(false);
 const showCustomerEditModal = ref(false);
 const showDeleteInvoiceModal = ref(false);
@@ -91,18 +90,6 @@ const customerInfoFields = computed(() =>[
       rows: '3',
       fullWidth: true
     },
-    {
-      name: 'contactId',
-      label: '担当者',
-      type: 'select',
-      options: [
-        { label: '指定なし', value: '' },
-        ...contacts.value.map(contact => ({
-          label: `${contact.lastName} ${contact.firstName || ''}`.trim(),
-          value: contact._id
-        }))
-      ]
-    }
   ]
 )
 
@@ -129,7 +116,6 @@ async function loadCustomers() {
 
 onMounted(async () => {
   await loadCustomers()
-  await useDataLoader().loadData(NEW_API_ENDPOINTS.contacts.list, contacts)
 })
 </script>
 

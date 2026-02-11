@@ -4,7 +4,6 @@ interface SidebarLink {
   icon: string;
   to: string;
 }
-
 defineProps({
   title: {
     type: String,

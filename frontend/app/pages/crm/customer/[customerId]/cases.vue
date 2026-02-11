@@ -44,6 +44,10 @@ const caseFormData = reactive({
   billingCycle: ''
 })
 
+const hasCases = computed(() => {
+  return caseData.value && caseData.value.length > 0
+})
+
 const caseFields = computed(() => [
   {
     name: 'caseName',
@@ -155,6 +159,15 @@ onMounted(async () => {
       <template #header-right>
         <button @click="showCaseModal = true" class="NewInfoButton">+ 案件追加</button>
       </template>
+      <div v-if="!hasCases" class="make-manager">
+        <div class="section">
+          <div class="content">
+            <div class="message-item">
+              <p>まだ案件が登録されていません。最初の案件を登録して、プロジェクトをスタートしましょう！</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <h2>案件</h2>
       <div class="section">
         <div class="content">
